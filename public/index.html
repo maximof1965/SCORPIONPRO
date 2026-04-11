@@ -1140,17 +1140,17 @@
             <h1>BUSCAR ARTÍCULO</h1>
             <div class="form-group autocomplete-wrapper">
                 <label>NUMERO</label>
-                <input type="tel" id="busqueda-inicial-numero" placeholder="Escriba para buscar..." maxlength="6" pattern="[0-9]{0,6}" oninput="buscarLive('numero', this.value, 'ac-numero')">
+                <input type="tel" id="busqueda-inicial-numero" placeholder="Escriba para buscar..." maxlength="6" pattern="[0-9]{0,6}" autocomplete="off" oninput="buscarLive('numero', this.value, 'ac-numero')">
                 <div id="ac-numero" class="autocomplete-results"></div>
             </div>
             <div class="form-group autocomplete-wrapper">
                 <label>NOMBRE</label>
-                <input type="text" id="busqueda-inicial-nombre" placeholder="Escriba para buscar..." oninput="buscarLive('nombre', this.value, 'ac-nombre')">
+                <input type="text" id="busqueda-inicial-nombre" placeholder="Escriba para buscar..." autocomplete="off" oninput="buscarLive('nombre', this.value, 'ac-nombre')">
                 <div id="ac-nombre" class="autocomplete-results"></div>
             </div>
             <div class="form-group autocomplete-wrapper">
                 <label>CEDULA</label>
-                <input type="tel" id="busqueda-inicial-cedula" placeholder="Escriba para buscar..." oninput="buscarLive('cedula', this.value, 'ac-cedula')">
+                <input type="tel" id="busqueda-inicial-cedula" placeholder="Escriba para buscar..." autocomplete="off" oninput="buscarLive('cedula', this.value, 'ac-cedula')">
                 <div id="ac-cedula" class="autocomplete-results"></div>
             </div>
             <div class="center">

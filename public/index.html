@@ -1,0 +1,3923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCORPION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Fondo principal con imagen */
+        body {
+            font-family: 'Cinzel', serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Contenedor de fondo con imagen - Resolución original sin pérdida de calidad */
+        /* Compatible con GitHub Pages - usa ruta relativa desde assets/ */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            /* Ruta relativa compatible con GitHub Pages */
+            /* Para usar WEBP, reemplaza la siguiente línea por: url('assets/scorpion.webp') */
+            background-image: url('assets/SCORPIONPLATEADO.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+        
+        /* Contenedor principal del contenido */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            min-height: 100vh;
+        }
+        
+        body > *:not(.content-wrapper):not(script) {
+            position: relative;
+            z-index: 2;
+        }
+        
+        
+        h1 {
+            text-align: center;
+            color: #000000;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-family: 'Cinzel', serif;
+        }
+        
+        /* Estilo especial para el título SCORPION en pantalla inicial */
+        #screen-inicial h1 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #000000;
+            font-size: 14px;
+            font-family: 'Cinzel', serif;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #1c1c22;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Cinzel', serif;
+            background-color: #0f0f12;
+            color: #e6e8eb;
+        }
+        
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        .radio-group input[type="radio"] {
+            margin-right: 8px;
+            width: auto;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 5px;
+            font-family: 'Cinzel', serif;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #45a049;
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            box-shadow: 0 0 25px rgba(60, 60, 62, 0.6), 0 6px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            transform: translateY(-2px);
+        }
+        
+        .btn-back {
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-back::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .btn-back:hover {
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            box-shadow: 0 0 25px rgba(60, 60, 62, 0.6), 0 6px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            transform: translateY(-2px);
+        }
+        
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .btn-operation {
+            padding: 15px 20px;
+            font-size: 14px;
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-operation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .btn-operation:hover {
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            box-shadow: 0 0 25px rgba(60, 60, 62, 0.6), 0 6px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            transform: translateY(-2px);
+        }
+        
+        .btn-turno {
+            padding: 15px 30px;
+            font-size: 16px;
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-turno::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .btn-turno:hover {
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            box-shadow: 0 0 25px rgba(60, 60, 62, 0.6), 0 6px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            transform: translateY(-2px);
+        }
+        
+        .success-message {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .success-message p,
+        .success-message h2 {
+            color: white !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+        
+        .error-message {
+            background: #f44336;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .error-message p,
+        .error-message h2 {
+            color: white !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+        
+        .search-results {
+            background: #0f0f12;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #1c1c22;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #1c1c22;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #b8bcc2;
+            min-width: 150px;
+            font-family: 'Cinzel', serif;
+        }
+        
+        .result-value {
+            color: #e6e8eb;
+            flex: 1;
+            font-family: 'Cinzel', serif;
+        }
+        
+        /* Estilos para tabla tipo Excel - VERIFICAR */
+        .tabla-verificar {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Courier Prime', monospace;
+            font-size: 12px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            table-layout: fixed; /* Fuerza anchos uniformes */
+        }
+        
+        .tabla-verificar thead {
+            background: #4472C4;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .tabla-verificar th {
+            padding: 10px 8px;
+            text-align: left;
+            border: 1px solid #b4c7e7;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .tabla-verificar tbody tr {
+            background: white;
+        }
+        
+        .tabla-verificar tbody tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+        
+        .tabla-verificar tbody tr:hover {
+            background: #d9e1f2;
+        }
+        
+        .tabla-verificar td {
+            padding: 8px;
+            border: 1px solid #d0cece;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
+        }
+        
+        .tabla-verificar td:first-child,
+        .tabla-verificar th:first-child {
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        /* Encabezado de tabla EXISTENTES */
+        .encabezado-tabla-verificar {
+            background: #4472C4;
+            color: white;
+            padding: 12px 15px;
+            border: 1px solid #b4c7e7;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .encabezado-tabla-verificar .titulo {
+            font-weight: 700;
+        }
+        
+        .encabezado-tabla-verificar .total {
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+        
+        /* Espaciado entre tablas */
+        .tabla-verificar-wrapper {
+            margin-bottom: 30px;
+        }
+        
+        /* Contenedor de resultados optimizado */
+        #resultados-verificar-container {
+            margin: 20px 0;
+            overflow-x: auto;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+        }
+        
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            .tabla-verificar {
+                font-size: 10px;
+                table-layout: fixed; /* Mantener estructura de tabla para alineación */
+                width: 100%;
+            }
+            
+            .tabla-verificar th,
+            .tabla-verificar td {
+                padding: 6px 4px;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+            
+            .tabla-verificar th {
+                white-space: normal;
+                font-size: 9px;
+                line-height: 1.2;
+            }
+            
+            .tabla-verificar td {
+                font-size: 9px;
+                line-height: 1.3;
+            }
+            
+            .encabezado-tabla-verificar {
+                padding: 10px 12px;
+                font-size: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .encabezado-tabla-verificar .total {
+                align-self: flex-end;
+                font-size: 11px;
+                padding: 3px 10px;
+            }
+            
+            .tabla-verificar-wrapper {
+                margin-bottom: 20px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .tabla-verificar {
+                font-size: 8px;
+                table-layout: fixed; /* Mantener estructura de tabla */
+            }
+            
+            .tabla-verificar th,
+            .tabla-verificar td {
+                padding: 4px 2px;
+            }
+            
+            .tabla-verificar th {
+                white-space: normal;
+                word-break: break-word;
+                font-size: 8px;
+                line-height: 1.2;
+            }
+            
+            .tabla-verificar td {
+                font-size: 8px;
+                line-height: 1.3;
+            }
+            
+            .encabezado-tabla-verificar {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+            
+            .encabezado-tabla-verificar .titulo {
+                font-size: 11px;
+            }
+            
+            .encabezado-tabla-verificar .total {
+                font-size: 10px;
+                padding: 2px 8px;
+            }
+            
+            #resultados-verificar-container {
+                padding: 5px;
+                margin: 15px 0;
+                max-height: 65vh;
+            }
+            
+            .tabla-verificar-wrapper {
+                margin-bottom: 15px;
+            }
+        }
+        
+        /* Optimización adicional para pantallas muy pequeñas */
+        @media (max-width: 360px) {
+            .tabla-verificar {
+                font-size: 7px;
+                table-layout: fixed; /* Mantener estructura de tabla */
+            }
+            
+            .tabla-verificar th,
+            .tabla-verificar td {
+                padding: 3px 1px;
+            }
+            
+            .tabla-verificar th {
+                white-space: normal;
+                word-break: break-word;
+                font-size: 7px;
+                line-height: 1.2;
+            }
+            
+            .tabla-verificar td {
+                font-size: 7px;
+                line-height: 1.3;
+            }
+            
+            .encabezado-tabla-verificar {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+            
+            .encabezado-tabla-verificar .titulo {
+                font-size: 10px;
+            }
+            
+            .encabezado-tabla-verificar .total {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+        }
+        
+        .result-value:empty::before {
+            content: "(vacío)";
+            color: #999;
+            font-style: italic;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .center {
+            text-align: center;
+        }
+        
+        p {
+            font-family: 'Cinzel', serif;
+        }
+        
+        span {
+            font-family: 'Cinzel', serif;
+        }
+        
+        div {
+            font-family: 'Cinzel', serif;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0;
+            color: #000000;
+            font-family: 'Cinzel', serif;
+        }
+        
+        /* Estilos para campos dinámicos de CONTROL */
+        .control-numero-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .control-numero-row input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #1c1c22;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Cinzel', serif;
+            background-color: #0f0f12;
+            color: #e6e8eb;
+        }
+        
+        .control-numero-row input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .btn-add-numero {
+            padding: 12px 18px;
+            font-size: 20px;
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            min-width: 50px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-add-numero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .btn-add-numero:hover {
+            background: linear-gradient(180deg, #1A1A1C 0%, #0A0A0A 50%, #000000 100%);
+            box-shadow: 0 0 25px rgba(60, 60, 62, 0.6), 0 6px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            /* Mejorar rendimiento en mobile: cambiar background-attachment pero mantener calidad */
+            body::before {
+                background-attachment: scroll;
+                background-size: cover;
+            }
+            
+            .content-wrapper {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .btn-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .btn-operation {
+                padding: 12px;
+                font-size: 12px;
+            }
+        }
+        
+        /* Media query para tablets */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            body::before {
+                background-attachment: scroll;
+                background-size: cover;
+            }
+            
+            .content-wrapper {
+                padding: 24px;
+            }
+            
+            /* Botones página principal: más grandes y cómodos para tablet */
+            #screen-inicial .menu-inicial {
+                gap: 22px !important;
+                margin-top: 36px !important;
+            }
+            
+            #screen-inicial .btn-menu-inicial {
+                width: 320px !important;
+                min-width: 280px;
+                padding: 18px 28px;
+                font-size: 18px;
+                margin: 6px;
+            }
+            
+            #screen-inicial h1 {
+                font-size: 36px;
+                margin-bottom: 24px;
+            }
+            
+            /* Contenedor resultados de búsqueda: ocupa más pantalla */
+            #screen-resultados-busqueda #resultados-container {
+                min-height: 55vh;
+                max-height: 72vh;
+                padding: 24px;
+                margin: 24px 0;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #screen-resultados-busqueda #resultados-container > div:first-child {
+                font-size: 16px;
+                margin-bottom: 18px;
+            }
+            
+            #screen-resultados-busqueda .result-item {
+                padding: 14px 12px;
+                font-size: 15px;
+            }
+            
+            #screen-resultados-busqueda .result-label {
+                min-width: 160px;
+                font-size: 15px;
+            }
+            
+            #screen-resultados-busqueda .result-value {
+                font-size: 15px;
+            }
+            
+            #screen-resultados-busqueda h1 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+        }
+        
+        /* Media query para pantallas muy pequeñas (mobile pequeño) */
+        @media (max-width: 480px) {
+            body::before {
+                background-attachment: scroll;
+                background-size: cover;
+            }
+            
+            .content-wrapper {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <!-- Pantalla Inicial -->
+        <div id="screen-inicial">
+            <h1>скорпион</h1>
+            <div class="center menu-inicial" style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px;">
+                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoIngreso()" style="width: 200px;">INGRESO</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarBusquedaInicial()" style="width: 200px;">BUSCAR</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoBar()" style="width: 200px;">BAR</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGuardadero()" style="width: 200px;">GUARDADERO</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarCajaBaseCierre()" style="width: 200px;">CAJA</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarControl()" style="width: 200px;">CONTROL</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGastos()" style="width: 200px;">GASTOS</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarFechaVerificar()" style="width: 200px;">VERIFICAR</button>
+            </div>
+        </div>
+        
+        <!-- Selección de Turno para INGRESO desde pantalla principal -->
+        <div id="screen-turno-ingreso" class="hidden">
+            <h1>SCORPION - INGRESO</h1>
+            <div class="subtitle center">Seleccione Turno:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarTurnoIngreso('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoIngreso('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoIngreso('3')">TURNO 3</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">← Volver al Inicio</button>
+            </div>
+        </div>
+        
+        <!-- Selección de Turno (para operaciones desde identificador - ya no se usa desde pantalla principal) -->
+        <div id="screen-turno" class="hidden">
+            <h1>SCORPION</h1>
+            <div class="subtitle">Artículo: <span id="turno-identificador"></span></div>
+            <div class="subtitle center">Seleccione Turno:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarTurno('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurno('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurno('3')">TURNO 3</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">← Volver al Inicio</button>
+            </div>
+        </div>
+        
+        <!-- Botones de Operaciones -->
+        <div id="screen-operaciones" class="hidden">
+            <h1>SCORPION</h1>
+            <div class="subtitle">Artículo: <span id="operaciones-identificador"></span> | Turno: <span id="operaciones-turno"></span></div>
+            <div class="btn-grid">
+                <button class="btn-operation" onclick="mostrarFormulario('ingreso')">INGRESO</button>
+                <button class="btn-operation" onclick="mostrarFormulario('abono')">ABONO</button>
+                <button class="btn-operation" onclick="mostrarFormulario('pedir_sin_pagar')">PEDIR SIN PAGAR</button>
+                <button class="btn-operation" onclick="mostrarFormulario('intereses')">INTERESES</button>
+                <button class="btn-operation" onclick="mostrarFormulario('espera')">ESPERA</button>
+                <button class="btn-operation" onclick="mostrarFormulario('busqueda')">BUSQUEDA</button>
+                <button class="btn-operation" onclick="mostrarFormulario('salida')">SALIDA</button>
+                <button class="btn-operation" onclick="mostrarFormulario('aumento')">AUMENTO</button>
+                <button class="btn-operation" onclick="mostrarFormulario('ventas')">VENTAS</button>
+                <button class="btn-operation" onclick="mostrarFormulario('devolucion')">DEVOLUCION</button>
+                <button class="btn-operation" onclick="mostrarFormulario('gastos')">GASTOS</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Botones de Operaciones desde Resultados de Búsqueda (sin INGRESO ni BUSQUEDA) -->
+        <div id="screen-operaciones-desde-busqueda" class="hidden">
+            <h1>SCORPION</h1>
+            <div class="subtitle">Artículo: <span id="operaciones-desde-busqueda-identificador"></span> | Turno: <span id="operaciones-desde-busqueda-turno"></span></div>
+            <div class="btn-grid">
+                <button class="btn-operation" onclick="mostrarFormulario('abono')">ABONO</button>
+                <button class="btn-operation" onclick="mostrarFormulario('pedir_sin_pagar')">PEDIR SIN PAGAR</button>
+                <button class="btn-operation" onclick="mostrarFormulario('intereses')">INTERESES</button>
+                <button class="btn-operation" onclick="mostrarFormulario('espera')">ESPERA</button>
+                <button class="btn-operation" onclick="mostrarFormulario('salida')">SALIDA</button>
+                <button class="btn-operation" onclick="mostrarFormulario('aumento')">AUMENTO</button>
+                <button class="btn-operation" onclick="mostrarFormulario('ventas')">VENTAS</button>
+                <button class="btn-operation" onclick="mostrarFormulario('devolucion')">DEVOLUCION</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-back" onclick="volverAInicio()">← Volver al Inicio</button>
+            </div>
+        </div>
+        
+        <!-- Formulario INGRESO -->
+        <div id="form-ingreso" class="hidden">
+            <h1>INGRESO</h1>
+            <div class="form-group">
+                <label>NUMERO(ING) *</label>
+                <input type="tel" id="ingreso-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>VALOR (ING) *</label>
+                <input type="tel" id="ingreso-valor" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="form-group">
+                <label>V RETIRO(ING) *</label>
+                <input type="tel" id="ingreso-v_retiro" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="form-group">
+                <label>NOMBRE COMPLETO(ING) *</label>
+                <input type="text" id="ingreso-nombre_completo" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ ]+">
+            </div>
+            <div class="form-group">
+                <label>CEDULA(ING) *</label>
+                <input type="tel" id="ingreso-cedula">
+            </div>
+            <div class="form-group">
+                <label>ART(ING) *</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="ingreso-art" value="MOV"> MOV</label>
+                    <label><input type="radio" name="ingreso-art" value="DOC"> DOC</label>
+                    <label><input type="radio" name="ingreso-art" value="OTRO"> OTRO</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>DESCRIPCION</label>
+                <textarea id="ingreso-descripcion" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>LLEVAR</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="ingreso-llevar">
+                    <label for="ingreso-llevar" style="display: inline;">NO LLEVAR</label>
+                </div>
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverDesdeIngreso()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-ingreso" onclick="enviarDatos('ingreso')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario ABONO -->
+        <div id="form-abono" class="hidden">
+            <h1>ABONO</h1>
+            <div class="form-group">
+                <label>NUMERO(ABO) *</label>
+                <input type="tel" id="abono-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>ABONO *</label>
+                <input type="tel" id="abono-abono" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="form-group">
+                <label>DESCUENTO(ABO)</label>
+                <input type="tel" id="abono-descuento" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="form-group">
+                <label>RETIRO(ABO)</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="abono-retiro">
+                    <label for="abono-retiro" style="display: inline;">RETIRAR</label>
+                    <input type="checkbox" id="abono-retiro-manana">
+                    <label for="abono-retiro-manana" style="display: inline;">MAÑANA</label>
+                </div>
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-abono" onclick="enviarDatos('abono')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario PEDIR SIN PAGAR -->
+        <div id="form-pedir_sin_pagar" class="hidden">
+            <h1>PEDIR SIN PAGAR</h1>
+            <div class="form-group">
+                <label>NUMERO(RET) *</label>
+                <input type="tel" id="pedir_sin_pagar-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>RETIRO</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="pedir_sin_pagar-retiro">
+                    <label for="pedir_sin_pagar-retiro" style="display: inline;">RETIRAR</label>
+                    <input type="checkbox" id="pedir_sin_pagar-retiro-manana">
+                    <label for="pedir_sin_pagar-retiro-manana" style="display: inline;">MAÑANA</label>
+                </div>
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" onclick="enviarDatos('pedir_sin_pagar')">Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario INTERESES -->
+        <div id="form-intereses" class="hidden">
+            <h1>INTERESES</h1>
+            <div class="form-group">
+                <label>NUMERO(INT) *</label>
+                <input type="tel" id="intereses-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>INTERESES *</label>
+                <input type="tel" id="intereses-intereses" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-intereses" onclick="enviarDatos('intereses')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario ESPERA -->
+        <div id="form-espera" class="hidden">
+            <h1>ESPERA</h1>
+            <div class="form-group">
+                <label>NUMERO(ESP) *</label>
+                <input type="tel" id="espera-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>ESPERAR</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="espera-esperar">
+                    <label for="espera-esperar" style="display: inline;">ESPERAR</label>
+                </div>
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" onclick="enviarDatos('espera')">Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Pantalla para ingresar FECHA antes de VERIFICAR -->
+        <div id="screen-fecha-verificar" class="hidden">
+            <h1>VERIFICAR</h1>
+            <div class="subtitle center">Ingrese la fecha:</div>
+            <div class="form-group">
+                <label>FECHA *</label>
+                <input type="tel" id="verificar-fecha" placeholder="DD/MM/YY (ej: 25/12/24)" maxlength="10" inputmode="numeric" autocomplete="off" oninput="formatearFechaVerificar(this)" onkeypress="if(event.key==='Enter' && !document.getElementById('btn-continuar-verificar').disabled) continuarVerificar()">
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">← Volver al Inicio</button>
+                <button class="btn btn-primary" id="btn-continuar-verificar" onclick="continuarVerificar()" disabled>Continuar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario BUSQUEDA -->
+        <div id="form-busqueda" class="hidden">
+            <h1>BUSQUEDA</h1>
+            <div class="form-group">
+                <label>NUMERO(BUS)</label>
+                <input type="tel" id="busqueda-numero" placeholder="6 dígitos" maxlength="6" pattern="[0-9]{6}">
+            </div>
+            <div class="form-group">
+                <label>NOMBRE COMPLETO(BUS)</label>
+                <input type="text" id="busqueda-nombre_completo" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ ]+">
+            </div>
+            <div class="form-group">
+                <label>CEDULA(BUS)</label>
+                <input type="tel" id="busqueda-cedula">
+            </div>
+            <div class="form-group">
+                <label>ART(BUS) *</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="busqueda-art" value="MOV"> MOV</label>
+                    <label><input type="radio" name="busqueda-art" value="DC"> DC</label>
+                    <label><input type="radio" name="busqueda-art" value="OTRO"> OTRO</label>
+                </div>
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-busqueda" onclick="enviarDatos('busqueda')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario BUSQUEDA INICIAL -->
+        <div id="form-busqueda-inicial" class="hidden">
+            <h1>BUSCAR ARTÍCULO</h1>
+            <div class="form-group">
+                <label>NUMERO</label>
+                <input type="tel" id="busqueda-inicial-numero" placeholder="Opcional" maxlength="6" pattern="[0-9]{0,6}">
+            </div>
+            <div class="form-group">
+                <label>NOMBRE</label>
+                <input type="text" id="busqueda-inicial-nombre" placeholder="Opcional" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ ]*">
+            </div>
+            <div class="form-group">
+                <label>CEDULA</label>
+                <input type="tel" id="busqueda-inicial-cedula" placeholder="Opcional">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAInicio()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-buscar-inicial" onclick="enviarBusquedaInicial()">Buscar</button>
+            </div>
+        </div>
+        
+        <!-- Resultados de Búsqueda -->
+        <div id="screen-resultados-busqueda" class="hidden">
+            <h1>RESULTADOS DE BÚSQUEDA</h1>
+            <div id="resultados-container" class="search-results"></div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+            <div id="resultados-turno-buttons" class="center" style="margin-top: 20px; display: none;">
+                <div class="subtitle">Artículo: <span id="resultados-identificador"></span> - Seleccione Turno:</div>
+                <button class="btn btn-turno" onclick="seleccionarTurnoDesdeResultados('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoDesdeResultados('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoDesdeResultados('3')">TURNO 3</button>
+            </div>
+        </div>
+        
+        <!-- Resultados de VERIFICAR -->
+        <div id="screen-resultados-verificar" class="hidden">
+            <h1>VERIFICAR</h1>
+            <div id="resultados-verificar-container" style="margin: 20px 0; overflow-x: auto; max-height: 70vh; overflow-y: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Selección de Turno para BAR -->
+        <div id="screen-turno-bar" class="hidden">
+            <h1>SCORPION - BAR</h1>
+            <div class="subtitle center">Seleccione Turno:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarTurnoBar('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoBar('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoBar('3')">TURNO 3</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Selección de Turno para GUARDADERO -->
+        <div id="screen-turno-guardadero" class="hidden">
+            <h1>SCORPION - GUARDADERO</h1>
+            <div class="subtitle center">Seleccione Turno:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarTurnoGuardadero('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoGuardadero('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoGuardadero('3')">TURNO 3</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Selección de Turno para GASTOS -->
+        <div id="screen-turno-gastos" class="hidden">
+            <h1>SCORPION - GASTOS</h1>
+            <div class="subtitle center">Seleccione Turno:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarTurnoGastos('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoGastos('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoGastos('3')">TURNO 3</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Selección BASE/CIERRE para CAJA -->
+        <div id="screen-caja-base-cierre" class="hidden">
+            <h1>SCORPION - CAJA</h1>
+            <div class="subtitle center">Seleccione:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarCajaBase()">BASE</button>
+                <button class="btn btn-turno" onclick="seleccionarCajaCierre()">CIERRE</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Selección de Turno para CAJA BASE -->
+        <div id="screen-turno-caja-base" class="hidden">
+            <h1>SCORPION - CAJA BASE</h1>
+            <div class="subtitle center">Seleccione Turno:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarTurnoCajaBase('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoCajaBase('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoCajaBase('3')">TURNO 3</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="mostrarCajaBaseCierre()">← Atrás</button>
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Selección de Turno para CAJA CIERRE -->
+        <div id="screen-turno-caja-cierre" class="hidden">
+            <h1>SCORPION - CAJA CIERRE</h1>
+            <div class="subtitle center">Seleccione Turno:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarTurnoCajaCierre('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoCajaCierre('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoCajaCierre('3')">TURNO 3</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="mostrarCajaBaseCierre()">← Atrás</button>
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Formulario BAR -->
+        <div id="form-bar" class="hidden">
+            <h1>BAR</h1>
+            <div class="subtitle">Turno: <span id="bar-turno"></span></div>
+            <div class="form-group">
+                <label>VALOR *</label>
+                <input type="text" id="bar-valor" placeholder="1-3 dígitos (ej: 1, 2.5, 100)" inputmode="decimal">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="mostrarTurnoBar()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-bar" onclick="enviarDatos('bar')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario GUARDADERO -->
+        <div id="form-guardadero" class="hidden">
+            <h1>GUARDADERO</h1>
+            <div class="subtitle">Turno: <span id="guardadero-turno"></span></div>
+            <div class="form-group">
+                <label>VALOR *</label>
+                <input type="text" id="guardadero-valor" placeholder="1-3 dígitos (ej: 1, 2.5, 100)" inputmode="decimal">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="mostrarTurnoGuardadero()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-guardadero" onclick="enviarDatos('guardadero')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario GASTOS -->
+        <div id="form-gastos" class="hidden">
+            <h1>GASTOS</h1>
+            <div class="subtitle">Turno: <span id="gastos-turno"></span></div>
+            <div class="form-group">
+                <label>VALOR *</label>
+                <input type="text" id="gastos-valor" placeholder="1-3 dígitos (ej: 1, 2.5, 100)" inputmode="decimal">
+            </div>
+            <div class="form-group">
+                <label>DESCRIPCION *</label>
+                <input type="text" id="gastos-descripcion" placeholder="Descripción del gasto (letras y números)">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="mostrarTurnoGastos()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-gastos" onclick="enviarDatos('gastos')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario SALIDA -->
+        <div id="form-salida" class="hidden">
+            <h1>SALIDA</h1>
+            <div class="form-group">
+                <label>NUMERO(SAL) *</label>
+                <input type="tel" id="salida-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>VALOR(SAL) *</label>
+                <input type="tel" id="salida-valor" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="form-group">
+                <label>DESCUENTO(SAL)</label>
+                <input type="tel" id="salida-descuento" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-salida" onclick="enviarDatos('salida')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario AUMENTO -->
+        <div id="form-aumento" class="hidden">
+            <h1>AUMENTO</h1>
+            <div class="form-group">
+                <label>NUMERO(AUM) *</label>
+                <input type="tel" id="aumento-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>AUMENTO *</label>
+                <input type="tel" id="aumento-aumento" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="form-group">
+                <label>PAGO DE AUMENTO *</label>
+                <input type="tel" id="aumento-pago_aumento" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-aumento" onclick="enviarDatos('aumento')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario VENTAS -->
+        <div id="form-ventas" class="hidden">
+            <h1>VENTAS</h1>
+            <div class="form-group">
+                <label>NUMERO(VEN) *</label>
+                <input type="tel" id="ventas-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>VALOR VENTA *</label>
+                <input type="tel" id="ventas-valor_venta" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-ventas" onclick="enviarDatos('ventas')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario DEVOLUCION -->
+        <div id="form-devolucion" class="hidden">
+            <h1>DEVOLUCION</h1>
+            <div class="form-group">
+                <label>NUMERO(DEV) *</label>
+                <input type="tel" id="devolucion-numero" readonly>
+            </div>
+            <div class="form-group">
+                <label>VALOR(DEV) *</label>
+                <input type="tel" id="devolucion-valor" placeholder="2-4 dígitos" maxlength="4" pattern="[0-9]{2,4}">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAOperaciones()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-devolucion" onclick="enviarDatos('devolucion')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario CAJA BASE -->
+        <div id="form-caja_base" class="hidden">
+            <h1>CAJA BASE</h1>
+            <div class="subtitle">Turno: <span id="caja_base-turno"></span></div>
+            <div class="form-group">
+                <label>VALOR *</label>
+                <input type="text" id="caja_base-valor" placeholder="Ej: 1,250.5 o 10,680.7 (máx 5 dígitos + 1 decimal)" inputmode="decimal">
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverATurnoCajaBase()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-caja_base" onclick="enviarDatos('caja_base')" disabled>Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario CAJA CIERRE -->
+        <div id="form-caja_cierre" class="hidden">
+            <h1>CAJA CIERRE</h1>
+            <div class="subtitle">Turno: <span id="caja_cierre-turno"></span></div>
+            <div id="caja-cierre-resultados-container" style="margin-top: 20px;"></div>
+            <div class="center" style="margin-top: 40px;" id="caja-cierre-botones">
+                <p>Presione Enviar para obtener la información de cierre de caja</p>
+            </div>
+            <div class="center" style="margin-top: 40px;" id="caja-cierre-botones-enviar">
+                <button class="btn btn-back" onclick="volverATurnoCajaCierre()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-caja_cierre" onclick="enviarDatos('caja_cierre')">Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Selección ENVIOS/DEVOLUCIONES para CONTROL -->
+        <div id="screen-control-tipo" class="hidden">
+            <h1>SCORPION - CONTROL</h1>
+            <div class="subtitle center">Seleccione Tipo:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="mostrarControlFormulario('ENVIOS')">ENVIOS</button>
+                <button class="btn btn-turno" onclick="mostrarControlFormulario('DEVOLUCIONES')">DEVOLUCIONES</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+        
+        <!-- Formulario CONTROL ENVIOS -->
+        <div id="form-control-envios" class="hidden">
+            <h1>CONTROL - ENVIOS</h1>
+            <div id="control-envios-numeros-container" class="form-group">
+                <!-- Los campos se agregarán dinámicamente aquí -->
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAControlTipo()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-control-envios" onclick="enviarControl('ENVIOS')">Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Formulario CONTROL DEVOLUCIONES -->
+        <div id="form-control-devoluciones" class="hidden">
+            <h1>CONTROL - DEVOLUCIONES</h1>
+            <div id="control-devoluciones-numeros-container" class="form-group">
+                <!-- Los campos se agregarán dinámicamente aquí -->
+            </div>
+            <div class="center">
+                <button class="btn btn-back" onclick="volverAControlTipo()">← Atrás</button>
+                <button class="btn btn-primary" id="btn-enviar-control-devoluciones" onclick="enviarControl('DEVOLUCIONES')">Enviar</button>
+            </div>
+        </div>
+        
+        <!-- Mensajes -->
+        <div id="mensaje-exito" class="hidden success-message">
+            <h2 id="mensaje-exito-titulo">✅ ENVIADO EXITOSAMENTE</h2>
+            <p id="mensaje-exito-texto" style="font-size: 16px; margin: 15px 0; font-weight: 500;">Los datos se han enviado correctamente</p>
+            <p id="mensaje-exito-regreso" style="margin-top: 15px; font-size: 14px; color: rgba(255,255,255,0.8);">Regresando a inicio automáticamente...</p>
+            <div id="mensaje-exito-boton-container" style="margin-top: 20px; display: none;">
+                <button class="btn btn-primary" onclick="volverAInicio()" style="width: 150px;">INICIO</button>
+            </div>
+        </div>
+        
+        <div id="mensaje-error" class="hidden error-message"></div>
+    </div>
+    
+    <script>
+        // URL del backend SCORPION (relativa porque frontend y API están en Vercel)
+        function obtenerUrlWebhook(tipo) {
+            const rutas = {
+                'ingreso': '/api/ingreso',
+                'abono': '/api/abono',
+                'pedir_sin_pagar': '/api/pedir_sin_pagar',
+                'intereses': '/api/intereses',
+                'espera': '/api/espera',
+                'salida': '/api/salida',
+                'aumento': '/api/aumento',
+                'ventas': '/api/ventas',
+                'devolucion': '/api/devolucion',
+                'bar': '/api/bar',
+                'guardadero': '/api/guardadero',
+                'gastos': '/api/gastos',
+                'caja_base': '/api/caja',
+                'caja_cierre': '/api/caja',
+                'busqueda': '/api/buscar',
+            };
+            return rutas[tipo] || `/api/${tipo}`;
+        }
+        
+        // Estado de la aplicación
+        let estado = {
+            identificador: null,
+            turno: null,
+            desdeResultados: false,
+            listaArticulosBusqueda: null,  // Almacena la lista de artículos encontrados en búsqueda
+            tipoCaja: null,  // 'base' o 'cierre'
+            controlSubtipo: null  // 'ENVIOS' o 'DEVOLUCIONES'
+        };
+        
+        // Detectar si es móvil
+        const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Configurar campos numéricos para móvil
+        if (esMovil) {
+            document.addEventListener('DOMContentLoaded', function() {
+                const camposNumericos = document.querySelectorAll('input[type="tel"][pattern*="[0-9]"]');
+                camposNumericos.forEach(campo => {
+                    campo.setAttribute('inputmode', 'numeric');
+                });
+            });
+        }
+        
+        // Funciones de navegación
+        function mostrarPantalla(id) {
+            // Ocultar todas las pantallas, formularios y mensajes
+            document.querySelectorAll('[id^="screen"], [id^="form"], [id^="mensaje"]').forEach(el => {
+                if (el) {
+                    el.classList.add('hidden');
+                }
+            });
+            
+            // Mostrar la pantalla solicitada
+            const elemento = document.getElementById(id);
+            if (elemento) {
+                elemento.classList.remove('hidden');
+                // Forzar visibilidad por si acaso
+                elemento.style.display = '';
+            } else {
+                console.error(`Error: No se encontró el elemento con ID "${id}"`);
+            }
+        }
+        
+        function volverAInicio() {
+            estado.identificador = null;
+            estado.turno = null;
+            estado.desdeResultados = false;
+            estado.tipoCaja = null;
+            estado.controlSubtipo = null;
+            mostrarPantalla('screen-inicial');
+        }
+        
+        function volverAOperaciones() {
+            if (estado.desdeResultados) {
+                // Si viene desde resultados de búsqueda, volver a los resultados
+                mostrarPantalla('screen-resultados-busqueda');
+                // Asegurar que los botones de turno sigan visibles si hay identificador
+                if (estado.identificador) {
+                    const resultadosTurnoButtons = document.getElementById('resultados-turno-buttons');
+                    if (resultadosTurnoButtons) {
+                        resultadosTurnoButtons.style.display = 'block';
+                    }
+                }
+            } else {
+                mostrarPantalla('screen-operaciones');
+                document.getElementById('operaciones-identificador').textContent = estado.identificador;
+                document.getElementById('operaciones-turno').textContent = estado.turno;
+            }
+        }
+        
+        // Volver desde formulario INGRESO (depende de dónde vino)
+        function volverDesdeIngreso() {
+            // Si no hay identificador, viene desde pantalla principal (turno ingreso)
+            if (!estado.identificador) {
+                mostrarPantalla('screen-turno-ingreso');
+            } else {
+                // Si hay identificador, viene desde operaciones
+                volverAOperaciones();
+            }
+        }
+        
+        // Validar identificador (6 dígitos)
+        function procesarIdentificador() {
+            const identificador = document.getElementById('identificador-input').value.trim();
+            if (!identificador || identificador.length !== 6 || !/^\d{6}$/.test(identificador)) {
+                alert('El número identificador debe tener exactamente 6 dígitos');
+                return;
+            }
+            estado.identificador = identificador;
+            mostrarPantalla('screen-turno');
+            document.getElementById('turno-identificador').textContent = identificador;
+        }
+        
+        // Seleccionar turno
+        function seleccionarTurno(turno) {
+            estado.turno = turno;
+            mostrarPantalla('screen-operaciones');
+            document.getElementById('operaciones-identificador').textContent = estado.identificador;
+            document.getElementById('operaciones-turno').textContent = turno;
+        }
+        
+        // Mostrar turno para INGRESO desde pantalla principal
+        function mostrarTurnoIngreso() {
+            estado.tipoOperacion = 'ingreso';
+            estado.identificador = null; // INGRESO no requiere identificador previo
+            mostrarPantalla('screen-turno-ingreso');
+        }
+        
+        // Seleccionar turno para INGRESO desde pantalla principal
+        function seleccionarTurnoIngreso(turno) {
+            estado.turno = turno;
+            estado.identificador = null; // INGRESO no requiere identificador
+            mostrarFormulario('ingreso');
+            // El formulario INGRESO se mostrará sin número prellenado
+        }
+        
+        // Mostrar turno para BAR
+        function mostrarTurnoBar() {
+            estado.tipoOperacion = 'bar';
+            mostrarPantalla('screen-turno-bar');
+        }
+        
+        // Seleccionar turno para BAR
+        function seleccionarTurnoBar(turno) {
+            estado.turno = turno;
+            mostrarPantalla('form-bar');
+            document.getElementById('bar-turno').textContent = turno;
+            setTimeout(() => {
+                configurarValidacionesBar();
+                document.getElementById('bar-valor').focus();
+            }, 10);
+        }
+        
+        // Mostrar turno para GUARDADERO
+        function mostrarTurnoGuardadero() {
+            estado.tipoOperacion = 'guardadero';
+            mostrarPantalla('screen-turno-guardadero');
+        }
+        
+        // Seleccionar turno para GUARDADERO
+        function seleccionarTurnoGuardadero(turno) {
+            estado.turno = turno;
+            mostrarPantalla('form-guardadero');
+            document.getElementById('guardadero-turno').textContent = turno;
+            setTimeout(() => {
+                configurarValidacionesGuardadero();
+                document.getElementById('guardadero-valor').focus();
+            }, 10);
+        }
+        
+        // Mostrar turno para GASTOS
+        function mostrarTurnoGastos() {
+            estado.tipoOperacion = 'gastos';
+            mostrarPantalla('screen-turno-gastos');
+        }
+        
+        // Seleccionar turno para GASTOS
+        function seleccionarTurnoGastos(turno) {
+            estado.turno = turno;
+            mostrarPantalla('form-gastos');
+            document.getElementById('gastos-turno').textContent = turno;
+            setTimeout(() => {
+                configurarValidacionesGastos();
+                document.getElementById('gastos-valor').focus();
+            }, 10);
+        }
+        
+        // Mostrar CAJA BASE/CIERRE
+        function mostrarCajaBaseCierre() {
+            estado.tipoOperacion = 'caja';
+            mostrarPantalla('screen-caja-base-cierre');
+        }
+        
+        // Seleccionar CAJA BASE
+        function seleccionarCajaBase() {
+            estado.tipoCaja = 'base';
+            mostrarPantalla('screen-turno-caja-base');
+        }
+        
+        // Seleccionar CAJA CIERRE
+        function seleccionarCajaCierre() {
+            estado.tipoCaja = 'cierre';
+            mostrarPantalla('screen-turno-caja-cierre');
+        }
+        
+        // Seleccionar turno para CAJA BASE
+        function seleccionarTurnoCajaBase(turno) {
+            estado.turno = turno;
+            mostrarPantalla('form-caja_base');
+            document.getElementById('caja_base-turno').textContent = turno;
+            setTimeout(() => {
+                configurarValidacionesCajaBase();
+                document.getElementById('caja_base-valor').focus();
+            }, 10);
+        }
+        
+        // Seleccionar turno para CAJA CIERRE
+        function seleccionarTurnoCajaCierre(turno) {
+            estado.turno = turno;
+            mostrarPantalla('form-caja_cierre');
+            document.getElementById('caja_cierre-turno').textContent = turno;
+            
+            // Limpiar resultados anteriores y mostrar botones
+            const container = document.getElementById('caja-cierre-resultados-container');
+            const botonesEnviar = document.getElementById('caja-cierre-botones-enviar');
+            const botonesInfo = document.getElementById('caja-cierre-botones');
+            
+            if (container) container.innerHTML = '';
+            if (botonesEnviar) botonesEnviar.style.display = 'block';
+            if (botonesInfo) botonesInfo.style.display = 'block';
+            
+            // Asegurar que el botón de enviar esté habilitado (CAJA CIERRE no requiere campos de entrada)
+            const btnEnviar = document.getElementById('btn-enviar-caja_cierre');
+            if (btnEnviar) {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar';
+            }
+        }
+        
+        // Volver a turno CAJA BASE
+        function volverATurnoCajaBase() {
+            mostrarPantalla('screen-turno-caja-base');
+        }
+        
+        // Volver a turno CAJA CIERRE
+        function volverATurnoCajaCierre() {
+            mostrarPantalla('screen-turno-caja-cierre');
+        }
+        
+        // Funciones para CONTROL
+        function mostrarControl() {
+            mostrarPantalla('screen-control-tipo');
+        }
+        
+        function mostrarControlFormulario(subtipo) {
+            estado.controlSubtipo = subtipo;
+            const formId = subtipo === 'ENVIOS' ? 'form-control-envios' : 'form-control-devoluciones';
+            const containerId = subtipo === 'ENVIOS' ? 'control-envios-numeros-container' : 'control-devoluciones-numeros-container';
+            const btnId = subtipo === 'ENVIOS' ? 'btn-enviar-control-envios' : 'btn-enviar-control-devoluciones';
+            
+            // Limpiar contenedor
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // Deshabilitar botón inicialmente
+            const btnEnviar = document.getElementById(btnId);
+            if (btnEnviar) {
+                btnEnviar.disabled = true;
+            }
+            
+            // Agregar primer campo
+            agregarCampoNumero(containerId);
+            
+            mostrarPantalla(formId);
+            
+            // Configurar validación en tiempo real para todos los campos
+            setTimeout(() => {
+                configurarValidacionesControl(containerId);
+                validarFormularioControl(subtipo);
+            }, 100);
+        }
+        
+        function configurarValidacionesControl(containerId) {
+            const container = document.getElementById(containerId);
+            const inputs = container.querySelectorAll('input[type="tel"]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    // Solo permitir números
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    // Limitar a 6 dígitos
+                    if (e.target.value.length > 6) {
+                        e.target.value = e.target.value.substring(0, 6);
+                    }
+                    // Validar formulario después de cada cambio
+                    const subtipo = containerId.includes('envios') ? 'ENVIOS' : 'DEVOLUCIONES';
+                    validarFormularioControl(subtipo);
+                });
+            });
+        }
+        
+        function validarFormularioControl(subtipo) {
+            const containerId = subtipo === 'ENVIOS' ? 'control-envios-numeros-container' : 'control-devoluciones-numeros-container';
+            const btnId = subtipo === 'ENVIOS' ? 'btn-enviar-control-envios' : 'btn-enviar-control-devoluciones';
+            
+            const container = document.getElementById(containerId);
+            const btnEnviar = document.getElementById(btnId);
+            
+            if (!container || !btnEnviar) return;
+            
+            const inputs = container.querySelectorAll('input[type="tel"]');
+            let tieneNumerosValidos = false;
+            
+            inputs.forEach(input => {
+                const valor = input.value.trim();
+                if (valor && /^\d{6}$/.test(valor)) {
+                    tieneNumerosValidos = true;
+                }
+            });
+            
+            btnEnviar.disabled = !tieneNumerosValidos;
+        }
+        
+        function volverAControlTipo() {
+            mostrarPantalla('screen-control-tipo');
+        }
+        
+        function agregarCampoNumero(containerId) {
+            const container = document.getElementById(containerId);
+            const rowIndex = container.children.length;
+            
+            const row = document.createElement('div');
+            row.className = 'control-numero-row';
+            row.id = `control-row-${rowIndex}`;
+            
+            const input = document.createElement('input');
+            input.type = 'tel';
+            input.id = `control-numero-${rowIndex}`;
+            input.placeholder = '6 dígitos';
+            input.maxLength = 6;
+            input.pattern = '[0-9]{6}';
+            input.inputMode = 'numeric';
+            input.setAttribute('inputmode', 'numeric');
+            
+            // Validación en tiempo real
+            input.addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                if (e.target.value.length > 6) {
+                    e.target.value = e.target.value.substring(0, 6);
+                }
+                // Validar formulario después de cada cambio
+                const subtipo = containerId.includes('envios') ? 'ENVIOS' : 'DEVOLUCIONES';
+                validarFormularioControl(subtipo);
+            });
+            
+            // Configurar Enter para CONTROL: siempre agregar nuevo campo (nunca enviar automáticamente)
+            // En CONTROL, Enter solo agrega campos, el usuario debe hacer click en "Enviar" para enviar
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    e.preventDefault();
+                    // En CONTROL, Enter siempre agrega un nuevo campo (como si presionara el botón +)
+                    agregarCampoNumero(containerId);
+                }
+            });
+            
+            const btnAdd = document.createElement('button');
+            btnAdd.type = 'button';
+            btnAdd.className = 'btn-add-numero';
+            btnAdd.innerHTML = '+';
+            btnAdd.onclick = function() {
+                agregarCampoNumero(containerId);
+            };
+            
+            row.appendChild(input);
+            row.appendChild(btnAdd);
+            container.appendChild(row);
+            
+            // Enfocar el nuevo campo y abrir teclado numérico en móviles
+            setTimeout(() => {
+                input.focus();
+            }, 10);
+        }
+        
+        function enviarControl(subtipo) {
+            const formId = subtipo === 'ENVIOS' ? 'form-control-envios' : 'form-control-devoluciones';
+            const containerId = subtipo === 'ENVIOS' ? 'control-envios-numeros-container' : 'control-devoluciones-numeros-container';
+            const btnId = subtipo === 'ENVIOS' ? 'btn-enviar-control-envios' : 'btn-enviar-control-devoluciones';
+            
+            const container = document.getElementById(containerId);
+            const inputs = container.querySelectorAll('input[type="tel"]');
+            const numeros = [];
+            
+            // Recopilar todos los números válidos
+            inputs.forEach(input => {
+                const valor = input.value.trim();
+                if (valor && /^\d{6}$/.test(valor)) {
+                    numeros.push(valor);
+                }
+            });
+            
+            if (numeros.length === 0) {
+                alert('Por favor ingrese al menos un número válido de 6 dígitos.');
+                return;
+            }
+            
+            const btnEnviar = document.getElementById(btnId);
+            if (btnEnviar) {
+                btnEnviar.disabled = true;
+                btnEnviar.textContent = 'Enviando...';
+            }
+            
+            // Enviar datos a n8n
+            enviarControlAN8N(subtipo, numeros, btnEnviar);
+        }
+        
+        async function enviarControlAN8N(subtipo, numeros, btnEnviar) {
+            try {
+                // Construir query string con múltiples parámetros NUMERO
+                const params = new URLSearchParams();
+                params.append('tipo', 'CONTROL');
+                params.append('subtipo', subtipo);
+                params.append('Marca temporal', obtenerMarcaTemporal());
+                
+                // Agregar cada número como un parámetro separado con el mismo nombre
+                numeros.forEach(numero => {
+                    params.append('NUMERO', numero);
+                });
+                
+                const response = await fetch(`/api/control?${params}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    mostrarMensajeExito();
+                } else {
+                    const errorText = await response.text();
+                    mostrarError(`ENVÍO DE INFORMACIÓN FALLIDA\n\nError del servidor: ${response.status}\n${errorText.substring(0, 200)}\n\nPor favor vuelva a intentar enviar los datos.`);
+                    if (btnEnviar) {
+                        btnEnviar.disabled = false;
+                        btnEnviar.textContent = 'Enviar';
+                    }
+                }
+            } catch (error) {
+                mostrarError(`ENVÍO DE INFORMACIÓN FALLIDA\n\nError: ${error.message}\n\nPor favor vuelva a intentar enviar los datos.`);
+                if (btnEnviar) {
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = 'Enviar';
+                }
+            }
+        }
+        
+        function seleccionarTurnoDesdeResultados(turno) {
+            estado.turno = turno;
+            estado.desdeResultados = true;
+            
+            // Asegurar que el identificador esté guardado
+            if (!estado.identificador) {
+                const identificadorElement = document.getElementById('resultados-identificador');
+                if (identificadorElement && identificadorElement.textContent) {
+                    estado.identificador = identificadorElement.textContent.trim();
+                }
+            }
+            
+            // Mostrar la pantalla de operaciones desde búsqueda
+            mostrarPantalla('screen-operaciones-desde-busqueda');
+            
+            // Actualizar los elementos de la pantalla inmediatamente
+            const identificadorEl = document.getElementById('operaciones-desde-busqueda-identificador');
+            const turnoEl = document.getElementById('operaciones-desde-busqueda-turno');
+            
+            if (identificadorEl) {
+                identificadorEl.textContent = estado.identificador || '';
+            }
+            if (turnoEl) {
+                turnoEl.textContent = turno;
+            }
+        }
+        
+        // Mostrar búsqueda inicial
+        function mostrarBusquedaInicial() {
+            // Limpiar formulario de búsqueda inicial
+            document.getElementById('busqueda-inicial-numero').value = '';
+            document.getElementById('busqueda-inicial-nombre').value = '';
+            document.getElementById('busqueda-inicial-cedula').value = '';
+            document.getElementById('btn-buscar-inicial').disabled = false;
+            mostrarPantalla('form-busqueda-inicial');
+            
+            // Configurar Enter en campo CEDULA para enviar búsqueda automáticamente
+            setTimeout(() => {
+                const campoCedula = document.getElementById('busqueda-inicial-cedula');
+                if (campoCedula) {
+                    // Agregar event listener (si ya existe, no causará problemas porque preventDefault evita comportamiento duplicado)
+                    campoCedula.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.keyCode === 13) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const btnBuscar = document.getElementById('btn-buscar-inicial');
+                            if (btnBuscar && !btnBuscar.disabled) {
+                                enviarBusquedaInicial();
+                            }
+                        }
+                    });
+                }
+            }, 100);
+        }
+        
+        // Limpiar formulario
+        function limpiarFormulario(tipo) {
+            const formulario = document.getElementById('form-' + tipo);
+            if (!formulario) return;
+            
+            // Limpiar todos los inputs del formulario (excepto campos readonly que son números identificadores)
+            formulario.querySelectorAll('input[type="text"], input[type="tel"], input[type="number"], textarea').forEach(input => {
+                // Solo limpiar si NO es readonly (los readonly son los números identificadores)
+                if (!input.readOnly) {
+                    input.value = '';
+                }
+            });
+            
+            // Limpiar checkboxes
+            formulario.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Limpiar radio buttons
+            formulario.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Deshabilitar botones de envío
+            const btnEnviar = formulario.querySelector('[id^="btn-enviar"]');
+            if (btnEnviar) {
+                btnEnviar.disabled = true;
+                if (btnEnviar.textContent && !btnEnviar.textContent.includes('Buscar')) {
+                    btnEnviar.textContent = 'Enviar';
+                }
+            }
+        }
+        
+        // Mostrar formulario
+        function mostrarFormulario(tipo) {
+            // Limpiar TODOS los formularios primero para evitar datos residuales
+            ['ingreso', 'abono', 'pedir_sin_pagar', 'intereses', 'espera', 'busqueda', 'salida', 'aumento', 'ventas', 'devolucion', 'caja_base', 'caja_cierre', 'bar', 'guardadero', 'gastos'].forEach(form => {
+                limpiarFormulario(form);
+            });
+            
+            // Prellenar número identificador SOLO en el formulario actual
+            const campoNumero = document.getElementById(tipo + '-numero');
+            if (campoNumero) {
+                if (estado.identificador) {
+                    // Si hay identificador, prellenar y hacer readonly
+                    campoNumero.value = estado.identificador;
+                    campoNumero.readOnly = true;
+                } else if (tipo === 'ingreso') {
+                    // Si es INGRESO sin identificador (desde pantalla principal), hacer editable
+                    campoNumero.value = '';
+                    campoNumero.readOnly = false;
+                    campoNumero.placeholder = 'Ingrese 6 dígitos';
+                } else {
+                    // Otros formularios sin identificador, dejar vacío y readonly
+                    campoNumero.value = '';
+                    campoNumero.readOnly = true;
+                }
+            }
+            
+            // Mostrar el formulario correspondiente
+            mostrarPantalla('form-' + tipo);
+            
+            // Pequeño delay para asegurar que el DOM esté actualizado
+            setTimeout(() => {
+                // Configurar validaciones según el formulario
+                if (tipo === 'ingreso') {
+                    configurarValidacionesIngreso();
+                } else if (tipo === 'abono') {
+                    configurarValidacionesAbono();
+                } else if (tipo === 'intereses') {
+                    configurarValidacionesIntereses();
+                } else if (tipo === 'salida') {
+                    configurarValidacionesSalida();
+                } else if (tipo === 'aumento') {
+                    configurarValidacionesAumento();
+                } else if (tipo === 'ventas') {
+                    configurarValidacionesVentas();
+                } else if (tipo === 'devolucion') {
+                    configurarValidacionesDevolucion();
+                } else if (tipo === 'caja_base') {
+                    configurarValidacionesCajaBase();
+                } else if (tipo === 'caja_cierre') {
+                    configurarValidacionesCajaCierre();
+                } else if (tipo === 'busqueda') {
+                    configurarValidacionesBusqueda();
+                } else if (tipo === 'bar') {
+                    configurarValidacionesBar();
+                } else if (tipo === 'guardadero') {
+                    configurarValidacionesGuardadero();
+                } else if (tipo === 'gastos') {
+                    configurarValidacionesGastos();
+                }
+            }, 10);
+        }
+        
+        // Validaciones
+        function validarNumero2a4Digitos(valor) {
+            if (!valor) return false;
+            return /^\d{2,4}$/.test(valor);
+        }
+        
+        function validarNumero6Digitos(valor) {
+            return /^\d{6}$/.test(valor);
+        }
+        
+        function validarSoloLetras(valor) {
+            if (!valor) return true;
+            return /^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$/.test(valor);
+        }
+        
+        // Validar número de 1-3 dígitos antes del punto decimal (puede tener decimales)
+        function validarNumero1a3DigitosDecimal(valor) {
+            if (!valor || !valor.trim()) return false;
+            valor = valor.trim();
+            
+            // Verificar que sea un número válido
+            const numero = parseFloat(valor);
+            if (isNaN(numero) || numero < 0) return false;
+            
+            // Separar parte entera y decimal
+            const partes = valor.split('.');
+            const parteEntera = partes[0];
+            
+            // Validar que la parte entera tenga entre 1 y 3 dígitos
+            if (!/^\d{1,3}$/.test(parteEntera)) return false;
+            
+            // Si hay parte decimal, validar que sea numérica
+            if (partes.length > 1) {
+                const parteDecimal = partes[1];
+                if (!/^\d+$/.test(parteDecimal)) return false;
+                if (partes.length > 2) return false; // Solo un punto decimal
+            }
+            
+            return true;
+        }
+        
+        // Configurar validaciones por formulario
+        function configurarValidacionesIngreso() {
+            const campos = ['numero', 'valor', 'v_retiro', 'nombre_completo', 'cedula'];
+            const artRadio = document.querySelector('input[name="ingreso-art"]:checked');
+            
+            campos.forEach(campo => {
+                const input = document.getElementById('ingreso-' + campo);
+                if (input) {
+                    // Si es el campo número y es editable, validar solo números
+                    if (campo === 'numero' && !input.readOnly) {
+                        input.addEventListener('input', function(e) {
+                            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                            if (e.target.value.length > 6) {
+                                e.target.value = e.target.value.substring(0, 6);
+                            }
+                            validarFormularioIngreso();
+                        });
+                    } else {
+                        input.addEventListener('input', validarFormularioIngreso);
+                    }
+                }
+            });
+            
+            document.querySelectorAll('input[name="ingreso-art"]').forEach(radio => {
+                radio.addEventListener('change', validarFormularioIngreso);
+            });
+            
+            validarFormularioIngreso();
+            // Configurar flujo de enfoque en móvil/escritorio
+            configurarFlujoIngreso();
+        }
+        
+        function validarFormularioIngreso() {
+            const numero = document.getElementById('ingreso-numero').value.trim();
+            const valor = document.getElementById('ingreso-valor').value.trim();
+            const v_retiro = document.getElementById('ingreso-v_retiro').value.trim();
+            const nombre = document.getElementById('ingreso-nombre_completo').value.trim();
+            const cedula = document.getElementById('ingreso-cedula').value.trim();
+            const art = document.querySelector('input[name="ingreso-art"]:checked');
+            
+            // Validar número solo si el campo es editable (sin identificador previo)
+            const campoNumero = document.getElementById('ingreso-numero');
+            const numeroValido = campoNumero.readOnly ? true : validarNumero6Digitos(numero);
+            
+            const valido = numeroValido &&
+                          validarNumero2a4Digitos(valor) &&
+                          validarNumero2a4Digitos(v_retiro) &&
+                          nombre.length > 0 &&
+                          cedula.length > 0 &&
+                          art !== null;
+            
+            document.getElementById('btn-enviar-ingreso').disabled = !valido;
+        }
+        
+        // Flujo de enfoque en INGRESO: Enter avanza al siguiente campo y centra en móvil
+        function configurarFlujoIngreso() {
+            const form = document.getElementById('form-ingreso');
+            if (!form) return;
+            
+            const focusables = [
+                'ingreso-numero',
+                'ingreso-valor',
+                'ingreso-v_retiro',
+                'ingreso-nombre_completo',
+                'ingreso-cedula',
+                // radios de ART
+                'ingreso-art-mov',
+                'ingreso-art-doc',
+                'ingreso-art-otro',
+                'ingreso-descripcion',
+                'ingreso-llevar'
+            ].map(id => document.getElementById(id)).filter(Boolean);
+            
+            // Mapear radios existentes o asignar IDs si no están
+            const radios = form.querySelectorAll('input[name="ingreso-art"]');
+            const radioMap = {
+                'MOV': radios[0],
+                'DOC': radios[1],
+                'OTRO': radios[2]
+            };
+            // Asegurar IDs en radios para el flujo
+            if (radioMap.MOV && !radioMap.MOV.id) radioMap.MOV.id = 'ingreso-art-mov';
+            if (radioMap.DOC && !radioMap.DOC.id) radioMap.DOC.id = 'ingreso-art-doc';
+            if (radioMap.OTRO && !radioMap.OTRO.id) radioMap.OTRO.id = 'ingreso-art-otro';
+            
+            function focusNext(current) {
+                const idx = focusables.indexOf(current);
+                if (idx >= 0 && idx < focusables.length - 1) {
+                    const next = focusables[idx + 1];
+                    if (next) {
+                        next.focus();
+                        if (esMovil && next.scrollIntoView) {
+                            next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }
+            }
+            
+            // Enter para avanzar
+            focusables.forEach(el => {
+                if (!el) return;
+                el.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        focusNext(el);
+                    }
+                });
+                // Enfocar = scroll al centro en móvil
+                el.addEventListener('focus', () => {
+                    if (esMovil && el.scrollIntoView) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            });
+        }
+        
+        function configurarValidacionesAbono() {
+            document.getElementById('abono-abono').addEventListener('input', validarFormularioAbono);
+            document.getElementById('abono-descuento').addEventListener('input', validarFormularioAbono);
+            validarFormularioAbono();
+        }
+        
+        function validarFormularioAbono() {
+            const abono = document.getElementById('abono-abono').value.trim();
+            const descuento = document.getElementById('abono-descuento').value.trim();
+            
+            // ABONO es obligatorio y debe ser válido
+            let valido = validarNumero2a4Digitos(abono);
+            
+            // DESCUENTO es opcional: si está vacío está bien, si tiene valor debe ser válido
+            if (descuento && !validarNumero2a4Digitos(descuento)) {
+                valido = false;
+            }
+            
+            document.getElementById('btn-enviar-abono').disabled = !valido;
+        }
+        
+        function configurarValidacionesIntereses() {
+            document.getElementById('intereses-intereses').addEventListener('input', validarFormularioIntereses);
+            validarFormularioIntereses();
+        }
+        
+        function validarFormularioIntereses() {
+            const intereses = document.getElementById('intereses-intereses').value.trim();
+            const valido = validarNumero2a4Digitos(intereses);
+            document.getElementById('btn-enviar-intereses').disabled = !valido;
+        }
+        
+        function configurarValidacionesSalida() {
+            document.getElementById('salida-valor').addEventListener('input', validarFormularioSalida);
+            document.getElementById('salida-descuento').addEventListener('input', validarFormularioSalida);
+            validarFormularioSalida();
+        }
+        
+        function validarFormularioSalida() {
+            const valor = document.getElementById('salida-valor').value.trim();
+            const descuento = document.getElementById('salida-descuento').value.trim();
+            
+            let valido = validarNumero2a4Digitos(valor);
+            if (descuento && !validarNumero2a4Digitos(descuento)) {
+                valido = false;
+            }
+            
+            document.getElementById('btn-enviar-salida').disabled = !valido;
+        }
+        
+        function configurarValidacionesAumento() {
+            document.getElementById('aumento-aumento').addEventListener('input', validarFormularioAumento);
+            document.getElementById('aumento-pago_aumento').addEventListener('input', validarFormularioAumento);
+            validarFormularioAumento();
+        }
+        
+        function validarFormularioAumento() {
+            const aumento = document.getElementById('aumento-aumento').value.trim();
+            const pago = document.getElementById('aumento-pago_aumento').value.trim();
+            const valido = validarNumero2a4Digitos(aumento) && validarNumero2a4Digitos(pago);
+            document.getElementById('btn-enviar-aumento').disabled = !valido;
+        }
+        
+        function configurarValidacionesVentas() {
+            document.getElementById('ventas-valor_venta').addEventListener('input', validarFormularioVentas);
+            validarFormularioVentas();
+        }
+        
+        function validarFormularioVentas() {
+            const valor = document.getElementById('ventas-valor_venta').value.trim();
+            const valido = validarNumero2a4Digitos(valor);
+            document.getElementById('btn-enviar-ventas').disabled = !valido;
+        }
+        
+        function configurarValidacionesDevolucion() {
+            document.getElementById('devolucion-valor').addEventListener('input', validarFormularioDevolucion);
+            validarFormularioDevolucion();
+        }
+        
+        function validarFormularioDevolucion() {
+            const valor = document.getElementById('devolucion-valor').value.trim();
+            const valido = validarNumero2a4Digitos(valor);
+            document.getElementById('btn-enviar-devolucion').disabled = !valido;
+        }
+        
+        // Validar número de 5 dígitos + 1 decimal (permite comas como separadores de miles)
+        function validarNumero5Digitos1Decimal(valor) {
+            if (!valor || !valor.trim()) return false;
+            valor = valor.trim();
+            
+            // Remover comas (separadores de miles)
+            const valorSinComas = valor.replace(/,/g, '');
+            
+            // Verificar que sea un número válido
+            const numero = parseFloat(valorSinComas);
+            if (isNaN(numero) || numero < 0) return false;
+            
+            // Separar parte entera y decimal
+            const partes = valorSinComas.split('.');
+            const parteEntera = partes[0];
+            
+            // Validar que la parte entera tenga máximo 5 dígitos
+            if (!/^\d{1,5}$/.test(parteEntera)) return false;
+            
+            // Si hay parte decimal, validar que sea numérica y tenga máximo 1 dígito
+            if (partes.length > 1) {
+                const parteDecimal = partes[1];
+                if (!/^\d{1}$/.test(parteDecimal)) return false;
+                if (partes.length > 2) return false; // Solo un punto decimal
+            }
+            
+            return true;
+        }
+        
+        // Validar entrada en tiempo real para CAJA BASE (permite comas como separadores de miles)
+        function validarEntradaCajaBase(input) {
+            let valor = input.value;
+            const cursorPos = input.selectionStart;
+            
+            // Permitir números, un punto decimal y comas
+            // Remover caracteres inválidos (solo permitir dígitos, punto y comas)
+            valor = valor.replace(/[^0-9.,]/g, '');
+            
+            // Permitir solo un punto decimal
+            const partes = valor.split('.');
+            if (partes.length > 2) {
+                valor = partes[0] + '.' + partes.slice(1).join('');
+            }
+            
+            // Si hay parte decimal, limitar a 1 dígito
+            if (partes.length > 1 && partes[1].length > 1) {
+                valor = partes[0] + '.' + partes[1].substring(0, 1);
+            }
+            
+            // Remover comas de la parte decimal si las hay
+            if (partes.length > 1) {
+                const parteEntera = partes[0].replace(/,/g, '');
+                const parteDecimal = partes[1].replace(/,/g, '');
+                valor = parteEntera + '.' + parteDecimal;
+            } else {
+                valor = valor.replace(/,/g, '');
+            }
+            
+            // Agregar comas como separadores de miles (solo en parte entera)
+            const valorNum = valor.split('.');
+            if (valorNum[0]) {
+                valorNum[0] = valorNum[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                valor = valorNum.join('.');
+            }
+            
+            input.value = valor;
+            
+            // Restaurar posición del cursor
+            if (cursorPos !== undefined) {
+                const newPos = Math.min(cursorPos, input.value.length);
+                input.setSelectionRange(newPos, newPos);
+            }
+        }
+        
+        function configurarValidacionesCajaBase() {
+            const inputValor = document.getElementById('caja_base-valor');
+            if (inputValor) {
+                inputValor.addEventListener('input', function(e) {
+                    validarEntradaCajaBase(e.target);
+                    validarFormularioCajaBase();
+                });
+                validarFormularioCajaBase();
+            }
+        }
+        
+        // Configurar validaciones para CAJA CIERRE (no requiere validación, solo habilitar botón)
+        function configurarValidacionesCajaCierre() {
+            // CAJA CIERRE no tiene campos de entrada, el botón siempre debe estar habilitado
+            const btnEnviar = document.getElementById('btn-enviar-caja_cierre');
+            if (btnEnviar) {
+                btnEnviar.disabled = false;
+            }
+        }
+        
+        function validarFormularioCajaBase() {
+            const valor = document.getElementById('caja_base-valor').value.trim();
+            const valido = validarNumero5Digitos1Decimal(valor);
+            document.getElementById('btn-enviar-caja_base').disabled = !valido;
+        }
+        
+        function configurarValidacionesBar() {
+            const inputValor = document.getElementById('bar-valor');
+            if (inputValor) {
+                inputValor.addEventListener('input', function(e) {
+                    validarEntradaDecimal(e.target);
+                    validarFormularioBar();
+                });
+                validarFormularioBar();
+            }
+        }
+        
+        function validarFormularioBar() {
+            const valor = document.getElementById('bar-valor').value.trim();
+            const valido = validarNumero1a3DigitosDecimal(valor);
+            document.getElementById('btn-enviar-bar').disabled = !valido;
+        }
+        
+        function configurarValidacionesGuardadero() {
+            const inputValor = document.getElementById('guardadero-valor');
+            if (inputValor) {
+                inputValor.addEventListener('input', function(e) {
+                    validarEntradaDecimal(e.target);
+                    validarFormularioGuardadero();
+                });
+                validarFormularioGuardadero();
+            }
+        }
+        
+        function validarFormularioGuardadero() {
+            const valor = document.getElementById('guardadero-valor').value.trim();
+            const valido = validarNumero1a3DigitosDecimal(valor);
+            document.getElementById('btn-enviar-guardadero').disabled = !valido;
+        }
+        
+        function configurarValidacionesGastos() {
+            const inputValor = document.getElementById('gastos-valor');
+            const inputDescripcion = document.getElementById('gastos-descripcion');
+            
+            if (inputValor) {
+                inputValor.addEventListener('input', function(e) {
+                    validarEntradaDecimal(e.target);
+                    validarFormularioGastos();
+                });
+            }
+            
+            if (inputDescripcion) {
+                inputDescripcion.addEventListener('input', function(e) {
+                    validarFormularioGastos();
+                });
+            }
+            
+            validarFormularioGastos();
+        }
+        
+        function validarFormularioGastos() {
+            const valor = document.getElementById('gastos-valor').value.trim();
+            const descripcion = document.getElementById('gastos-descripcion').value.trim();
+            
+            const valorValido = validarNumero1a3DigitosDecimal(valor);
+            const descripcionValida = descripcion.length > 0 && /^[A-Za-záéíóúÁÉÍÓÚñÑ0-9 ]+$/.test(descripcion);
+            
+            const valido = valorValido && descripcionValida;
+            document.getElementById('btn-enviar-gastos').disabled = !valido;
+        }
+        
+        // Validar entrada en tiempo real para campos decimales (1-3 dígitos antes del punto)
+        function validarEntradaDecimal(input) {
+            let valor = input.value;
+            const cursorPos = input.selectionStart;
+            
+            // Permitir números, un punto decimal y comas (convertir comas a puntos)
+            valor = valor.replace(',', '.');
+            
+            // Remover caracteres inválidos (solo permitir dígitos y un punto)
+            valor = valor.replace(/[^0-9.]/g, '');
+            
+            // Permitir solo un punto decimal
+            const partes = valor.split('.');
+            if (partes.length > 2) {
+                valor = partes[0] + '.' + partes.slice(1).join('');
+            }
+            
+            // Limitar parte entera a 3 dígitos
+            if (partes.length > 0) {
+                const parteEntera = partes[0];
+                if (parteEntera.length > 3) {
+                    valor = parteEntera.substring(0, 3) + (partes.length > 1 ? '.' + partes[1] : '');
+                }
+            }
+            
+            input.value = valor;
+            
+            // Restaurar posición del cursor
+            if (cursorPos !== undefined) {
+                const newPos = Math.min(cursorPos, input.value.length);
+                input.setSelectionRange(newPos, newPos);
+            }
+        }
+        
+        function configurarValidacionesBusqueda() {
+            document.getElementById('busqueda-numero').addEventListener('input', validarFormularioBusqueda);
+            document.querySelectorAll('input[name="busqueda-art"]').forEach(radio => {
+                radio.addEventListener('change', validarFormularioBusqueda);
+            });
+            validarFormularioBusqueda();
+        }
+        
+        function validarFormularioBusqueda() {
+            const numero = document.getElementById('busqueda-numero').value.trim();
+            const art = document.querySelector('input[name="busqueda-art"]:checked');
+            
+            let valido = art !== null;
+            if (numero && !validarNumero6Digitos(numero)) {
+                valido = false;
+            }
+            
+            document.getElementById('btn-enviar-busqueda').disabled = !valido;
+        }
+        
+        // Función eliminada - ya no se requiere validación de TIPO ARTÍCULO
+        
+        // Obtener marca temporal
+        function obtenerMarcaTemporal() {
+            const ahora = new Date();
+            const dia = String(ahora.getDate()).padStart(2, '0');
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const anio = String(ahora.getFullYear()).slice(-2);
+            const horas = String(ahora.getHours()).padStart(2, '0');
+            const minutos = String(ahora.getMinutes()).padStart(2, '0');
+            return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+        }
+        
+        // Convertir a mayúsculas
+        function convertirAMayusculas(obj) {
+            const resultado = {};
+            for (const [key, value] of Object.entries(obj)) {
+                if (value === null || value === undefined) {
+                    resultado[key] = "";
+                } else if (typeof value === 'string') {
+                    resultado[key] = value.toUpperCase();
+                } else {
+                    resultado[key] = String(value).toUpperCase();
+                }
+            }
+            return resultado;
+        }
+        
+        // Obtener datos según formulario
+        function obtenerDatosFormulario(tipo) {
+            // BAR, GUARDADERO, GASTOS, CAJA BASE y CAJA CIERRE no requieren identificador
+            const requiereIdentificador = tipo !== 'bar' && tipo !== 'guardadero' && tipo !== 'gastos' && tipo !== 'caja_base' && tipo !== 'caja_cierre';
+            
+            let datos = {
+                "Marca temporal": obtenerMarcaTemporal(),
+                "TURNO": estado.turno || ""
+            };
+            
+            // El tipo se establece en el switch según el caso
+            if (tipo !== 'bar' && tipo !== 'guardadero' && tipo !== 'gastos' && tipo !== 'caja_base' && tipo !== 'caja_cierre') {
+                datos.tipo = tipo;
+            }
+            
+            // Establecer identificador para operaciones que lo requieren (excepto INGRESO que se maneja en su case)
+            if (requiereIdentificador && tipo !== 'ingreso') {
+                datos.identificador = estado.identificador || '';
+            }
+            
+            switch(tipo) {
+                case 'ingreso':
+                    const descripcion = document.getElementById('ingreso-descripcion').value.trim();
+                    // Obtener número del campo (puede venir del identificador o del campo editable)
+                    const numeroIngreso = document.getElementById('ingreso-numero').value.trim();
+                    // Asegurar que el identificador siempre tenga un valor
+                    // Prioridad: numeroIngreso del campo > estado.identificador
+                    // El identificador es OBLIGATORIO para INGRESO
+                    if (numeroIngreso) {
+                        datos.identificador = numeroIngreso;
+                    } else if (estado.identificador) {
+                        datos.identificador = estado.identificador;
+                    } else {
+                        // Si no hay identificador, usar cadena vacía (será validado antes de enviar)
+                        datos.identificador = '';
+                    }
+                    datos["VALOR (ING) "] = document.getElementById('ingreso-valor').value.trim();
+                    datos["V RETIRO(ING) "] = document.getElementById('ingreso-v_retiro').value.trim();
+                    datos["NOMBRE COMPLETO(ING) "] = document.getElementById('ingreso-nombre_completo').value.trim();
+                    datos["CEDULA(ING) "] = document.getElementById('ingreso-cedula').value.trim();
+                    datos["ART(ING)"] = document.querySelector('input[name="ingreso-art"]:checked')?.value || '';
+                    datos["DESCRIPCION"] = descripcion || 'nulo';
+                    datos["LLEVAR"] = document.getElementById('ingreso-llevar').checked ? 'NO LLEVAR' : '';
+                    break;
+                    
+                case 'abono':
+                    datos["NUMERO(ABO)"] = document.getElementById('abono-numero').value.trim();
+                    datos["ABONO"] = document.getElementById('abono-abono').value.trim();
+                    datos["DESCUENTO(ABO)"] = document.getElementById('abono-descuento').value.trim();
+                    let retiroAbo = '';
+                    if (document.getElementById('abono-retiro').checked) retiroAbo = 'RETIRAR';
+                    if (document.getElementById('abono-retiro-manana').checked) retiroAbo = retiroAbo ? retiroAbo + ', MAÑANA' : 'MAÑANA';
+                    datos["RETIRO(ABO)"] = retiroAbo;
+                    break;
+                    
+                case 'pedir_sin_pagar':
+                    datos["numero"] = document.getElementById('pedir_sin_pagar-numero').value.trim();
+                    let retiroPedir = '';
+                    if (document.getElementById('pedir_sin_pagar-retiro').checked) retiroPedir = 'RETIRAR';
+                    if (document.getElementById('pedir_sin_pagar-retiro-manana').checked) retiroPedir = retiroPedir ? retiroPedir + ', MAÑANA' : 'MAÑANA';
+                    datos["RETIRO(PEDIR)"] = retiroPedir;
+                    break;
+                    
+                case 'intereses':
+                    datos["numero"] = document.getElementById('intereses-numero').value.trim();
+                    datos["intereses"] = document.getElementById('intereses-intereses').value.trim();
+                    break;
+                    
+                case 'espera':
+                    datos["numero"] = document.getElementById('espera-numero').value.trim();
+                    datos["esperar"] = document.getElementById('espera-esperar').checked ? 'ESPERAR' : '';
+                    break;
+                    
+                case 'busqueda':
+                    datos["numero"] = document.getElementById('busqueda-numero').value.trim();
+                    datos["nombre_completo"] = document.getElementById('busqueda-nombre_completo').value.trim();
+                    datos["cedula"] = document.getElementById('busqueda-cedula').value.trim();
+                    datos["art"] = document.querySelector('input[name="busqueda-art"]:checked')?.value || '';
+                    break;
+                    
+                case 'salida':
+                    datos["numero"] = document.getElementById('salida-numero').value.trim();
+                    datos["valor"] = document.getElementById('salida-valor').value.trim();
+                    datos["descuento"] = document.getElementById('salida-descuento').value.trim();
+                    break;
+                    
+                case 'aumento':
+                    datos["numero"] = document.getElementById('aumento-numero').value.trim();
+                    datos["aumento"] = document.getElementById('aumento-aumento').value.trim();
+                    datos["pago_aumento"] = document.getElementById('aumento-pago_aumento').value.trim();
+                    break;
+                    
+                case 'ventas':
+                    datos["numero"] = document.getElementById('ventas-numero').value.trim();
+                    datos["valor_venta"] = document.getElementById('ventas-valor_venta').value.trim();
+                    break;
+                    
+                case 'devolucion':
+                    datos["numero"] = document.getElementById('devolucion-numero').value.trim();
+                    datos["valor"] = document.getElementById('devolucion-valor').value.trim();
+                    break;
+                    
+                case 'caja_base':
+                    datos["CAJA"] = "CAJA";
+                    datos["TIPO"] = "BASE";
+                    // Remover comas del valor antes de enviar
+                    const valorBase = document.getElementById('caja_base-valor').value.trim().replace(/,/g, '');
+                    datos["VALOR"] = valorBase;
+                    break;
+                    
+                case 'caja_cierre':
+                    datos["CAJA"] = "CAJA";
+                    datos["TIPO"] = "CIERRE";
+                    break;
+                    
+                case 'bar':
+                    datos["tipo"] = 'BAR';
+                    datos["VALOR"] = document.getElementById('bar-valor').value.trim();
+                    break;
+                    
+                case 'guardadero':
+                    datos["tipo"] = 'GUARDADERO';
+                    datos["VALOR"] = document.getElementById('guardadero-valor').value.trim();
+                    break;
+                    
+                case 'gastos':
+                    datos["tipo"] = 'GASTOS';
+                    datos["VALOR"] = document.getElementById('gastos-valor').value.trim();
+                    datos["DESCRIPCION"] = document.getElementById('gastos-descripcion').value.trim();
+                    break;
+            }
+            
+            return convertirAMayusculas(datos);
+        }
+        
+        // Enviar datos
+        async function enviarDatos(tipo) {
+            const btnEnviar = document.getElementById('btn-enviar-' + tipo);
+            if (btnEnviar && btnEnviar.disabled) {
+                alert('Por favor complete todos los campos obligatorios correctamente.');
+                return;
+            }
+            
+            if (btnEnviar) {
+                btnEnviar.disabled = true;
+                btnEnviar.textContent = 'Enviando...';
+            }
+            
+            try {
+                const datos = obtenerDatosFormulario(tipo);
+                
+                // Validar que los datos requeridos no estén vacíos antes de enviar
+                // Especialmente para INGRESO, asegurar que identificador tenga valor
+                if (tipo === 'ingreso' && (!datos.identificador || datos.identificador.trim() === '')) {
+                    mostrarError('ERROR: El identificador es requerido para INGRESO.\n\nPor favor ingrese un número identificador válido.');
+                    if (btnEnviar) {
+                        btnEnviar.disabled = false;
+                        btnEnviar.textContent = 'Enviar';
+                    }
+                    return;
+                }
+                
+                const params = new URLSearchParams(datos);
+                
+                // Solo CAJA CIERRE necesita esperar respuesta completa (necesita los datos)
+                // BUSCAR usa enviarBusquedaInicial y ya espera respuesta
+                const necesitaRespuesta = tipo === 'caja_cierre';
+                
+                // Usar la URL apropiada según el tipo de operación
+                const urlWebhook = obtenerUrlWebhook(tipo);
+                
+                // INGRESO siempre debe esperar respuesta para mostrar el mensaje con colores
+                const necesitaRespuestaIngreso = tipo === 'ingreso';
+                
+                // Método normal con CORS - en producción ambas URLs deben tener CORS configurado correctamente
+                let response;
+                try {
+                    response = await fetch(`${urlWebhook}?${params}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                } catch (fetchError) {
+                    // Si hay error de red o CORS, mostrar error y habilitar botón
+                    console.error('Error al enviar datos:', fetchError);
+                    mostrarError('Error de conexión. Verifique su conexión a internet y vuelva a intentar.');
+                    if (btnEnviar) {
+                        btnEnviar.disabled = false;
+                        btnEnviar.textContent = 'Enviar';
+                    }
+                    return;
+                }
+                
+                if (response.ok) {
+                    // Siempre leer la respuesta completa para que n8n reconozca el nodo "Respond to Webhook"
+                    // Esto evita el error "Unused Respond to Webhook node found in the workflow"
+                    try {
+                        // Intentar leer como JSON primero
+                        const respuesta = await response.json();
+                        if (necesitaRespuesta) {
+                            // Para CAJA CIERRE: usar los datos de la respuesta para mostrar resultados
+                            mostrarResultadosCierre(respuesta);
+                        } else if (necesitaRespuestaIngreso) {
+                            // Para INGRESO: mostrar mensaje con colores según la respuesta
+                            // Pasar directamente la respuesta (puede ser array, objeto o string)
+                            // N8N "All Incoming Items" puede devolver diferentes formatos
+                            mostrarMensajeConRespuesta(respuesta, true);
+                        } else {
+                            // Para todas las demás operaciones: mostrar éxito (los datos se enviaron correctamente)
+                            mostrarMensajeExito();
+                        }
+                    } catch (jsonError) {
+                        // Si no es JSON, leer como texto para consumir la respuesta
+                        // Esto es necesario para que n8n reconozca que se usó el nodo "Respond to Webhook"
+                        try {
+                            const respuestaTexto = await response.text();
+                            if (necesitaRespuestaIngreso && respuestaTexto) {
+                                // Para INGRESO: intentar parsear como JSON, si no, usar como texto
+                                try {
+                                    const respuestaParseada = JSON.parse(respuestaTexto);
+                                    mostrarMensajeConRespuesta(respuestaParseada, true);
+                                } catch (e) {
+                                    // Si no es JSON válido, usar como texto
+                                    mostrarMensajeConRespuesta(respuestaTexto, true);
+                                }
+                            } else if (necesitaRespuesta) {
+                                // Si necesitábamos la respuesta pero no es JSON válido, mostrar error
+                                mostrarError('La respuesta del servidor no está en formato JSON válido.');
+                                if (btnEnviar) {
+                                    btnEnviar.disabled = false;
+                                    btnEnviar.textContent = 'Enviar';
+                                }
+                            } else {
+                                // Para operaciones normales, mostrar éxito aunque la respuesta no sea JSON
+                                // Lo importante es que se leyó la respuesta para que n8n no se queje
+                                mostrarMensajeExito();
+                            }
+                        } catch (textError) {
+                            // Si no se puede leer, continuar de todas formas
+                            if (necesitaRespuestaIngreso) {
+                                mostrarMensajeConRespuesta('No se pudo leer la respuesta del servidor');
+                            } else if (!necesitaRespuesta) {
+                                mostrarMensajeExito();
+                            }
+                        }
+                    }
+                } else {
+                    // Si hay error, leer el mensaje de error
+                    let errorText = '';
+                    try {
+                        errorText = await response.text();
+                    } catch (e) {
+                        errorText = 'No se pudo leer el mensaje de error del servidor';
+                    }
+                    
+                    // Mostrar error más detallado
+                    const errorMessage = `ENVÍO DE INFORMACIÓN FALLIDA\n\nError del servidor: ${response.status} ${response.statusText}\n\n${errorText.substring(0, 500)}\n\nPor favor verifique:\n- Que todos los campos requeridos estén completos\n- Que los datos sean válidos\n- Su conexión a internet\n\nVuelva a intentar enviar los datos.`;
+                    mostrarError(errorMessage);
+                    if (btnEnviar) {
+                        btnEnviar.disabled = false;
+                        btnEnviar.textContent = 'Enviar';
+                    }
+                }
+            } catch (error) {
+                mostrarError(`ENVÍO DE INFORMACIÓN FALLIDA\n\nError: ${error.message}\n\nPor favor vuelva a intentar enviar los datos.`);
+                if (btnEnviar) {
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = 'Enviar';
+                }
+            }
+        }
+        
+        // Función para mostrar pantalla de fecha antes de VERIFICAR
+        function mostrarFechaVerificar() {
+            mostrarPantalla('screen-fecha-verificar');
+            const inputFecha = document.getElementById('verificar-fecha');
+            if (inputFecha) {
+                // Limpiar campo
+                inputFecha.value = '';
+                inputFecha.style.borderColor = '';
+                // Enfocar y seleccionar campo después de un pequeño delay
+                setTimeout(() => {
+                    inputFecha.focus();
+                    inputFecha.select();
+                }, 150);
+            }
+            // Deshabilitar botón inicialmente
+            const btnContinuar = document.getElementById('btn-continuar-verificar');
+            if (btnContinuar) {
+                btnContinuar.disabled = true;
+                btnContinuar.textContent = 'Continuar';
+            }
+        }
+        
+        // Función para formatear fecha mientras se escribe (DD/MM/YY)
+        function formatearFechaVerificar(input) {
+            console.log('formatearFechaVerificar llamada, valor actual:', input.value);
+            
+            // Guardar posición del cursor
+            let cursorPos = input.selectionStart;
+            let valorOriginal = input.value;
+            
+            // Obtener solo números
+            let valor = input.value.replace(/\D/g, '');
+            console.log('Valor solo números:', valor);
+            
+            // Limitar a 6 dígitos (DDMMYY)
+            if (valor.length > 6) {
+                valor = valor.substring(0, 6);
+            }
+            
+            // Agregar barras automáticamente en las posiciones correctas
+            let valorFormateado = '';
+            if (valor.length >= 1) {
+                valorFormateado = valor.substring(0, 2);
+                if (valor.length > 2) {
+                    valorFormateado += '/' + valor.substring(2, 4);
+                    if (valor.length > 4) {
+                        valorFormateado += '/' + valor.substring(4, 6);
+                    }
+                }
+            }
+            
+            console.log('Valor formateado:', valorFormateado);
+            
+            // Actualizar el valor
+            input.value = valorFormateado;
+            
+            // Ajustar posición del cursor
+            if (valorFormateado.length > valorOriginal.length) {
+                cursorPos += valorFormateado.length - valorOriginal.length;
+            }
+            input.setSelectionRange(cursorPos, cursorPos);
+            
+            // Validar
+            validarFechaVerificar();
+        }
+        
+        // Validar formato de fecha DD/MM/YY
+        function validarFechaVerificar() {
+            const inputFecha = document.getElementById('verificar-fecha');
+            const btnContinuar = document.getElementById('btn-continuar-verificar');
+            if (!inputFecha || !btnContinuar) return false;
+            
+            let fecha = inputFecha.value.trim();
+            console.log('validarFechaVerificar - fecha recibida:', fecha);
+            
+            // Si no tiene slashes pero tiene 6 dígitos, formatearla primero
+            if (!fecha.includes('/') && fecha.replace(/\D/g, '').length === 6) {
+                const soloNumeros = fecha.replace(/\D/g, '');
+                fecha = soloNumeros.substring(0, 2) + '/' + 
+                       soloNumeros.substring(2, 4) + '/' + 
+                       soloNumeros.substring(4, 6);
+                inputFecha.value = fecha;
+                console.log('Fecha formateada automáticamente:', fecha);
+            }
+            
+            // Validar formato DD/MM/YY
+            const formatoFecha = /^(\d{2})\/(\d{2})\/(\d{2})$/;
+            if (formatoFecha.test(fecha)) {
+                const partes = fecha.split('/');
+                const dia = parseInt(partes[0], 10);
+                const mes = parseInt(partes[1], 10);
+                const anio = parseInt(partes[2], 10);
+                
+                console.log('Partes de fecha:', dia, mes, anio);
+                
+                // Validar rangos básicos
+                if (dia >= 1 && dia <= 31 && mes >= 1 && mes <= 12 && anio >= 0 && anio <= 99) {
+                    inputFecha.style.borderColor = '#4CAF50';
+                    btnContinuar.disabled = false;
+                    console.log('Fecha válida, botón habilitado');
+                    return true;
+                } else {
+                    console.log('Fecha fuera de rango válido');
+                }
+            } else {
+                console.log('Fecha no coincide con formato DD/MM/YY');
+            }
+            
+            inputFecha.style.borderColor = '#f44336';
+            btnContinuar.disabled = true;
+            return false;
+        }
+        
+        // Continuar con VERIFICAR después de ingresar la fecha
+        function continuarVerificar() {
+            console.log('continuarVerificar llamada');
+            const inputFecha = document.getElementById('verificar-fecha');
+            if (!inputFecha) {
+                console.error('No se encontró el campo de fecha');
+                return;
+            }
+            
+            const fecha = inputFecha.value.trim();
+            console.log('Fecha ingresada:', fecha);
+            
+            if (!validarFechaVerificar()) {
+                alert('Por favor ingrese una fecha válida en formato DD/MM/YY');
+                inputFecha.focus();
+                return;
+            }
+            
+            // Deshabilitar botón mientras se envía
+            const btnContinuar = document.getElementById('btn-continuar-verificar');
+            if (btnContinuar) {
+                btnContinuar.disabled = true;
+                btnContinuar.textContent = 'Enviando...';
+            }
+            
+            console.log('Llamando a enviarVerificar con fecha:', fecha);
+            // Enviar con la fecha ingresada
+            enviarVerificar(fecha);
+        }
+        
+        // Función para enviar VERIFICAR
+        async function enviarVerificar(fechaIngresada) {
+            console.log('enviarVerificar llamada con:', fechaIngresada);
+            try {
+                // Asegurar que la fecha tenga el formato correcto
+                let fechaFinal = fechaIngresada || obtenerMarcaTemporal();
+                
+                // Si la fecha no tiene formato DD/MM/YY, intentar formatearla
+                if (fechaIngresada && !fechaIngresada.includes('/')) {
+                    // Si viene como 120126, convertir a 12/01/26
+                    const soloNumeros = fechaIngresada.replace(/\D/g, '');
+                    if (soloNumeros.length === 6) {
+                        fechaFinal = soloNumeros.substring(0, 2) + '/' + 
+                                   soloNumeros.substring(2, 4) + '/' + 
+                                   soloNumeros.substring(4, 6);
+                    }
+                }
+                
+                const datos = {
+                    tipo: 'VERIFICAR',
+                    "Marca temporal": fechaFinal
+                };
+                
+                console.log('Enviando datos a N8N:', datos);
+                
+                const params = new URLSearchParams(datos);
+                const urlWebhook = "/api/verificar";
+                const urlCompleta = `${urlWebhook}?${params}`;
+                
+                console.log('URL completa:', urlCompleta);
+                
+                const response = await fetch(urlCompleta, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                console.log('Respuesta recibida - Status:', response.status, 'StatusText:', response.statusText);
+                console.log('Response OK:', response.ok);
+                
+                if (response.ok) {
+                    try {
+                        const respuesta = await response.json();
+                        console.log('Respuesta JSON recibida:', respuesta);
+                        mostrarResultadosVerificar(respuesta);
+                    } catch (jsonError) {
+                        console.log('Error parseando JSON, leyendo como texto. Error:', jsonError);
+                        const respuestaTexto = await response.text();
+                        console.log('Respuesta como texto:', respuestaTexto);
+                        mostrarResultadosVerificar(respuestaTexto);
+                    }
+                } else {
+                    let errorText = '';
+                    try {
+                        errorText = await response.text();
+                    } catch (e) {
+                        errorText = 'No se pudo leer el error';
+                    }
+                    console.error('Error del servidor - Status:', response.status, 'Error:', errorText);
+                    mostrarError(`Error al verificar (${response.status}). Por favor intente nuevamente.`);
+                    const btnContinuar = document.getElementById('btn-continuar-verificar');
+                    if (btnContinuar) {
+                        btnContinuar.disabled = false;
+                        btnContinuar.textContent = 'Continuar';
+                    }
+                }
+            } catch (error) {
+                console.error('EXCEPCIÓN al enviar verificar:', error);
+                console.error('Stack trace:', error.stack);
+                mostrarError(`Error de conexión: ${error.message}. Verifique su conexión a internet y vuelva a intentar.`);
+                const btnContinuar = document.getElementById('btn-continuar-verificar');
+                if (btnContinuar) {
+                    btnContinuar.disabled = false;
+                    btnContinuar.textContent = 'Continuar';
+                }
+            }
+        }
+        
+        // Función para crear una tabla desde un array de datos
+        function crearTablaVerificar(datosArray, titulo, columnasEspecificas) {
+            if (!datosArray || datosArray.length === 0) {
+                console.log(`crearTablaVerificar: No hay datos para "${titulo}"`);
+                return '';
+            }
+            
+            console.log(`=== crearTablaVerificar para "${titulo}" ===`);
+            console.log(`Total registros: ${datosArray.length}`);
+            console.log(`Primer registro:`, datosArray[0]);
+            if (datosArray[0] && datosArray[0].grupo) {
+                console.log(`Grupo del primer registro: "${datosArray[0].grupo}"`);
+            }
+            
+            // Usar las columnas específicas proporcionadas
+            const columnasFiltradas = columnasEspecificas || [];
+            
+            console.log(`Columnas para "${titulo}":`, columnasFiltradas);
+            
+            // Calcular total de artículos
+            const totalArticulos = datosArray.length;
+            
+            // Crear HTML de la tabla
+            let tablaHTML = '<div class="tabla-verificar-wrapper">';
+            
+            // Encabezado de la tabla con título y total
+            tablaHTML += '<div class="encabezado-tabla-verificar">';
+            tablaHTML += `<span class="titulo">${titulo}</span>`;
+            tablaHTML += `<span class="total">Total: ${totalArticulos} artículos</span>`;
+            tablaHTML += '</div>';
+            
+            // Tabla
+            tablaHTML += '<table class="tabla-verificar"><thead><tr>';
+            
+            // Crear encabezados de columnas
+            columnasFiltradas.forEach(col => {
+                tablaHTML += `<th>${col}</th>`;
+            });
+            tablaHTML += '</tr></thead><tbody>';
+            
+            // Crear filas de datos - SOLO los datos del array recibido
+            let registrosCorrectos = 0;
+            let registrosIncorrectos = 0;
+            
+            datosArray.forEach((fila, indexFila) => {
+                // Verificar que este registro pertenece al grupo correcto (doble verificación STRICT)
+                if (fila.grupo) {
+                    const grupoFila = String(fila.grupo).trim().toUpperCase();
+                    if (titulo === 'EXISTENTES' && grupoFila !== 'GRUPO 1') {
+                        console.error(`❌ ERROR: Registro ${indexFila} en tabla EXISTENTES tiene grupo "${fila.grupo}" (esperado: GRUPO 1)`);
+                        console.error(`   NUMERO: ${fila.NUMERO}, FECHA: ${fila.FECHA || fila['FECHA SALIDA']}`);
+                        registrosIncorrectos++;
+                        return; // Saltar este registro
+                    }
+                    if (titulo === 'LIQUIDADOS' && grupoFila !== 'GRUPO 2') {
+                        console.error(`❌ ERROR: Registro ${indexFila} en tabla LIQUIDADOS tiene grupo "${fila.grupo}" (esperado: GRUPO 2)`);
+                        console.error(`   NUMERO: ${fila.NUMERO}, FECHA: ${fila.FECHA || fila['FECHA SALIDA']}`);
+                        registrosIncorrectos++;
+                        return; // Saltar este registro
+                    }
+                } else {
+                    console.error(`❌ ERROR: Registro ${indexFila} en tabla "${titulo}" no tiene campo 'grupo'`);
+                    registrosIncorrectos++;
+                    return; // Saltar este registro
+                }
+                
+                registrosCorrectos++;
+                tablaHTML += '<tr>';
+                columnasFiltradas.forEach(col => {
+                    const valor = fila[col] !== undefined && fila[col] !== null ? fila[col] : '';
+                    tablaHTML += `<td>${valor}</td>`;
+                });
+                tablaHTML += '</tr>';
+            });
+            
+            console.log(`Tabla "${titulo}": ${registrosCorrectos} registros correctos, ${registrosIncorrectos} registros incorrectos (omitidos)`);
+            
+            tablaHTML += '</tbody></table></div>';
+            return tablaHTML;
+        }
+        
+        // Función para mostrar resultados de VERIFICAR
+        function mostrarResultadosVerificar(datos) {
+            console.log('Datos recibidos de VERIFICAR:', datos);
+            
+            // Normalizar datos: si viene en formato de N8N "All Incoming Items"
+            let datosArray = [];
+            if (Array.isArray(datos)) {
+                datosArray = datos;
+            } else if (datos && typeof datos === 'object') {
+                // Si es un objeto con array dentro
+                if (datos.json && Array.isArray(datos.json)) {
+                    datosArray = datos.json;
+                } else if (datos[0] && Array.isArray(datos[0])) {
+                    datosArray = datos[0];
+                } else {
+                    // Si es un solo objeto, convertir a array
+                    datosArray = [datos];
+                }
+            } else if (typeof datos === 'string') {
+                try {
+                    const parsed = JSON.parse(datos);
+                    datosArray = Array.isArray(parsed) ? parsed : [parsed];
+                } catch (e) {
+                    mostrarError('Error al procesar los datos recibidos.');
+                    return;
+                }
+            }
+            
+            if (datosArray.length === 0) {
+                mostrarError('No se recibieron datos para mostrar.');
+                return;
+            }
+            
+            // Separar datos por grupo (ENTRADA 1 y ENTRADA 2) - STRICT FILTERING
+            const entrada1 = [];
+            const entrada2 = [];
+            
+            datosArray.forEach((item, index) => {
+                // Obtener el valor del campo grupo
+                const grupoValue = item.grupo;
+                
+                // Verificar que el grupo existe y tiene el valor correcto
+                if (!grupoValue) {
+                    console.warn(`Registro ${index} sin campo 'grupo':`, item);
+                    return; // Saltar este registro
+                }
+                
+                const grupoStr = String(grupoValue).trim();
+                const grupoUpper = grupoStr.toUpperCase();
+                
+                // Log para los primeros 5 registros para debug
+                if (index < 5) {
+                    console.log(`Registro ${index}: grupo="${grupoStr}" (normalizado: "${grupoUpper}")`);
+                    console.log(`  - NUMERO: ${item.NUMERO}, FECHA: ${item.FECHA || item['FECHA SALIDA'] || 'N/A'}`);
+                }
+                
+                // CREAR COPIA PROFUNDA del objeto antes de agregarlo (evitar referencias compartidas)
+                const itemCopia = JSON.parse(JSON.stringify(item));
+                
+                // Filtrar STRICT por grupo - "GRUPO 1" → EXISTENTES, "GRUPO 2" → LIQUIDADOS
+                if (grupoUpper === 'GRUPO 1') {
+                    entrada1.push(itemCopia);
+                } else if (grupoUpper === 'GRUPO 2') {
+                    entrada2.push(itemCopia);
+                } else {
+                    console.warn(`Registro ${index} con grupo inválido: "${grupoStr}" (esperado: GRUPO 1 o GRUPO 2)`, item);
+                }
+            });
+            
+            console.log('=== SEPARACIÓN DE DATOS ===');
+            console.log('Total datos recibidos:', datosArray.length);
+            console.log('ENTRADA 1 (EXISTENTES):', entrada1.length, 'registros');
+            console.log('ENTRADA 2 (LIQUIDADOS):', entrada2.length, 'registros');
+            
+            // Verificar que los datos están correctamente separados
+            if (entrada1.length > 0) {
+                console.log('Primer registro ENTRADA 1:', entrada1[0]);
+                console.log('Grupo del primer registro ENTRADA 1:', entrada1[0].grupo);
+                console.log('NUMERO del primer registro ENTRADA 1:', entrada1[0].NUMERO);
+            }
+            if (entrada2.length > 0) {
+                console.log('Primer registro ENTRADA 2:', entrada2[0]);
+                console.log('Grupo del primer registro ENTRADA 2:', entrada2[0].grupo);
+                console.log('NUMERO del primer registro ENTRADA 2:', entrada2[0].NUMERO);
+            }
+            
+            // Verificación adicional: verificar que no hay duplicados por NUMERO
+            const numerosEntrada1 = entrada1.map(item => item.NUMERO).filter(n => n !== undefined && n !== null);
+            const numerosEntrada2 = entrada2.map(item => item.NUMERO).filter(n => n !== undefined && n !== null);
+            const duplicados = numerosEntrada1.filter(num => numerosEntrada2.includes(num));
+            if (duplicados.length > 0) {
+                console.error('⚠️ ERROR: Se encontraron números duplicados entre ENTRADA 1 y ENTRADA 2:', duplicados.slice(0, 10));
+                console.error('Esto significa que los mismos registros están en ambos grupos');
+            } else {
+                console.log('✓ Verificación: No hay números duplicados entre los grupos');
+            }
+            
+            // Definir columnas específicas para cada tabla
+            const columnasExistentes = ['FECHA', 'OPER', 'NUMERO', 'VR PR', 'VR RT', 'NOMBRE'];
+            const columnasLiquidados = ['FECHA SALIDA', 'OPER', 'NUMERO', 'VR AB', 'DES'];
+            
+            // Crear la tabla HTML
+            const container = document.getElementById('resultados-verificar-container');
+            let htmlCompleto = '';
+            
+            // Tabla EXISTENTES (ENTRADA 1) - SOLO datos de ENTRADA 1 con columnas específicas
+            if (entrada1.length > 0) {
+                console.log('=== CREANDO TABLA EXISTENTES ===');
+                console.log('Registros para EXISTENTES:', entrada1.length);
+                console.log('Verificando primer registro:', entrada1[0]);
+                console.log('Grupo del primer registro:', entrada1[0].grupo);
+                // Crear copia profunda del array para asegurar que no se modifique
+                const datosExistentes = JSON.parse(JSON.stringify(entrada1));
+                htmlCompleto += crearTablaVerificar(datosExistentes, 'EXISTENTES', columnasExistentes);
+            } else {
+                console.log('No hay datos para tabla EXISTENTES');
+            }
+            
+            // Tabla LIQUIDADOS (ENTRADA 2) - SOLO datos de ENTRADA 2 con columnas específicas
+            if (entrada2.length > 0) {
+                console.log('=== CREANDO TABLA LIQUIDADOS ===');
+                console.log('Registros para LIQUIDADOS:', entrada2.length);
+                console.log('Verificando primer registro:', entrada2[0]);
+                console.log('Grupo del primer registro:', entrada2[0].grupo);
+                // Crear copia profunda del array para asegurar que no se modifique
+                const datosLiquidados = JSON.parse(JSON.stringify(entrada2));
+                htmlCompleto += crearTablaVerificar(datosLiquidados, 'LIQUIDADOS', columnasLiquidados);
+            } else {
+                console.log('No hay datos para tabla LIQUIDADOS');
+            }
+            
+            // Si no hay datos en ningún grupo, mostrar mensaje
+            if (htmlCompleto === '') {
+                htmlCompleto = '<p style="text-align: center; padding: 20px; color: #666;">No se encontraron datos para mostrar.</p>';
+            }
+            
+            container.innerHTML = htmlCompleto;
+            
+            // Mostrar la pantalla de resultados
+            mostrarPantalla('screen-resultados-verificar');
+        }
+        
+        // Búsqueda inicial
+        async function enviarBusquedaInicial() {
+            const btnBuscar = document.getElementById('btn-buscar-inicial');
+            btnBuscar.disabled = true;
+            btnBuscar.textContent = 'Buscando...';
+            
+            try {
+                const datos = {
+                    identificador: document.getElementById('busqueda-inicial-numero').value.trim() || '',
+                    tipo: 'busqueda',
+                    numero: document.getElementById('busqueda-inicial-numero').value.trim(),
+                    nombre_completo: document.getElementById('busqueda-inicial-nombre').value.trim(),
+                    cedula: document.getElementById('busqueda-inicial-cedula').value.trim(),
+                    "Marca temporal": obtenerMarcaTemporal(),
+                    "TURNO": ""
+                };
+                
+                const datosMayusculas = convertirAMayusculas(datos);
+                const params = new URLSearchParams(datosMayusculas);
+                
+                // BUSCAR usa la URL de espera webhook
+                const urlWebhook = obtenerUrlWebhook('busqueda');
+                
+                const response = await fetch(`${urlWebhook}?${params}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // Leer la respuesta completa para que n8n reconozca el nodo "Respond to Webhook"
+                    try {
+                        const respuesta = await response.json();
+                        mostrarResultadosBusqueda(respuesta);
+                    } catch (jsonError) {
+                        // Si no es JSON, intentar leer como texto
+                        try {
+                            const textoRespuesta = await response.text();
+                            mostrarError(`BÚSQUEDA FALLIDA\n\nLa respuesta del servidor no está en formato JSON válido.\nRespuesta: ${textoRespuesta.substring(0, 200)}\n\nPor favor vuelva a intentar.`);
+                        } catch (textError) {
+                            mostrarError(`BÚSQUEDA FALLIDA\n\nNo se pudo leer la respuesta del servidor.\n\nPor favor vuelva a intentar.`);
+                        }
+                        btnBuscar.disabled = false;
+                        btnBuscar.textContent = 'Buscar';
+                    }
+                } else {
+                    // Si hay error, leer el mensaje de error
+                    let errorText = '';
+                    try {
+                        errorText = await response.text();
+                    } catch (e) {
+                        errorText = 'No se pudo leer el mensaje de error del servidor';
+                    }
+                    mostrarError(`BÚSQUEDA FALLIDA\n\nError del servidor: ${response.status} ${response.statusText}\n\n${errorText.substring(0, 500)}\n\nPor favor vuelva a intentar.`);
+                    btnBuscar.disabled = false;
+                    btnBuscar.textContent = 'Buscar';
+                }
+            } catch (error) {
+                mostrarError(`BÚSQUEDA FALLIDA\n\nError: ${error.message}\n\nPor favor vuelva a intentar.`);
+                btnBuscar.disabled = false;
+                btnBuscar.textContent = 'Buscar';
+            }
+        }
+        
+        // Mostrar resultados de búsqueda
+        function mostrarResultadosBusqueda(respuesta) {
+            let listaArticulos = [];
+            
+            // Procesar la respuesta según su tipo - ahora maneja múltiples artículos
+            if (Array.isArray(respuesta)) {
+                // Si es una lista, procesar todos los elementos
+                for (let item of respuesta) {
+                    if (typeof item === 'object' && item !== null) {
+                        listaArticulos.push(item);
+                    }
+                }
+            } else if (typeof respuesta === 'object' && respuesta !== null) {
+                // Si es un dict, verificar diferentes estructuras
+                if (respuesta.data && Array.isArray(respuesta.data)) {
+                    listaArticulos = respuesta.data;
+                } else if (respuesta.data && typeof respuesta.data === 'object') {
+                    listaArticulos = [respuesta.data];
+                } else if (respuesta.hasOwnProperty('FECHA') || respuesta.hasOwnProperty('NUMERO') || respuesta.hasOwnProperty('fecha') || respuesta.hasOwnProperty('numero')) {
+                    listaArticulos = [respuesta];
+                }
+            }
+            
+            const campos = [
+                "FECHA", "OPER", "NUMERO", "VR PR", "VR RT", "NOMBRE", "CC", "ART",
+                "DESCRIPCION", "LLEVAR", "VR IN", "TOT IN", "FECHA INT", "VR AB",
+                "FECHA ABON", "ESPERA", "FECHA ESPERA", "RETIROS", "FECHA RETIRO", "DES."
+            ];
+            
+            const container = document.getElementById('resultados-container');
+            container.innerHTML = '';
+            
+            // Título con cantidad de resultados
+            const cantidad = listaArticulos.length;
+            const tituloCantidad = document.createElement('div');
+            tituloCantidad.style.cssText = 'text-align: center; margin-bottom: 15px; font-size: 14px; color: #555; font-weight: bold;';
+            tituloCantidad.textContent = `${cantidad} artículo${cantidad !== 1 ? 's' : ''} encontrado${cantidad !== 1 ? 's' : ''}`;
+            container.appendChild(tituloCantidad);
+            
+            // Crear un contenedor para los radio buttons (usaremos name común para que solo uno pueda estar seleccionado)
+            const radioGroupName = 'articulo-seleccionado';
+            
+            // Guardar lista de artículos para acceso posterior
+            estado.listaArticulosBusqueda = listaArticulos;
+            
+            // Mostrar cada artículo encontrado
+            listaArticulos.forEach((datosArticulo, idxArticulo) => {
+                // Separador visual entre artículos (excepto el primero)
+                if (idxArticulo > 0) {
+                    const separador = document.createElement('hr');
+                    separador.style.cssText = 'margin: 20px 0; border: 1px solid #ddd;';
+                    container.appendChild(separador);
+                }
+                
+                // Frame para cada artículo (incluye radio button a la izquierda)
+                const frameArticulo = document.createElement('div');
+                frameArticulo.style.cssText = 'display: flex; align-items: flex-start; margin-bottom: 10px; padding: 10px;';
+                
+                // Radio button a la izquierda
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = radioGroupName;
+                radio.id = `articulo-${idxArticulo}`;
+                // Obtener número identificador para usarlo como valor
+                let numero = datosArticulo.NUMERO || datosArticulo.numero || datosArticulo.Numero || '';
+                if (!numero) {
+                    for (let key in datosArticulo) {
+                        if (key.toUpperCase() === 'NUMERO') {
+                            numero = datosArticulo[key];
+                            break;
+                        }
+                    }
+                }
+                radio.value = numero ? String(numero).trim() : String(idxArticulo);
+                radio.style.cssText = 'margin-right: 15px; margin-top: 5px; cursor: pointer; width: 20px; height: 20px;';
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        onArticuloSeleccionado(idxArticulo);
+                    }
+                });
+                frameArticulo.appendChild(radio);
+                
+                // Contenedor para el contenido del artículo (título y campos)
+                const contenidoArticulo = document.createElement('div');
+                contenidoArticulo.style.cssText = 'flex: 1;';
+                
+                // Título del artículo
+                const tituloArticulo = document.createElement('div');
+                tituloArticulo.style.cssText = 'color: darkblue; font-weight: bold; margin-bottom: 10px; font-size: 13px;';
+                tituloArticulo.textContent = `--- ARTÍCULO ${idxArticulo + 1} ---`;
+                contenidoArticulo.appendChild(tituloArticulo);
+                
+                // Mostrar todos los campos de este artículo
+                campos.forEach(campo => {
+                    const valor = datosArticulo[campo] || datosArticulo[campo.toUpperCase()] || datosArticulo[campo.toLowerCase()] || '';
+                    const valorStr = valor ? String(valor) : '';
+                    
+                    const item = document.createElement('div');
+                    item.className = 'result-item';
+                    item.style.cssText = 'display: flex; margin-bottom: 5px;';
+                    item.innerHTML = `
+                        <span class="result-label" style="font-weight: bold; margin-right: 10px; min-width: 120px;">${campo}:</span>
+                        <span class="result-value" style="${!valorStr ? 'color: gray;' : ''}">${valorStr || '(vacío)'}</span>
+                    `;
+                    contenidoArticulo.appendChild(item);
+                });
+                
+                frameArticulo.appendChild(contenidoArticulo);
+                container.appendChild(frameArticulo);
+            });
+            
+            // Inicialmente no hay identificador seleccionado
+            estado.identificador = null;
+            
+            // Ocultar botones de turno inicialmente
+            const resultadosTurnoButtons = document.getElementById('resultados-turno-buttons');
+            if (resultadosTurnoButtons) {
+                resultadosTurnoButtons.style.display = 'none';
+            }
+            
+            // Mostrar pantalla de resultados
+            mostrarPantalla('screen-resultados-busqueda');
+        }
+        
+        // Mostrar resultados de CAJA CIERRE
+        function mostrarResultadosCierre(respuesta) {
+            const container = document.getElementById('caja-cierre-resultados-container');
+            const botonesEnviar = document.getElementById('caja-cierre-botones-enviar');
+            const botonesInfo = document.getElementById('caja-cierre-botones');
+            
+            container.innerHTML = '';
+            
+            // Ocultar botones de enviar y mensaje inicial
+            if (botonesEnviar) botonesEnviar.style.display = 'none';
+            if (botonesInfo) botonesInfo.style.display = 'none';
+            
+            // Obtener el turno del estado
+            const turno = estado.turno || '1';
+            const turno_str = turno;
+            
+            // Procesar la respuesta
+            let datosCierre = null;
+            if (Array.isArray(respuesta) && respuesta.length > 0) {
+                datosCierre = respuesta[0];
+            } else if (typeof respuesta === 'object' && respuesta !== null) {
+                datosCierre = respuesta;
+            }
+            
+            if (!datosCierre) {
+                mostrarError('No se recibieron datos de cierre de caja. La respuesta del servidor está vacía o en un formato no esperado.');
+                if (botonesEnviar) botonesEnviar.style.display = 'block';
+                if (botonesInfo) botonesInfo.style.display = 'block';
+                const btnEnviar = document.getElementById('btn-enviar-caja_cierre');
+                if (btnEnviar) {
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = 'Enviar';
+                }
+                return;
+            }
+            
+            // Campos a mostrar (buscar con número de turno y sin número)
+            const campos = [
+                { key: 'FECHA', label: 'FECHA' },
+                { key: 'BASE', label: 'BASE' },
+                { key: 'RETIRO', label: 'RETIRO' },
+                { key: 'GUARDA', label: 'GUARDA' },
+                { key: 'BAR', label: 'BAR' },
+                { key: 'CONTRATOS', label: 'CONTRATOS' },
+                { key: 'GASTOS', label: 'GASTOS' },
+                { key: 'VENTAS', label: 'VENTAS' },
+                { key: 'CUADRE CAJA', label: 'CUADRE CAJA' }
+            ];
+            
+            // Crear título
+            const titulo = document.createElement('div');
+            titulo.style.cssText = 'text-align: center; margin-bottom: 20px; font-size: 18px; font-weight: bold; color: #000000;';
+            titulo.textContent = 'RESULTADOS DE CIERRE DE CAJA';
+            container.appendChild(titulo);
+            
+            // Crear contenedor para los campos
+            const camposContainer = document.createElement('div');
+            camposContainer.style.cssText = 'background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px; margin-bottom: 20px;';
+            
+            // Mostrar cada campo
+            campos.forEach(campo => {
+                // Buscar el valor: primero con número de turno, luego sin número
+                let valor = null;
+                
+                // Buscar en diferentes variaciones del nombre del campo
+                const variaciones = [
+                    `${campo.key} ${turno_str}`,
+                    `${campo.key}  ${turno_str}`,  // Con espacios adicionales
+                    `${campo.key}${turno_str}`,
+                    campo.key
+                ];
+                
+                for (let variacion of variaciones) {
+                    if (datosCierre.hasOwnProperty(variacion)) {
+                        valor = datosCierre[variacion];
+                        break;
+                    }
+                }
+                
+                // Si no se encuentra, buscar variaciones con búsqueda flexible
+                if (valor === null || valor === undefined || valor === '') {
+                    for (let key in datosCierre) {
+                        const keyUpper = key.toUpperCase().replace(/\s+/g, ' ').trim();
+                        const campoKeyUpper = campo.key.toUpperCase();
+                        if (keyUpper.includes(campoKeyUpper) && 
+                            (key.includes(turno_str) || keyUpper === campoKeyUpper)) {
+                            valor = datosCierre[key];
+                            break;
+                        }
+                    }
+                }
+                
+                if (valor === null || valor === undefined) {
+                    valor = '';
+                }
+                
+                const valorStr = valor ? String(valor) : '';
+                
+                const campoDiv = document.createElement('div');
+                campoDiv.style.cssText = 'margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #ddd;';
+                
+                const label = document.createElement('div');
+                label.style.cssText = 'font-weight: bold; color: #000000; margin-bottom: 5px; font-size: 14px;';
+                label.textContent = campo.label + ':';
+                
+                const valorDiv = document.createElement('div');
+                valorDiv.style.cssText = 'color: #333; font-size: 16px;';
+                valorDiv.textContent = valorStr || '(vacío)';
+                
+                campoDiv.appendChild(label);
+                campoDiv.appendChild(valorDiv);
+                camposContainer.appendChild(campoDiv);
+            });
+            
+            container.appendChild(camposContainer);
+            
+            // Agregar botones para volver
+            const botonesContainer = document.createElement('div');
+            botonesContainer.style.cssText = 'text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;';
+            
+            // Botón Atrás
+            const btnAtras = document.createElement('button');
+            btnAtras.className = 'btn btn-back';
+            btnAtras.textContent = '← Atrás';
+            btnAtras.onclick = function() {
+                container.innerHTML = '';
+                if (botonesEnviar) botonesEnviar.style.display = 'block';
+                if (botonesInfo) botonesInfo.style.display = 'block';
+                volverATurnoCajaCierre();
+            };
+            botonesContainer.appendChild(btnAtras);
+            
+            // Botón Volver a Inicio
+            const btnInicio = document.createElement('button');
+            btnInicio.className = 'btn btn-back';
+            btnInicio.textContent = 'VOLVER A INICIO';
+            btnInicio.onclick = function() {
+                container.innerHTML = '';
+                if (botonesEnviar) botonesEnviar.style.display = 'block';
+                if (botonesInfo) botonesInfo.style.display = 'block';
+                volverAInicio();
+            };
+            botonesContainer.appendChild(btnInicio);
+            
+            container.appendChild(botonesContainer);
+            
+            // Restaurar botón Enviar
+            const btnEnviar = document.getElementById('btn-enviar-caja_cierre');
+            if (btnEnviar) {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar';
+            }
+        }
+        
+        // Función que se ejecuta cuando se selecciona un artículo
+        function onArticuloSeleccionado(idxArticulo) {
+            if (!estado.listaArticulosBusqueda || idxArticulo >= estado.listaArticulosBusqueda.length) {
+                return;
+            }
+            
+            const datosArticulo = estado.listaArticulosBusqueda[idxArticulo];
+            
+            // Obtener el número identificador
+            let numero = datosArticulo.NUMERO || datosArticulo.numero || datosArticulo.Numero || '';
+            if (!numero) {
+                for (let key in datosArticulo) {
+                    if (key.toUpperCase() === 'NUMERO') {
+                        numero = datosArticulo[key];
+                        break;
+                    }
+                }
+            }
+            
+            // Guardar el identificador actual
+            if (numero) {
+                estado.identificador = String(numero).trim();
+                const resultadosIdentificadorEl = document.getElementById('resultados-identificador');
+                if (resultadosIdentificadorEl) {
+                    resultadosIdentificadorEl.textContent = estado.identificador;
+                }
+            } else {
+                estado.identificador = null;
+            }
+            
+            // Mostrar los botones de turno
+            const resultadosTurnoButtons = document.getElementById('resultados-turno-buttons');
+            if (resultadosTurnoButtons) {
+                resultadosTurnoButtons.style.display = 'block';
+                // Scroll automático hacia los botones de turno
+                setTimeout(() => {
+                    resultadosTurnoButtons.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+        
+        // Mensajes
+        function mostrarMensajeExito() {
+            // Restablecer estilos por defecto (verde)
+            const mensajeExito = document.getElementById('mensaje-exito');
+            const regreso = document.getElementById('mensaje-exito-regreso');
+            const botonContainer = document.getElementById('mensaje-exito-boton-container');
+            
+            mensajeExito.className = 'success-message';
+            document.getElementById('mensaje-exito-titulo').textContent = '✅ ENVIADO EXITOSAMENTE';
+            document.getElementById('mensaje-exito-texto').textContent = 'Los datos se han enviado correctamente';
+            
+            // Ocultar botón y mostrar regreso automático
+            botonContainer.style.display = 'none';
+            regreso.style.display = 'block';
+            
+            mostrarPantalla('mensaje-exito');
+            // Regresar automáticamente a inicio después de 2 segundos
+            setTimeout(() => {
+                volverAInicio();
+            }, 2000);
+        }
+        
+        function mostrarMensajeConRespuesta(respuesta, esIngreso = false) {
+            const mensajeExito = document.getElementById('mensaje-exito');
+            const titulo = document.getElementById('mensaje-exito-titulo');
+            const texto = document.getElementById('mensaje-exito-texto');
+            const regreso = document.getElementById('mensaje-exito-regreso');
+            const botonContainer = document.getElementById('mensaje-exito-boton-container');
+            
+            // Extraer el mensaje del formato JSON
+            let mensaje = '';
+            
+            // Si es string, intentar parsear como JSON primero
+            if (typeof respuesta === 'string') {
+                try {
+                    const parsed = JSON.parse(respuesta);
+                    respuesta = parsed;
+                } catch (e) {
+                    // Si no es JSON válido, usar como texto
+                    mensaje = respuesta.trim();
+                }
+            }
+            
+            // Si ya tenemos mensaje, saltar a la comparación
+            if (!mensaje) {
+                // Manejar diferentes formatos de respuesta de N8N "All Incoming Items"
+                if (Array.isArray(respuesta) && respuesta.length > 0) {
+                    // Formato: [{"mensaje": "..."}] o [{"json": {"mensaje": "..."}}]
+                    const primerItem = respuesta[0];
+                    
+                    // Buscar mensaje en diferentes ubicaciones posibles
+                    if (primerItem.mensaje) {
+                        mensaje = primerItem.mensaje;
+                    } else if (primerItem.message) {
+                        mensaje = primerItem.message;
+                    } else if (primerItem.json && primerItem.json.mensaje) {
+                        mensaje = primerItem.json.mensaje;
+                    } else if (primerItem.json && primerItem.json.message) {
+                        mensaje = primerItem.json.message;
+                    } else if (typeof primerItem === 'string') {
+                        mensaje = primerItem;
+                    } else {
+                        // Buscar recursivamente en el objeto
+                        const buscarMensaje = (obj) => {
+                            if (typeof obj !== 'object' || obj === null) return null;
+                            if (obj.mensaje && typeof obj.mensaje === 'string') return obj.mensaje;
+                            if (obj.message && typeof obj.message === 'string') return obj.message;
+                            for (let key in obj) {
+                                if (obj.hasOwnProperty(key)) {
+                                    const encontrado = buscarMensaje(obj[key]);
+                                    if (encontrado) return encontrado;
+                                }
+                            }
+                            return null;
+                        };
+                        const mensajeEncontrado = buscarMensaje(primerItem);
+                        mensaje = mensajeEncontrado || JSON.stringify(primerItem);
+                    }
+                } else if (respuesta && typeof respuesta === 'object') {
+                    // Formato: {"mensaje": "..."} o {"json": {"mensaje": "..."}}
+                    if (respuesta.mensaje) {
+                        mensaje = respuesta.mensaje;
+                    } else if (respuesta.message) {
+                        mensaje = respuesta.message;
+                    } else if (respuesta.json && respuesta.json.mensaje) {
+                        mensaje = respuesta.json.mensaje;
+                    } else if (respuesta.json && respuesta.json.message) {
+                        mensaje = respuesta.json.message;
+                    } else {
+                        // Buscar recursivamente
+                        const buscarMensaje = (obj) => {
+                            if (typeof obj !== 'object' || obj === null) return null;
+                            if (obj.mensaje && typeof obj.mensaje === 'string') return obj.mensaje;
+                            if (obj.message && typeof obj.message === 'string') return obj.message;
+                            for (let key in obj) {
+                                if (obj.hasOwnProperty(key)) {
+                                    const encontrado = buscarMensaje(obj[key]);
+                                    if (encontrado) return encontrado;
+                                }
+                            }
+                            return null;
+                        };
+                        const mensajeEncontrado = buscarMensaje(respuesta);
+                        mensaje = mensajeEncontrado || JSON.stringify(respuesta);
+                    }
+                } else {
+                    mensaje = String(respuesta);
+                }
+            }
+            
+            // Limpiar el mensaje (eliminar comillas, espacios extra, etc.)
+            mensaje = mensaje.trim().replace(/^["']|["']$/g, '').replace(/\\n/g, ' ').replace(/\s+/g, ' ');
+            
+            // Si el mensaje está vacío o no se pudo extraer, mostrar toda la respuesta
+            if (!mensaje || mensaje === '' || mensaje === '{}' || mensaje === '[]') {
+                mensaje = JSON.stringify(respuesta);
+            }
+            
+            // Convertir mensaje a mayúsculas para comparar
+            const mensajeUpper = mensaje.toUpperCase();
+            
+            // Determinar color según el mensaje
+            if (mensajeUpper.includes('INGRESADO CORRECTAMENTE')) {
+                // Verde (éxito)
+                mensajeExito.className = 'success-message';
+                titulo.textContent = '✅ INGRESADO CORRECTAMENTE';
+            } else if (mensajeUpper.includes('EL NUMERO DE ARTICULO YA ESTA INGRESADO') || 
+                       mensajeUpper.includes('NUMERO DE ARTICULO YA ESTA') ||
+                       mensajeUpper.includes('YA ESTA INGRESADO') ||
+                       mensajeUpper.includes('ARTICULO YA ESTA')) {
+                // Rojo (error)
+                mensajeExito.className = 'error-message';
+                titulo.textContent = '❌ ERROR';
+            } else {
+                // Por defecto verde
+                mensajeExito.className = 'success-message';
+                titulo.textContent = '✅ RESPUESTA';
+            }
+            
+            // Asignar el mensaje al texto (siempre visible)
+            texto.textContent = mensaje;
+            texto.style.display = 'block';
+            texto.style.visibility = 'visible';
+            texto.style.opacity = '1';
+            
+            // Para INGRESO: mostrar botón en lugar de regreso automático
+            if (esIngreso) {
+                regreso.style.display = 'none';
+                regreso.style.visibility = 'hidden';
+                regreso.style.height = '0';
+                regreso.style.margin = '0';
+                regreso.style.padding = '0';
+                botonContainer.style.display = 'block';
+            } else {
+                regreso.style.display = 'block';
+                regreso.style.visibility = 'visible';
+                regreso.style.height = 'auto';
+                botonContainer.style.display = 'none';
+                // Regresar automáticamente a inicio después de 3 segundos
+                setTimeout(() => {
+                    volverAInicio();
+                }, 3000);
+            }
+            
+            // Mostrar la pantalla primero
+            mostrarPantalla('mensaje-exito');
+            
+            // Asegurar que el texto se muestre después de mostrar la pantalla
+            setTimeout(() => {
+                texto.textContent = mensaje; // Forzar actualización
+                // Asegurar que el regreso esté oculto para INGRESO
+                if (esIngreso && regreso) {
+                    regreso.style.display = 'none';
+                    regreso.style.visibility = 'hidden';
+                }
+            }, 10);
+        }
+        
+        function mostrarError(mensaje) {
+            document.getElementById('mensaje-error').textContent = mensaje;
+            document.getElementById('mensaje-error').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('mensaje-error').classList.add('hidden');
+            }, 5000);
+        }
+        
+        // Configurar Enter en último campo para envío automático (móvil)
+        function configurarEnterEnUltimoCampo(tipoFormulario, idUltimoCampo, idBotonEnviar) {
+            const ultimoCampo = document.getElementById(idUltimoCampo);
+            const botonEnviar = document.getElementById(idBotonEnviar);
+            
+            if (!ultimoCampo || !botonEnviar) return;
+            
+            // Detectar si es móvil
+            const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                           (window.innerWidth <= 768);
+            
+            if (esMovil) {
+                ultimoCampo.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.keyCode === 13) {
+                        e.preventDefault();
+                        // Solo enviar si el botón está habilitado
+                        if (!botonEnviar.disabled) {
+                            enviarDatos(tipoFormulario);
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Configurar Enter para todos los formularios cuando se muestran
+        function configurarEnterParaFormularios() {
+            // INGRESO - último campo editable: cedula
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('ingreso', 'ingreso-cedula', 'btn-enviar-ingreso');
+            }, 100);
+            
+            // ABONO - último campo: descuento
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('abono', 'abono-descuento', 'btn-enviar-abono');
+            }, 100);
+            
+            // INTERESES - último campo: intereses
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('intereses', 'intereses-intereses', 'btn-enviar-intereses');
+            }, 100);
+            
+            // DEVOLUCION - último campo: valor
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('devolucion', 'devolucion-valor', 'btn-enviar-devolucion');
+            }, 100);
+            
+            // BAR - último campo: valor
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('bar', 'bar-valor', 'btn-enviar-bar');
+            }, 100);
+            
+            // GUARDADERO - último campo: valor
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('guardadero', 'guardadero-valor', 'btn-enviar-guardadero');
+            }, 100);
+            
+            // GASTOS - último campo: descripcion
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('gastos', 'gastos-descripcion', 'btn-enviar-gastos');
+            }, 100);
+            
+            // SALIDA - último campo: descuento
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('salida', 'salida-descuento', 'btn-enviar-salida');
+            }, 100);
+            
+            // CAJA BASE - último campo: valor
+            setTimeout(() => {
+                configurarEnterEnUltimoCampo('caja_base', 'caja_base-valor', 'btn-enviar-caja_base');
+            }, 100);
+        }
+        
+        // Llamar cuando se muestre cualquier formulario
+        const observerFormularios = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1 && node.id && node.id.startsWith('form-')) {
+                        if (!node.classList.contains('hidden')) {
+                            configurarEnterParaFormularios();
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Observar cambios en el DOM para detectar cuando se muestran formularios
+        document.addEventListener('DOMContentLoaded', function() {
+            const targetNode = document.body;
+            observerFormularios.observe(targetNode, {
+                childList: true,
+                subtree: true
+            });
+            
+            // También configurar cuando se muestre un formulario manualmente
+            const originalMostrarPantalla = window.mostrarPantalla;
+            window.mostrarPantalla = function(id) {
+                if (originalMostrarPantalla) originalMostrarPantalla(id);
+                if (id && id.startsWith('form-')) {
+                    setTimeout(() => {
+                        configurarEnterParaFormularios();
+                    }, 200);
+                }
+            };
+        });
+        
+        // Delegación de eventos para validación de números (funciona para elementos dinámicos)
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('input[type="tel"]:not([readonly])')) {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            }
+        });
+        
+        // Delegación de eventos para validación de letras (funciona para elementos dinámicos)
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('input[type="text"][pattern*="[A-Za-z"]')) {
+                if (!/^[A-Za-záéíóúÁÉÍÓÚñÑ ]*$/.test(e.target.value)) {
+                    e.target.value = e.target.value.slice(0, -1);
+                }
+            }
+        });
+        
+    </script>
+</body>
+</html>
+
+
+

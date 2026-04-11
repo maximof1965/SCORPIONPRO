@@ -1,0 +1,9 @@
+{
+  "name": "scorpion-backend",
+  "version": "1.0.0",
+  "description": "Backend sistema SCORPION - La Comuna",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}

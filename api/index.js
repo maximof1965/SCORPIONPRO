@@ -15,6 +15,7 @@ const handlers = {
   buscar: require('../lib/handlers/buscar'),
   verificar: require('../lib/handlers/verificar'),
   control: require('../lib/handlers/control'),
+  buscar_live: require('../lib/handlers/buscar_live'),
 };
 
 module.exports = async (req, res) => {

@@ -613,6 +613,61 @@
             font-style: italic;
         }
         
+        .autocomplete-wrapper {
+            position: relative;
+        }
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1a1a1f;
+            border: 2px solid #4CAF50;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+        .autocomplete-results.visible {
+            display: block;
+        }
+        .autocomplete-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #2a2a30;
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px;
+            color: #e6e8eb;
+        }
+        .autocomplete-item:hover, .autocomplete-item.selected {
+            background: #2a3a2a;
+        }
+        .autocomplete-item .ac-numero {
+            color: #4CAF50;
+            font-weight: 700;
+        }
+        .autocomplete-item .ac-nombre {
+            color: #e6e8eb;
+            margin-left: 8px;
+        }
+        .autocomplete-item .ac-art {
+            color: #888;
+            margin-left: 8px;
+            font-size: 11px;
+        }
+        .autocomplete-item .ac-valor {
+            float: right;
+            color: #b8bcc2;
+            font-size: 12px;
+        }
+        .autocomplete-loading {
+            padding: 10px 12px;
+            color: #888;
+            text-align: center;
+            font-size: 12px;
+        }
         .hidden {
             display: none;
         }
@@ -1083,17 +1138,20 @@
         <!-- Formulario BUSQUEDA INICIAL -->
         <div id="form-busqueda-inicial" class="hidden">
             <h1>BUSCAR ARTÍCULO</h1>
-            <div class="form-group">
+            <div class="form-group autocomplete-wrapper">
                 <label>NUMERO</label>
-                <input type="tel" id="busqueda-inicial-numero" placeholder="Opcional" maxlength="6" pattern="[0-9]{0,6}">
+                <input type="tel" id="busqueda-inicial-numero" placeholder="Escriba para buscar..." maxlength="6" pattern="[0-9]{0,6}" oninput="buscarLive('numero', this.value, 'ac-numero')">
+                <div id="ac-numero" class="autocomplete-results"></div>
             </div>
-            <div class="form-group">
+            <div class="form-group autocomplete-wrapper">
                 <label>NOMBRE</label>
-                <input type="text" id="busqueda-inicial-nombre" placeholder="Opcional" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ ]*">
+                <input type="text" id="busqueda-inicial-nombre" placeholder="Escriba para buscar..." oninput="buscarLive('nombre', this.value, 'ac-nombre')">
+                <div id="ac-nombre" class="autocomplete-results"></div>
             </div>
-            <div class="form-group">
+            <div class="form-group autocomplete-wrapper">
                 <label>CEDULA</label>
-                <input type="tel" id="busqueda-inicial-cedula" placeholder="Opcional">
+                <input type="tel" id="busqueda-inicial-cedula" placeholder="Escriba para buscar..." oninput="buscarLive('cedula', this.value, 'ac-cedula')">
+                <div id="ac-cedula" class="autocomplete-results"></div>
             </div>
             <div class="center">
                 <button class="btn btn-back" onclick="volverAInicio()">← Atrás</button>
@@ -3753,8 +3811,13 @@
             texto.style.visibility = 'visible';
             texto.style.opacity = '1';
             
-            // Para INGRESO: mostrar botón en lugar de regreso automático
-            if (esIngreso) {
+            if (esIngreso && mensajeUpper.includes('INGRESADO CORRECTAMENTE')) {
+                regreso.style.display = 'block';
+                regreso.style.visibility = 'visible';
+                regreso.style.height = 'auto';
+                botonContainer.style.display = 'none';
+                setTimeout(() => { volverAInicio(); }, 2000);
+            } else if (esIngreso) {
                 regreso.style.display = 'none';
                 regreso.style.visibility = 'hidden';
                 regreso.style.height = '0';
@@ -3899,9 +3962,65 @@
             };
         });
         
+        // ========== BÚSQUEDA LIVE / AUTOCOMPLETE ==========
+        let buscarLiveTimer = null;
+        function buscarLive(campo, valor, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            clearTimeout(buscarLiveTimer);
+            const q = valor.trim();
+            if (q.length < 2) {
+                container.classList.remove('visible');
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = '<div class="autocomplete-loading">Buscando...</div>';
+            container.classList.add('visible');
+            buscarLiveTimer = setTimeout(async () => {
+                try {
+                    const params = new URLSearchParams({ campo, q });
+                    const resp = await fetch(`/api/buscar_live?${params}`);
+                    const data = await resp.json();
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="autocomplete-loading">Sin resultados</div>';
+                        return;
+                    }
+                    container.innerHTML = data.map(item =>
+                        `<div class="autocomplete-item" onclick="seleccionarAutocompletado(${item.NUMERO}, '${containerId}')">` +
+                        `<span class="ac-numero">${item.NUMERO}</span>` +
+                        `<span class="ac-nombre">${item.NOMBRE || ''}</span>` +
+                        `<span class="ac-art">${item.ART || ''}</span>` +
+                        `<span class="ac-valor">PR:${item['VR PR'] || 0} RT:${item['VR RT'] || 0}</span>` +
+                        `</div>`
+                    ).join('');
+                } catch (err) {
+                    container.innerHTML = '<div class="autocomplete-loading">Error de conexión</div>';
+                }
+            }, 300);
+        }
+
+        function seleccionarAutocompletado(numero, containerId) {
+            document.querySelectorAll('.autocomplete-results').forEach(c => {
+                c.classList.remove('visible');
+                c.innerHTML = '';
+            });
+            document.getElementById('busqueda-inicial-numero').value = numero;
+            document.getElementById('busqueda-inicial-nombre').value = '';
+            document.getElementById('busqueda-inicial-cedula').value = '';
+            enviarBusquedaInicial();
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.autocomplete-wrapper')) {
+                document.querySelectorAll('.autocomplete-results').forEach(c => {
+                    c.classList.remove('visible');
+                });
+            }
+        });
+
         // Delegación de eventos para validación de números (funciona para elementos dinámicos)
         document.addEventListener('input', function(e) {
-            if (e.target.matches('input[type="tel"]:not([readonly])')) {
+            if (e.target.matches('input[type="tel"]:not([readonly])') && !e.target.closest('.autocomplete-wrapper')) {
                 e.target.value = e.target.value.replace(/[^0-9]/g, '');
             }
         });

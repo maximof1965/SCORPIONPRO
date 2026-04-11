@@ -634,33 +634,40 @@
             display: block;
         }
         .autocomplete-item {
-            padding: 10px 12px;
+            padding: 16px 14px;
             cursor: pointer;
             border-bottom: 1px solid #2a2a30;
             font-family: 'Courier Prime', monospace;
-            font-size: 13px;
+            font-size: 15px;
             color: #e6e8eb;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
         }
-        .autocomplete-item:hover, .autocomplete-item.selected {
+        .autocomplete-item:hover, .autocomplete-item:active, .autocomplete-item.selected {
             background: #2a3a2a;
         }
         .autocomplete-item .ac-numero {
             color: #4CAF50;
             font-weight: 700;
+            font-size: 16px;
         }
         .autocomplete-item .ac-nombre {
             color: #e6e8eb;
             margin-left: 8px;
+            font-size: 14px;
         }
         .autocomplete-item .ac-art {
             color: #888;
             margin-left: 8px;
-            font-size: 11px;
+            font-size: 12px;
         }
         .autocomplete-item .ac-valor {
-            float: right;
+            margin-left: auto;
             color: #b8bcc2;
-            font-size: 12px;
+            font-size: 13px;
         }
         .autocomplete-loading {
             padding: 10px 12px;
@@ -1164,7 +1171,8 @@
             <h1>RESULTADOS DE BÚSQUEDA</h1>
             <div id="resultados-container" class="search-results"></div>
             <div class="center" style="margin-top: 20px;">
-                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+                <button class="btn btn-back" onclick="volverABusquedaInicial()">← ATRÁS</button>
+                <button class="btn btn-back" onclick="volverAInicio()">INICIO</button>
             </div>
             <div id="resultados-turno-buttons" class="center" style="margin-top: 20px; display: none;">
                 <div class="subtitle">Artículo: <span id="resultados-identificador"></span> - Seleccione Turno:</div>
@@ -3458,15 +3466,48 @@
                 container.appendChild(frameArticulo);
             });
             
-            // Inicialmente no hay identificador seleccionado
-            estado.identificador = null;
-            
-            // Ocultar botones de turno inicialmente
-            const resultadosTurnoButtons = document.getElementById('resultados-turno-buttons');
-            if (resultadosTurnoButtons) {
-                resultadosTurnoButtons.style.display = 'none';
+            // Si hay un solo resultado, hacer el contenedor más grande y compacto
+            if (cantidad === 1) {
+                container.style.maxHeight = '65vh';
+                container.style.fontSize = '13px';
+                container.querySelectorAll('.result-item').forEach(item => {
+                    item.style.padding = '4px 10px';
+                    item.style.marginBottom = '2px';
+                });
+                container.querySelectorAll('.result-label').forEach(lbl => {
+                    lbl.style.minWidth = '90px';
+                    lbl.style.fontSize = '12px';
+                });
+                container.querySelectorAll('.result-value').forEach(val => {
+                    val.style.fontSize = '13px';
+                });
+            } else {
+                container.style.maxHeight = '400px';
             }
-            
+
+            // Verificar si viene de autocompletado con artículo pre-seleccionado
+            const autoNumero = estado._autoSeleccionarNumero;
+            estado._autoSeleccionarNumero = null;
+
+            if (autoNumero && cantidad >= 1) {
+                let idxAutoSelect = 0;
+                listaArticulos.forEach((art, idx) => {
+                    const n = art.NUMERO || art.numero || '';
+                    if (String(n) === String(autoNumero)) idxAutoSelect = idx;
+                });
+                const radioBtn = document.getElementById(`articulo-${idxAutoSelect}`);
+                if (radioBtn) {
+                    radioBtn.checked = true;
+                    onArticuloSeleccionado(idxAutoSelect);
+                }
+            } else {
+                estado.identificador = null;
+                const resultadosTurnoButtons = document.getElementById('resultados-turno-buttons');
+                if (resultadosTurnoButtons) {
+                    resultadosTurnoButtons.style.display = 'none';
+                }
+            }
+
             // Mostrar pantalla de resultados
             mostrarPantalla('screen-resultados-busqueda');
         }
@@ -4007,7 +4048,12 @@
             document.getElementById('busqueda-inicial-numero').value = numero;
             document.getElementById('busqueda-inicial-nombre').value = '';
             document.getElementById('busqueda-inicial-cedula').value = '';
+            estado._autoSeleccionarNumero = numero;
             enviarBusquedaInicial();
+        }
+
+        function volverABusquedaInicial() {
+            mostrarPantalla('form-busqueda-inicial');
         }
 
         document.addEventListener('click', function(e) {

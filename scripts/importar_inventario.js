@@ -42,17 +42,18 @@ const readline = require('readline');
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('\nFALTAN credenciales. Crea scripts/.env (mira scripts/.env.example) con:');
-  console.error('  SUPABASE_URL=https://xxx.supabase.co');
-  console.error('  SUPABASE_SERVICE_KEY=eyJ...\n');
-  process.exit(1);
+// Las credenciales solo se exigen si NO es dry-run (se valida mas abajo)
+let supabase = null;
+function inicializarSupabase() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('\nFALTAN credenciales. Crea scripts/.env (mira scripts/.env.example) con:');
+    console.error('  SUPABASE_URL=https://xxx.supabase.co');
+    console.error('  SUPABASE_SERVICE_KEY=eyJ...\n');
+    process.exit(1);
+  }
+  const { createClient } = require('@supabase/supabase-js');
+  supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
 }
-
-const { createClient } = require('@supabase/supabase-js');
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: false }
-});
 
 // ---- Argumentos ----
 const args = process.argv.slice(2);
@@ -131,7 +132,7 @@ function limpiarNumero(v) {
 function limpiarTexto(v) {
   if (v === null || v === undefined) return null;
   const s = String(v).trim();
-  if (s === '') return null;
+  if (s === '' || s === '-' || s.toUpperCase() === 'N/A' || s.toUpperCase() === 'NULL') return null;
   return s.toUpperCase();
 }
 
@@ -234,8 +235,14 @@ async function main() {
   }
 
   const texto = fs.readFileSync(rutaAbs, 'utf8');
-  const primeraLinea = texto.split(/\r?\n/)[0] || '';
-  const sep = sepArg || detectarSeparador(primeraLinea);
+  const lineas = texto.split(/\r?\n/);
+  // Buscar primera linea NO vacia para auto-detectar separador
+  let primeraReal = '';
+  for (const l of lineas) {
+    const limpia = l.replace(/[,;\t|"\s]/g, '');
+    if (limpia.length > 0) { primeraReal = l; break; }
+  }
+  const sep = sepArg || detectarSeparador(primeraReal || lineas[0] || '');
 
   console.log('==============================================');
   console.log('IMPORTADOR INVENTARIO  Sheets/Excel -> Supabase');
@@ -247,13 +254,34 @@ async function main() {
   console.log(`Lote:       ${lote}`);
   console.log('----------------------------------------------');
 
-  const filas = parseCsv(texto, sep);
+  let filas = parseCsv(texto, sep);
   if (filas.length < 2) {
     console.error('CSV vacio o sin datos.');
     process.exit(1);
   }
 
-  const headers = filas[0];
+  // Auto-detectar la fila de headers: la primera fila que contenga al menos 3 nombres conocidos
+  let idxHeader = 0;
+  let mejorMatch = -1;
+  for (let i = 0; i < Math.min(filas.length, 10); i++) {
+    const cuenta = filas[i].filter(h => {
+      const norm = normHeader(h);
+      return Object.values(COLUMNAS).some(vars => vars.includes(norm));
+    }).length;
+    if (cuenta > mejorMatch) {
+      mejorMatch = cuenta;
+      idxHeader = i;
+    }
+  }
+  if (mejorMatch < 3) {
+    console.error('\nNo se pudo detectar la fila de encabezados. Revisa que el CSV tenga columnas como NUMERO, FECHA, etc.');
+    process.exit(1);
+  }
+  if (idxHeader > 0) {
+    console.log(`Saltando ${idxHeader} fila(s) en blanco al inicio. Headers detectados en la linea ${idxHeader + 1}.`);
+  }
+  const headers = filas[idxHeader];
+  filas = filas.slice(idxHeader); // headers + datos posteriores
   const mapa = construirMapeo(headers);
   const usados = Object.values(mapa);
 
@@ -279,9 +307,14 @@ async function main() {
   const validas = [];
   const errores = [];
   const numerosVistos = new Set();
+  let filasVacias = 0;
 
   for (let i = 1; i < filas.length; i++) {
     const fila = filas[i];
+    // Saltar filas completamente vacias (todas las celdas en blanco)
+    const tieneAlgo = fila.some(c => c !== null && c !== undefined && String(c).trim() !== '');
+    if (!tieneAlgo) { filasVacias++; continue; }
+
     const obj = {};
     let errFila = null;
 
@@ -307,11 +340,14 @@ async function main() {
     }
 
     if (errFila) {
-      errores.push({ linea: i + 1, error: errFila, fila: fila.join(sep) });
+      errores.push({ linea: i + 1 + idxHeader, error: errFila, fila: fila.join(sep) });
       continue;
     }
     numerosVistos.add(obj.NUMERO);
     validas.push(obj);
+  }
+  if (filasVacias > 0) {
+    console.log(`Filas vacias salteadas: ${filasVacias}`);
   }
 
   console.log(`Filas leidas:    ${filas.length - 1}`);
@@ -330,10 +366,16 @@ async function main() {
   }
 
   if (dryRun) {
-    console.log('\nDRY-RUN: no se insertara nada. Ejemplo de la primera fila valida:');
+    console.log('\nDRY-RUN: no se insertara nada.');
+    console.log('Ejemplo de la primera fila valida ya transformada:');
     console.log(JSON.stringify(validas[0], null, 2));
+    console.log('\nEjemplo de la ultima fila valida ya transformada:');
+    console.log(JSON.stringify(validas[validas.length - 1], null, 2));
     process.exit(0);
   }
+
+  // A partir de aqui SI se conecta a Supabase
+  inicializarSupabase();
 
   // ---- TRUNCAR si se pidio ----
   if (truncar) {

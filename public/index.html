@@ -918,6 +918,26 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
         }
 
+        /* Cada pestaña debe poder ocupar el alto restante del panel
+           para que el scroll de la grilla y de los graficos funcione. */
+        #admin-tab-content-tablas {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;          /* clave para que flex respete overflow */
+            overflow: hidden;
+        }
+        #admin-tab-content-tablas.hidden { display: none !important; }
+
+        #admin-tab-content-metricas {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        #admin-tab-content-metricas.hidden { display: none !important; }
+
         /* TOOLBAR DE METRICAS */
         .metricas-toolbar {
             display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
@@ -1156,7 +1176,9 @@
         }
         .admin-grid-wrapper {
             flex: 1;
+            min-height: 0;
             overflow: auto;
+            -webkit-overflow-scrolling: touch;
             background: #0d0d0d;
         }
         table.admin-grid {

@@ -5979,12 +5979,18 @@
             mostrarPantalla('screen-editar-lista');
 
             try {
-                const fechaHoy = new Date().toISOString().slice(0, 10);
+                // Calcular el rango de "hoy" segun la HORA LOCAL del navegador
+                // (no UTC). El backend filtra HISTORIAL.FECHA entre desde y
+                // hasta para no perder operaciones cerca de medianoche.
+                const ahora = new Date();
+                const ini = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 0, 0, 0);
+                const fin = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 23, 59, 59);
                 const params = new URLSearchParams({
                     accion: 'list',
                     turno: estado.turno || '',
                     tipo: tipoUp,
-                    fecha: fechaHoy
+                    desde: ini.toISOString(),
+                    hasta: fin.toISOString()
                 });
                 const r = await fetch('/api/editar?' + params.toString());
                 const json = await r.json();
@@ -6073,10 +6079,18 @@
                 .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
-        function formatearHoraCard(fechaISO) {
-            if (!fechaISO) return '';
+        function formatearHoraCard(fechaStr) {
+            if (!fechaStr) return '';
             try {
-                const d = new Date(fechaISO);
+                // El backend guarda todo como UTC (ej "2026-04-10T23:32:00Z" o
+                // "2026-04-10T23:32:00+00:00"). Supabase a veces lo devuelve sin
+                // marcador de zona ("2026-04-10 23:32:00") -> en ese caso
+                // forzamos que se interprete como UTC para que getHours() lo
+                // convierta correctamente a la hora local del navegador.
+                let s = String(fechaStr).trim().replace(' ', 'T');
+                const tieneTZ = /Z$/i.test(s) || /[+-]\d{2}:?\d{2}$/.test(s);
+                if (!tieneTZ) s = s + 'Z';
+                const d = new Date(s);
                 if (isNaN(d.getTime())) return '';
                 const hh = String(d.getHours()).padStart(2, '0');
                 const mm = String(d.getMinutes()).padStart(2, '0');

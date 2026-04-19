@@ -19,6 +19,7 @@ const handlers = {
   ventas_lote: require('../lib/handlers/ventas_lote'),
   admin_login: require('../lib/handlers/admin_login'),
   admin_data: require('../lib/handlers/admin_data'),
+  editar: require('../lib/handlers/editar'),
 };
 
 module.exports = async (req, res) => {

@@ -1760,6 +1760,127 @@
             *, *::before, *::after { transition: none !important; animation: none !important; }
             .btn::after { display: none !important; }
         }
+
+        /* ===== EDITAR: cards de operaciones ===== */
+        .editar-cards-wrap {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 1100px;
+            padding: 0 4px;
+        }
+        .editar-card {
+            background: linear-gradient(145deg, rgba(36,36,40,0.95), rgba(20,20,22,0.95));
+            border: 1px solid rgba(180,180,185,0.18);
+            border-radius: 14px;
+            padding: 14px 16px;
+            cursor: pointer;
+            color: #ececec;
+            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .editar-card:hover, .editar-card:focus {
+            transform: translateY(-2px);
+            border-color: rgba(220,220,225,0.55);
+            box-shadow: 0 6px 22px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset;
+            outline: none;
+        }
+        .editar-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed rgba(255,255,255,0.12);
+            padding-bottom: 6px;
+        }
+        .editar-card .card-numero {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+        .editar-card .card-hora {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .editar-card .card-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 2px 0;
+        }
+        .editar-card .card-row .k {
+            color: rgba(255,255,255,0.55);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        .editar-card .card-row .v {
+            color: #f4f4f5;
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        .editar-card .card-valor {
+            font-size: 16px;
+            font-weight: 700;
+            color: #b6e3b6;
+            margin-top: 6px;
+            text-align: right;
+        }
+        .editar-card .card-edit-hint {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.45);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .editar-empty {
+            text-align: center;
+            color: rgba(255,255,255,0.55);
+            padding: 30px 10px;
+            font-style: italic;
+        }
+        .editar-banner {
+            background: linear-gradient(90deg, #5d3a00, #8a5b00);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 8px auto 16px;
+            max-width: 800px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255,200,80,0.4);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+        }
+        @media (max-width: 480px) {
+            .editar-cards-wrap { grid-template-columns: 1fr; }
+        }
+
+        /* ===== Campo NUMERO resaltado cuando hay error de duplicado en INGRESO ===== */
+        .campo-error-duplicado {
+            border: 2px solid #ff3b3b !important;
+            background: rgba(255, 59, 59, 0.12) !important;
+            box-shadow: 0 0 0 4px rgba(255, 59, 59, 0.18), 0 0 18px rgba(255, 59, 59, 0.35) !important;
+            color: #ff5b5b !important;
+            animation: shakeDuplicado 0.45s ease-in-out 1;
+        }
+        @keyframes shakeDuplicado {
+            0%   { transform: translateX(0); }
+            25%  { transform: translateX(-6px); }
+            50%  { transform: translateX(6px); }
+            75%  { transform: translateX(-3px); }
+            100% { transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
@@ -1778,6 +1899,7 @@
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGastos()" style="width: 200px;">GASTOS</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarFechaVerificar()" style="width: 200px;">VERIFICAR</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="abrirTablas()" style="width: 200px;">TABLAS</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="abrirEditar()" style="width: 200px;">EDITAR</button>
             </div>
         </div>
 
@@ -1842,6 +1964,63 @@
             </div>
         </div>
         
+        <!-- ================================================ -->
+        <!-- EDITAR: Seleccion de Turno -->
+        <!-- ================================================ -->
+        <div id="screen-turno-editar" class="hidden">
+            <h1>SCORPION - EDITAR</h1>
+            <div class="subtitle center">Seleccione el turno de la operacion a editar:</div>
+            <div class="center">
+                <button class="btn btn-turno" onclick="seleccionarTurnoEditar('1')">TURNO 1</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoEditar('2')">TURNO 2</button>
+                <button class="btn btn-turno" onclick="seleccionarTurnoEditar('3')">TURNO 3</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">← Volver al Inicio</button>
+            </div>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- EDITAR: Seleccion de Tipo de Operacion -->
+        <!-- ================================================ -->
+        <div id="screen-editar-tipos" class="hidden">
+            <h1>EDITAR</h1>
+            <div class="subtitle center">Turno: <span id="editar-turno-label"></span> · Hoy</div>
+            <div class="subtitle center">Seleccione el tipo de operacion:</div>
+            <div class="btn-grid" id="editar-tipos-grid">
+                <button class="btn-operation" onclick="seleccionarTipoEditar('INGRESO')">INGRESO</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('ABONO')">ABONO</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('INTERESES')">INTERESES</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('RETIROS')">RETIROS</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('SALIDA')">SALIR</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('DEVOLUCION')">DEVOLUCION</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('AUMENTO')">AUMENTO</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('DESCUENTO')">DESCUENTO</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('GUARDADERO')">GUARDADERO</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('BAR')">BAR</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('GASTOS')">GASTOS</button>
+                <button class="btn-operation" onclick="seleccionarTipoEditar('CAJA')">CAJA</button>
+            </div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="abrirEditar()">← Atras</button>
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- EDITAR: Lista de operaciones del dia -->
+        <!-- ================================================ -->
+        <div id="screen-editar-lista" class="hidden">
+            <h1>EDITAR <span id="editar-lista-tipo-label"></span></h1>
+            <div class="subtitle center">Turno: <span id="editar-lista-turno-label"></span> · Hoy</div>
+            <div id="editar-lista-status" class="subtitle center" style="margin-top:10px;"></div>
+            <div id="editar-lista-cards" class="editar-cards-wrap"></div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="seleccionarTurnoEditar(estado.turno)">← Cambiar tipo</button>
+                <button class="btn btn-back" onclick="volverAInicio()">VOLVER A INICIO</button>
+            </div>
+        </div>
+
         <!-- Selección de Turno (para operaciones desde identificador - ya no se usa desde pantalla principal) -->
         <div id="screen-turno" class="hidden">
             <h1>SCORPION</h1>
@@ -2547,6 +2726,37 @@
             } else {
                 // Si hay identificador, viene desde operaciones
                 volverAOperaciones();
+            }
+        }
+
+        // Cuando el INGRESO falla por NUMERO duplicado, regresa al mismo formulario
+        // sin limpiar los campos, para que el usuario solo corrija el NUMERO.
+        function volverAFormularioIngresoConDatos() {
+            mostrarPantalla('form-ingreso');
+            const campoNumero = document.getElementById('ingreso-numero');
+            const btnEnviar = document.getElementById('btn-enviar-ingreso');
+            if (btnEnviar) {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar';
+            }
+            if (campoNumero) {
+                // Si venia de pantalla principal el campo es editable; si venia de
+                // operaciones es readonly. Forzamos editable para corregir.
+                campoNumero.readOnly = false;
+                campoNumero.classList.add('campo-error-duplicado');
+                setTimeout(() => {
+                    campoNumero.focus();
+                    try { campoNumero.select(); } catch (_) {}
+                    if (campoNumero.scrollIntoView) {
+                        campoNumero.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 50);
+                // Quitar el resaltado en cuanto el usuario empiece a corregir
+                const limpiarResaltado = () => {
+                    campoNumero.classList.remove('campo-error-duplicado');
+                    campoNumero.removeEventListener('input', limpiarResaltado);
+                };
+                campoNumero.addEventListener('input', limpiarResaltado);
             }
         }
         
@@ -4837,6 +5047,20 @@
                 regreso.style.height = 'auto';
                 botonContainer.style.display = 'none';
                 setTimeout(() => { volverAInicio(); }, 2000);
+            } else if (esIngreso && (
+                mensajeUpper.includes('YA ESTA INGRESADO') ||
+                mensajeUpper.includes('YA ESTÁ INGRESADO') ||
+                mensajeUpper.includes('ARTICULO YA ESTA') ||
+                mensajeUpper.includes('NUMERO DE ARTICULO YA ESTA')
+            )) {
+                // Duplicado: mostrar el aviso y devolver al usuario al formulario
+                // INGRESO conservando todos los datos para que pueda corregir el NUMERO.
+                regreso.style.display = 'block';
+                regreso.style.visibility = 'visible';
+                regreso.style.height = 'auto';
+                regreso.textContent = 'Regresando para que corrijas el NUMERO...';
+                botonContainer.style.display = 'none';
+                setTimeout(() => { volverAFormularioIngresoConDatos(); }, 2500);
             } else if (esIngreso) {
                 regreso.style.display = 'none';
                 regreso.style.visibility = 'hidden';
@@ -5696,6 +5920,418 @@
             // sessionStorage se borra al cerrar la pestaña automáticamente; nada más que hacer
         });
 
+        // ====================================================
+        // MODULO EDITAR
+        // ====================================================
+        // Estado de edicion: cuando esta activo, enviarDatos llama
+        // /api/editar en lugar del endpoint normal y manda el
+        // "original" (entrada del HISTORIAL) junto con los nuevos datos.
+        estado.modoEdicion = null; // { tipo, original, formulario }
+
+        const EDITAR_TIPOS_LABEL = {
+            INGRESO: 'INGRESO', ABONO: 'ABONO', INTERESES: 'INTERESES',
+            RETIROS: 'RETIROS', SALIDA: 'SALIR', DEVOLUCION: 'DEVOLUCION',
+            AUMENTO: 'AUMENTO', DESCUENTO: 'DESCUENTO',
+            GUARDADERO: 'GUARDADERO', BAR: 'BAR', GASTOS: 'GASTOS',
+            CAJA: 'CAJA'
+        };
+
+        // Mapeo: tipo del listado EDITAR -> nombre de formulario existente
+        const EDITAR_TIPO_A_FORM = {
+            INGRESO: 'ingreso',
+            ABONO: 'abono',
+            INTERESES: 'intereses',
+            RETIROS: 'pedir_sin_pagar',
+            SALIDA: 'salida',
+            DEVOLUCION: 'devolucion',
+            AUMENTO: 'aumento',
+            GUARDADERO: 'guardadero',
+            BAR: 'bar',
+            GASTOS: 'gastos',
+            CAJA: 'caja_base'
+            // DESCUENTO no tiene formulario propio
+        };
+
+        function abrirEditar() {
+            estado.modoEdicion = null;
+            estado.identificador = null;
+            mostrarPantalla('screen-turno-editar');
+        }
+
+        function seleccionarTurnoEditar(turno) {
+            estado.turno = String(turno);
+            const lbl = document.getElementById('editar-turno-label');
+            if (lbl) lbl.textContent = estado.turno;
+            mostrarPantalla('screen-editar-tipos');
+        }
+
+        async function seleccionarTipoEditar(tipo) {
+            estado.modoEdicion = null;
+            const tipoUp = String(tipo).toUpperCase();
+            const lblTipo = document.getElementById('editar-lista-tipo-label');
+            const lblTurno = document.getElementById('editar-lista-turno-label');
+            const status = document.getElementById('editar-lista-status');
+            const wrap = document.getElementById('editar-lista-cards');
+            if (lblTipo) lblTipo.textContent = EDITAR_TIPOS_LABEL[tipoUp] || tipoUp;
+            if (lblTurno) lblTurno.textContent = estado.turno || '';
+            if (status) status.textContent = 'Cargando operaciones...';
+            if (wrap) wrap.innerHTML = '';
+            mostrarPantalla('screen-editar-lista');
+
+            try {
+                const fechaHoy = new Date().toISOString().slice(0, 10);
+                const params = new URLSearchParams({
+                    accion: 'list',
+                    turno: estado.turno || '',
+                    tipo: tipoUp,
+                    fecha: fechaHoy
+                });
+                const r = await fetch('/api/editar?' + params.toString());
+                const json = await r.json();
+                if (!r.ok || !json.ok) {
+                    throw new Error(json.error || 'Error al consultar operaciones');
+                }
+                renderizarListaEditar(tipoUp, json.rows || []);
+            } catch (err) {
+                if (status) status.textContent = '';
+                if (wrap) {
+                    wrap.innerHTML = `<div class="editar-empty">Error: ${err.message}</div>`;
+                }
+            }
+        }
+
+        function renderizarListaEditar(tipoUp, rows) {
+            const status = document.getElementById('editar-lista-status');
+            const wrap = document.getElementById('editar-lista-cards');
+            if (!wrap) return;
+
+            if (!rows.length) {
+                if (status) status.textContent = '';
+                wrap.innerHTML = `<div class="editar-empty">
+                    No hay operaciones de <b>${EDITAR_TIPOS_LABEL[tipoUp] || tipoUp}</b>
+                    en el turno ${estado.turno} de hoy.
+                </div>`;
+                return;
+            }
+
+            if (status) status.textContent = `${rows.length} operacion(es) encontrada(s) · toca una para editar`;
+            wrap.innerHTML = '';
+
+            // Almacenamos las filas en el wrap para que el handler de click
+            // pueda recuperar la entrada original tal como vino del backend.
+            wrap.__rowsCache = rows;
+
+            rows.forEach((row, idx) => {
+                const card = document.createElement('div');
+                card.className = 'editar-card';
+                card.tabIndex = 0;
+                card.setAttribute('role', 'button');
+                card.dataset.idx = String(idx);
+
+                const hora = formatearHoraCard(row.FECHA);
+                const valorFmt = (row.VALOR != null && row.VALOR !== '')
+                    ? formatearNumeroCard(row.VALOR) : null;
+                const numero = row.NUMERO != null ? row.NUMERO : '';
+                const nombre = row.NOMBRE || '';
+                const cc = row.CC || '';
+                const art = row.ART || '';
+                const desc = row.DESCRIPCION || '';
+                const detalle = row.DETALLE || '';
+
+                let html = `<span class="card-edit-hint">EDITAR</span>`;
+                html += `<div class="card-header">
+                    <span class="card-numero">${numero ? '#' + numero : (EDITAR_TIPOS_LABEL[tipoUp] || tipoUp)}</span>
+                    <span class="card-hora">${hora}</span>
+                </div>`;
+
+                if (nombre) html += `<div class="card-row"><span class="k">Nombre</span><span class="v">${escapeHtmlEdit(nombre)}</span></div>`;
+                if (cc)     html += `<div class="card-row"><span class="k">CC</span><span class="v">${escapeHtmlEdit(cc)}</span></div>`;
+                if (art)    html += `<div class="card-row"><span class="k">Art</span><span class="v">${escapeHtmlEdit(art)}</span></div>`;
+                if (desc)   html += `<div class="card-row"><span class="k">Desc</span><span class="v">${escapeHtmlEdit(desc)}</span></div>`;
+                if (detalle && detalle !== desc) {
+                    html += `<div class="card-row"><span class="k">Detalle</span><span class="v">${escapeHtmlEdit(detalle)}</span></div>`;
+                }
+                if (valorFmt !== null) {
+                    html += `<div class="card-valor">$ ${valorFmt}</div>`;
+                }
+
+                card.innerHTML = html;
+                card.addEventListener('click', () => abrirEdicionDeCard(tipoUp, idx));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        abrirEdicionDeCard(tipoUp, idx);
+                    }
+                });
+                wrap.appendChild(card);
+            });
+        }
+
+        function escapeHtmlEdit(s) {
+            return String(s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function formatearHoraCard(fechaISO) {
+            if (!fechaISO) return '';
+            try {
+                const d = new Date(fechaISO);
+                if (isNaN(d.getTime())) return '';
+                const hh = String(d.getHours()).padStart(2, '0');
+                const mm = String(d.getMinutes()).padStart(2, '0');
+                const ss = String(d.getSeconds()).padStart(2, '0');
+                return `${hh}:${mm}:${ss}`;
+            } catch (_) { return ''; }
+        }
+
+        function formatearNumeroCard(n) {
+            const num = Number(n);
+            if (!isFinite(num)) return String(n);
+            return Math.round(num).toLocaleString('es-CO');
+        }
+
+        function abrirEdicionDeCard(tipoUp, idx) {
+            const wrap = document.getElementById('editar-lista-cards');
+            if (!wrap || !wrap.__rowsCache) return;
+            const original = wrap.__rowsCache[idx];
+            if (!original) return;
+
+            const formTipo = EDITAR_TIPO_A_FORM[tipoUp];
+            if (!formTipo) {
+                alert('El tipo ' + tipoUp + ' no tiene formulario editable.');
+                return;
+            }
+
+            // Forzar el turno desde la operacion original (no el seleccionado).
+            estado.turno = String(original.OPER || estado.turno || '');
+            // Para INGRESO y similares, dejar identificador disponible.
+            estado.identificador = original.NUMERO != null ? String(original.NUMERO) : null;
+            estado.modoEdicion = {
+                tipo: tipoUp,
+                original,
+                formulario: formTipo
+            };
+
+            // Reusar la funcion estandar (limpia y luego prellenamos).
+            mostrarFormulario(formTipo);
+            // Esperar a que el DOM se actualice
+            setTimeout(() => {
+                prellenarFormularioEditar(tipoUp, formTipo, original);
+                pintarBannerEdicion(formTipo, tipoUp, original);
+            }, 30);
+        }
+
+        function pintarBannerEdicion(formTipo, tipoUp, original) {
+            const formEl = document.getElementById('form-' + formTipo);
+            if (!formEl) return;
+            // Quitar banners previos
+            formEl.querySelectorAll('.editar-banner').forEach(b => b.remove());
+            const banner = document.createElement('div');
+            banner.className = 'editar-banner';
+            const hora = formatearHoraCard(original.FECHA);
+            banner.innerHTML = `MODO EDICION · ${EDITAR_TIPOS_LABEL[tipoUp] || tipoUp}` +
+                (original.NUMERO ? ` · #${original.NUMERO}` : '') +
+                ` · turno ${original.OPER || ''} · ${hora}`;
+            const h1 = formEl.querySelector('h1');
+            if (h1 && h1.nextSibling) {
+                formEl.insertBefore(banner, h1.nextSibling);
+            } else {
+                formEl.insertBefore(banner, formEl.firstChild);
+            }
+            // Disparar revalidacion en todos los inputs/selects del form
+            // para que el boton Enviar se habilite con los datos prellenados.
+            formEl.querySelectorAll('input, textarea, select').forEach(el => {
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
+
+        function setVal(id, val) {
+            const el = document.getElementById(id);
+            if (el && val !== undefined && val !== null) el.value = val;
+            return el;
+        }
+        function setChecked(id, checked) {
+            const el = document.getElementById(id);
+            if (el) el.checked = !!checked;
+            return el;
+        }
+        function parseDetalleEditar(detalle) {
+            // El backend guarda DETALLE como string "key:val - key:val".
+            const out = {};
+            if (!detalle || typeof detalle !== 'string') return out;
+            detalle.split(/\s*-\s*/).forEach(par => {
+                const i = par.indexOf(':');
+                if (i > 0) {
+                    const k = par.slice(0, i).trim();
+                    const v = par.slice(i + 1).trim();
+                    if (k) out[k] = v;
+                }
+            });
+            return out;
+        }
+
+        function prellenarFormularioEditar(tipoUp, formTipo, original) {
+            const det = parseDetalleEditar(original.DETALLE);
+            switch (formTipo) {
+                case 'ingreso': {
+                    const n = original.NUMERO != null ? String(original.NUMERO) : '';
+                    const num = setVal('ingreso-numero', n);
+                    if (num) num.readOnly = true; // No permitir cambiar NUMERO en edicion
+                    setVal('ingreso-valor', original.VALOR != null ? original.VALOR : '');
+                    setVal('ingreso-v_retiro', det['VR RT'] || '');
+                    setVal('ingreso-nombre_completo', original.NOMBRE || '');
+                    setVal('ingreso-cedula', original.CC || '');
+                    const art = (original.ART || '').toString().toUpperCase();
+                    document.querySelectorAll('input[name="ingreso-art"]').forEach(r => {
+                        r.checked = (r.value === art);
+                    });
+                    setVal('ingreso-descripcion', original.DESCRIPCION && original.DESCRIPCION !== 'NULO' ? original.DESCRIPCION : '');
+                    setChecked('ingreso-llevar', (det['LLEVAR'] || '').toUpperCase().includes('NO LLEVAR'));
+                    if (typeof validarFormularioIngreso === 'function') validarFormularioIngreso();
+                    break;
+                }
+                case 'abono': {
+                    const num = setVal('abono-numero', original.NUMERO || '');
+                    if (num) num.readOnly = true;
+                    setVal('abono-abono', original.VALOR != null ? original.VALOR : '');
+                    setVal('abono-descuento', det['DES'] || '');
+                    const ret = (det['RETIRO'] || '').toUpperCase();
+                    setChecked('abono-retiro', ret.includes('RETIRAR'));
+                    setChecked('abono-retiro-manana', ret.includes('MAÑANA'));
+                    if (typeof validarFormularioAbono === 'function') validarFormularioAbono();
+                    break;
+                }
+                case 'intereses': {
+                    const num = setVal('intereses-numero', original.NUMERO || '');
+                    if (num) num.readOnly = true;
+                    setVal('intereses-intereses', original.VALOR != null ? original.VALOR : '');
+                    if (typeof validarFormularioIntereses === 'function') validarFormularioIntereses();
+                    break;
+                }
+                case 'pedir_sin_pagar': {
+                    const num = setVal('pedir_sin_pagar-numero', original.NUMERO || '');
+                    if (num) num.readOnly = true;
+                    const ret = (det['RETIRO'] || '').toUpperCase();
+                    setChecked('pedir_sin_pagar-retiro', ret.includes('RETIRAR'));
+                    setChecked('pedir_sin_pagar-retiro-manana', ret.includes('MAÑANA'));
+                    break;
+                }
+                case 'salida': {
+                    const num = setVal('salida-numero', original.NUMERO || '');
+                    if (num) num.readOnly = true;
+                    setVal('salida-valor', original.VALOR != null ? original.VALOR : '');
+                    setVal('salida-descuento', det['DES'] || '');
+                    if (typeof validarFormularioSalida === 'function') validarFormularioSalida();
+                    break;
+                }
+                case 'aumento': {
+                    const num = setVal('aumento-numero', original.NUMERO || '');
+                    if (num) num.readOnly = true;
+                    setVal('aumento-aumento', det['AUMENTO'] || original.VALOR || '');
+                    setVal('aumento-pago_aumento', det['PAGO_AUMENTO'] || '');
+                    if (typeof validarFormularioAumento === 'function') validarFormularioAumento();
+                    break;
+                }
+                case 'devolucion': {
+                    const num = setVal('devolucion-numero', original.NUMERO || '');
+                    if (num) num.readOnly = true;
+                    setVal('devolucion-valor', original.VALOR != null ? original.VALOR : '');
+                    if (typeof validarFormularioDevolucion === 'function') validarFormularioDevolucion();
+                    break;
+                }
+                case 'bar': {
+                    setVal('bar-valor', original.VALOR != null ? original.VALOR : '');
+                    if (typeof configurarValidacionesBar === 'function') configurarValidacionesBar();
+                    break;
+                }
+                case 'guardadero': {
+                    setVal('guardadero-valor', original.VALOR != null ? original.VALOR : '');
+                    setVal('guardadero-nombre', original.NOMBRE || '');
+                    if (typeof configurarValidacionesGuardadero === 'function') configurarValidacionesGuardadero();
+                    break;
+                }
+                case 'gastos': {
+                    setVal('gastos-valor', original.VALOR != null ? original.VALOR : '');
+                    setVal('gastos-descripcion', original.DESCRIPCION || '');
+                    if (typeof configurarValidacionesGastos === 'function') configurarValidacionesGastos();
+                    break;
+                }
+                case 'caja_base': {
+                    setVal('caja_base-valor', original.VALOR != null ? original.VALOR : '');
+                    if (typeof configurarValidacionesCajaBase === 'function') configurarValidacionesCajaBase();
+                    break;
+                }
+            }
+        }
+
+        // Interceptar enviarDatos para modo edicion.
+        const _enviarDatosOriginal = enviarDatos;
+        enviarDatos = async function(tipo) {
+            // Si NO estamos en modo edicion, comportamiento normal.
+            if (!estado.modoEdicion) return _enviarDatosOriginal(tipo);
+
+            const me = estado.modoEdicion;
+            // Si el formulario actual no coincide con el de edicion,
+            // dejar el flujo normal por seguridad.
+            if (me.formulario !== tipo) return _enviarDatosOriginal(tipo);
+
+            const btnEnviar = document.getElementById('btn-enviar-' + tipo);
+            if (btnEnviar && btnEnviar.disabled) {
+                alert('Por favor complete todos los campos correctamente.');
+                return;
+            }
+            if (btnEnviar) {
+                btnEnviar.disabled = true;
+                btnEnviar.textContent = 'Guardando edicion...';
+            }
+            try {
+                const datos = obtenerDatosFormulario(tipo);
+                const body = {
+                    accion: 'aplicar',
+                    tipo: me.tipo,
+                    original: me.original,
+                    nuevo: datos
+                };
+                const r = await fetch('/api/editar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const json = await r.json().catch(() => ({}));
+                if (!r.ok || !json.ok) {
+                    throw new Error(json.error || ('Error HTTP ' + r.status));
+                }
+                // Exito: salir de modo edicion y volver al inicio.
+                estado.modoEdicion = null;
+                mostrarMensajeExito();
+            } catch (err) {
+                mostrarError('No se pudo guardar la edicion:\n' + (err.message || err));
+                if (btnEnviar) {
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = 'Enviar';
+                }
+            }
+        };
+
+        // Asegurar que volverAInicio limpia el modo edicion.
+        const _volverAInicioOriginal = volverAInicio;
+        volverAInicio = function() {
+            estado.modoEdicion = null;
+            return _volverAInicioOriginal();
+        };
+
+        // Limpiar modoEdicion cuando se abre un formulario por una ruta
+        // distinta a EDITAR (evita que una edicion abandonada se aplique
+        // luego en una operacion normal del mismo tipo).
+        const _mostrarFormularioOriginal = mostrarFormulario;
+        mostrarFormulario = function(tipo) {
+            if (estado.modoEdicion && estado.modoEdicion.formulario !== tipo) {
+                estado.modoEdicion = null;
+            }
+            return _mostrarFormularioOriginal(tipo);
+        };
     </script>
 </body>
 </html>

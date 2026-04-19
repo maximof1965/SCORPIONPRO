@@ -16,12 +16,14 @@ const handlers = {
   verificar: require('../lib/handlers/verificar'),
   control: require('../lib/handlers/control'),
   buscar_live: require('../lib/handlers/buscar_live'),
+  admin_login: require('../lib/handlers/admin_login'),
+  admin_data: require('../lib/handlers/admin_data'),
 };
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Password');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 

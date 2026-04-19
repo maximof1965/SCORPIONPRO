@@ -873,6 +873,122 @@
                 font-size: 18px;
             }
         }
+
+        /* ============================================ */
+        /* PANEL ADMIN - VISOR DE TABLAS */
+        /* ============================================ */
+        .admin-panel {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #0d0d0d;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            z-index: 9000;
+            padding: 0;
+        }
+        .admin-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            flex-wrap: wrap;
+        }
+        .admin-toolbar select,
+        .admin-toolbar input[type="text"] {
+            font-size: 14px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #111;
+            color: #fff;
+        }
+        .admin-toolbar input[type="text"] { min-width: 220px; }
+        .admin-btn {
+            padding: 8px 14px !important;
+            font-size: 13px !important;
+            min-width: auto !important;
+            margin: 0 !important;
+        }
+        .btn.btn-danger {
+            background: #b32020;
+            color: #fff;
+        }
+        .admin-status {
+            margin-left: auto;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .admin-grid-wrapper {
+            flex: 1;
+            overflow: auto;
+            background: #0d0d0d;
+        }
+        table.admin-grid {
+            border-collapse: collapse;
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px;
+            min-width: 100%;
+        }
+        table.admin-grid thead th {
+            position: sticky;
+            top: 0;
+            background: #2a2a2a;
+            color: #ffd84d;
+            border: 1px solid #333;
+            padding: 6px 10px;
+            text-align: left;
+            white-space: nowrap;
+            z-index: 2;
+        }
+        table.admin-grid tbody td {
+            border: 1px solid #1f1f1f;
+            padding: 5px 8px;
+            white-space: nowrap;
+            cursor: cell;
+            color: #e8e8e8;
+        }
+        table.admin-grid tbody tr:nth-child(even) td { background: #131313; }
+        table.admin-grid tbody td.admin-cell-selected { background: #2a3a55 !important; }
+        table.admin-grid tbody td.admin-cell-editing {
+            outline: 2px solid #ffd84d;
+            background: #000 !important;
+            padding: 0;
+        }
+        table.admin-grid tbody td.admin-cell-editing input {
+            border: none;
+            background: transparent;
+            color: #fff;
+            font: inherit;
+            padding: 5px 8px;
+            width: 100%;
+            outline: none;
+        }
+        table.admin-grid tbody tr.admin-row-selected td { background: #3a2a55 !important; }
+        table.admin-grid tbody td.admin-cell-num {
+            background: #1a1a1a;
+            color: #888;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+        .admin-help {
+            padding: 6px 14px;
+            font-size: 11px;
+            color: #888;
+            background: #1a1a1a;
+            border-top: 1px solid #333;
+        }
+        @media (max-width: 700px) {
+            .admin-toolbar input[type="text"] { min-width: 140px; flex: 1; }
+            .admin-status { display: none; }
+            table.admin-grid { font-size: 12px; }
+        }
     </style>
 </head>
 <body>
@@ -889,6 +1005,54 @@
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarControl()" style="width: 200px;">CONTROL</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGastos()" style="width: 200px;">GASTOS</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarFechaVerificar()" style="width: 200px;">VERIFICAR</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="abrirTablas()" style="width: 200px;">TABLAS</button>
+            </div>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- PANEL ADMIN: LOGIN -->
+        <!-- ================================================ -->
+        <div id="screen-admin-login" class="hidden">
+            <h1>SCORPION - TABLAS</h1>
+            <div class="subtitle center">Ingrese clave de administrador</div>
+            <div class="center" style="margin-top:20px;">
+                <input type="password" id="admin-password-input" placeholder="Clave"
+                       autocomplete="off"
+                       style="font-size:18px; padding:12px 16px; width:260px; max-width:90%; border-radius:8px; border:1px solid #555; background:#111; color:#fff;"
+                       onkeydown="if(event.key==='Enter') validarAdminPassword()">
+            </div>
+            <div id="admin-login-error" style="color:#ff5b5b; text-align:center; margin-top:10px; min-height:20px;"></div>
+            <div class="center" style="margin-top:15px;">
+                <button class="btn btn-primary" onclick="validarAdminPassword()" style="width:200px;">ENTRAR</button>
+            </div>
+            <div class="center" style="margin-top:20px;">
+                <button class="btn btn-back" onclick="volverAInicio()">← VOLVER</button>
+            </div>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- PANEL ADMIN: VISOR DE TABLAS -->
+        <!-- ================================================ -->
+        <div id="screen-admin-tablas" class="hidden admin-panel">
+            <div class="admin-toolbar">
+                <button class="btn btn-back" onclick="volverAInicio()">← INICIO</button>
+                <select id="admin-tabla-select" onchange="cargarTablaAdmin()"></select>
+                <input type="text" id="admin-search" placeholder="🔍 Buscar..."
+                       autocomplete="off" oninput="filtrarTablaAdmin()">
+                <button class="btn btn-secondary admin-btn" onclick="recargarTablaAdmin()">RECARGAR</button>
+                <button class="btn btn-primary admin-btn" onclick="agregarFilaAdmin()">+ FILA</button>
+                <button class="btn btn-danger admin-btn" onclick="eliminarFilasSeleccionadasAdmin()">ELIMINAR SELEC.</button>
+                <span id="admin-status" class="admin-status"></span>
+            </div>
+            <div class="admin-grid-wrapper">
+                <table class="admin-grid" id="admin-grid">
+                    <thead><tr id="admin-grid-head"></tr></thead>
+                    <tbody id="admin-grid-body"></tbody>
+                </table>
+            </div>
+            <div class="admin-help">
+                Click en una celda para editar · Enter para guardar · Esc para cancelar ·
+                Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el #️⃣ para seleccionar fila
             </div>
         </div>
         
@@ -4081,7 +4245,444 @@
                 }
             }
         });
-        
+
+        /* ============================================================ */
+        /* PANEL ADMIN - VISOR/EDITOR DE TABLAS                          */
+        /*  - Login (clave validada en backend, NUNCA en el cliente)     */
+        /*  - Polling cada 3s para sentir realtime                       */
+        /*  - Edición inline, copiar/pegar TSV (Ctrl+C / Ctrl+V)         */
+        /*  - Buscar, agregar fila, eliminar filas seleccionadas         */
+        /* ============================================================ */
+        const ADMIN_TABLAS_DEFAULT = [
+            'INVENTARIO','CAJA','RETIROS','XALE','DEV','VENDIDO',
+            'GUARDADERO','HISTORIAL','BAR','SALIDAS','GASTOS'
+        ];
+        const adminState = {
+            password: null,        // se guarda solo en sessionStorage (se borra al cerrar pestaña)
+            tablas: [],
+            tablaActual: null,
+            cfgActual: null,       // {pk, editable}
+            columnas: [],
+            rows: [],
+            filtro: '',
+            seleccionFilas: new Set(),
+            celdaEditando: null,
+            celdaSeleccionada: null,
+            pollingId: null
+        };
+
+        function adminGetPassword() {
+            return adminState.password || sessionStorage.getItem('admin_pwd') || null;
+        }
+        function adminSetPassword(pwd) {
+            adminState.password = pwd;
+            sessionStorage.setItem('admin_pwd', pwd);
+        }
+        function adminClearPassword() {
+            adminState.password = null;
+            sessionStorage.removeItem('admin_pwd');
+        }
+
+        async function adminFetch(accion, payload = {}) {
+            const pwd = adminGetPassword();
+            if (!pwd) throw new Error('Sin clave');
+            const url = accion === 'login' ? '/api/admin_login' : '/api/admin_data';
+            const body = { ...payload, accion, password: pwd };
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': pwd },
+                body: JSON.stringify(body)
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (resp.status === 401) {
+                adminClearPassword();
+                throw new Error('Clave incorrecta o sesión vencida');
+            }
+            if (!resp.ok || data.ok === false) {
+                throw new Error(data.error || 'Error en servidor');
+            }
+            return data;
+        }
+
+        function abrirTablas() {
+            const pwd = adminGetPassword();
+            if (pwd) {
+                // Validar contra el backend antes de entrar
+                fetch('/api/admin_login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pwd })
+                }).then(r => {
+                    if (r.ok) entrarPanelTablas();
+                    else { adminClearPassword(); mostrarPantalla('screen-admin-login'); setTimeout(()=>document.getElementById('admin-password-input').focus(),100); }
+                }).catch(() => mostrarPantalla('screen-admin-login'));
+            } else {
+                mostrarPantalla('screen-admin-login');
+                setTimeout(() => document.getElementById('admin-password-input').focus(), 100);
+            }
+        }
+
+        async function validarAdminPassword() {
+            const input = document.getElementById('admin-password-input');
+            const errEl = document.getElementById('admin-login-error');
+            errEl.textContent = '';
+            const pwd = (input.value || '').trim();
+            if (!pwd) { errEl.textContent = 'Ingrese la clave'; return; }
+            try {
+                const resp = await fetch('/api/admin_login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pwd })
+                });
+                if (!resp.ok) { errEl.textContent = 'Clave incorrecta'; return; }
+                adminSetPassword(pwd);
+                input.value = '';
+                entrarPanelTablas();
+            } catch (e) {
+                errEl.textContent = 'Error de conexión';
+            }
+        }
+
+        async function entrarPanelTablas() {
+            mostrarPantalla('screen-admin-tablas');
+            try {
+                const data = await adminFetch('tablas');
+                adminState.tablas = data.tablas || [];
+                const sel = document.getElementById('admin-tabla-select');
+                sel.innerHTML = adminState.tablas
+                    .map(t => `<option value="${t.name}">${t.name}${t.editable ? '' : ' (solo lectura)'}</option>`)
+                    .join('');
+                if (!adminState.tablaActual) adminState.tablaActual = adminState.tablas[0]?.name;
+                sel.value = adminState.tablaActual;
+                await cargarTablaAdmin();
+                iniciarPollingAdmin();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                mostrarPantalla('screen-admin-login');
+            }
+        }
+
+        function iniciarPollingAdmin() {
+            if (adminState.pollingId) clearInterval(adminState.pollingId);
+            adminState.pollingId = setInterval(() => {
+                if (adminState.celdaEditando) return; // no refrescar mientras edita
+                recargarTablaAdmin(true);
+            }, 3000);
+        }
+
+        async function cargarTablaAdmin() {
+            const sel = document.getElementById('admin-tabla-select');
+            adminState.tablaActual = sel.value;
+            const cfg = adminState.tablas.find(t => t.name === adminState.tablaActual);
+            adminState.cfgActual = cfg;
+            adminState.seleccionFilas.clear();
+            adminState.celdaSeleccionada = null;
+            await recargarTablaAdmin();
+        }
+
+        async function recargarTablaAdmin(silencioso = false) {
+            try {
+                if (!silencioso) setAdminStatus('Cargando...');
+                const data = await adminFetch('list', { tabla: adminState.tablaActual });
+                adminState.rows = data.rows || [];
+                adminState.columnas = adminState.rows.length > 0
+                    ? Object.keys(adminState.rows[0])
+                    : columnasFallback(adminState.tablaActual);
+                renderGridAdmin();
+                if (!silencioso) setAdminStatus(`${adminState.rows.length} filas`);
+            } catch (err) {
+                if (!silencioso) setAdminStatus('Error: ' + err.message);
+            }
+        }
+
+        function columnasFallback(tabla) {
+            // Si la tabla está vacía, ponemos un set mínimo para poder crear filas
+            const map = {
+                INVENTARIO: ['FECHA','OPER','NUMERO','VR PR','VR RT','NOMBRE','CC','ART','DESCRIPCION','LLEVAR','VR IN','TOT IN','FECHA INT','VR AB','FECHA ABON','ESPERA','RETIROS','FECHA RETIRO','DES','AUMENTO','FECHA AU','TOTAL','UTIL'],
+                CAJA: ['FECHA','TURNO','BASE','RETIRO','GUARDA','BAR','CONTRATOS','GASTOS','VENTAS','CUADRE CAJA'],
+                RETIROS: ['FECHA','OPER','NUMERO','VR PR','VR RT','NOMBRE','CC','ART','DESCRIPCION','LLEVAR','VR IN','TOT IN','FECHA INT','VR AB','FECHA ABON','ESPERA','RETIROS','FECHA RETIRO','DES','AUMENTO','FECHA AU','TOTAL','UTIL'],
+                XALE: ['ENVIOS','FECHA'],
+                DEV: ['DEVOLUCIONES','FECHA'],
+                VENDIDO: ['FECHA','OPER','NUMERO','VR PR','VR RT','NOMBRE','CC','ART','DESCRIPCION','LLEVAR','VR IN','TOT IN','FECHA INT','VR AB','FECHA ABON','ESPERA','RETIROS','FECHA RETIRO','DES','AUMENTO','FECHA AU','TOTAL','UTIL','VALOR VENTA','FECHA VENTA'],
+                GUARDADERO: ['MARCA TEMPORAL','VALOR'],
+                HISTORIAL: ['FECHA','OPER','TIPO','NUMERO','NOMBRE','CC','ART','DESCRIPCION','VALOR','DETALLE'],
+                BAR: ['MARCA TEMPORAL','VALOR'],
+                SALIDAS: ['FECHA','OPER','NUMERO','VR PR','VR RT','NOMBRE','CC','ART','DESCRIPCION','LLEVAR','VR IN','TOT IN','FECHA INT','VR AB','FECHA ABON','ESPERA','RETIROS','FECHA RETIRO','DES','AUMENTO','FECHA AU','TOTAL','UTIL'],
+                GASTOS: ['FECHA','TURNO','VALOR','DESCRIPCION']
+            };
+            return map[tabla] || [];
+        }
+
+        function renderGridAdmin() {
+            const head = document.getElementById('admin-grid-head');
+            const body = document.getElementById('admin-grid-body');
+            head.innerHTML = '';
+            body.innerHTML = '';
+            const cols = adminState.columnas;
+
+            const thNum = document.createElement('th');
+            thNum.textContent = '#';
+            head.appendChild(thNum);
+            cols.forEach(c => {
+                const th = document.createElement('th');
+                th.textContent = c;
+                head.appendChild(th);
+            });
+
+            const filtro = (adminState.filtro || '').toLowerCase();
+            const rowsFiltradas = filtro
+                ? adminState.rows.filter(r => Object.values(r).some(v => String(v ?? '').toLowerCase().includes(filtro)))
+                : adminState.rows;
+
+            rowsFiltradas.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                tr.dataset.rowIndex = adminState.rows.indexOf(row);
+                if (adminState.seleccionFilas.has(tr.dataset.rowIndex)) tr.classList.add('admin-row-selected');
+
+                const tdNum = document.createElement('td');
+                tdNum.textContent = idx + 1;
+                tdNum.className = 'admin-cell-num';
+                tdNum.onclick = () => toggleSeleccionFila(tr.dataset.rowIndex);
+                tr.appendChild(tdNum);
+
+                cols.forEach(col => {
+                    const td = document.createElement('td');
+                    td.textContent = formatearValorAdmin(row[col]);
+                    td.dataset.col = col;
+                    td.dataset.rowIndex = tr.dataset.rowIndex;
+                    td.onclick = () => onClickCeldaAdmin(td);
+                    td.ondblclick = () => iniciarEdicionCeldaAdmin(td);
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            });
+        }
+
+        function formatearValorAdmin(v) {
+            if (v === null || v === undefined) return '';
+            if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(v)) {
+                return v.replace('T', ' ').replace(/\+\d{2}:?\d{2}$/, '').replace(/Z$/, '').slice(0, 19);
+            }
+            return String(v);
+        }
+
+        function setAdminStatus(txt) {
+            const el = document.getElementById('admin-status');
+            if (el) el.textContent = txt;
+        }
+
+        function toggleSeleccionFila(rowIndex) {
+            if (adminState.seleccionFilas.has(rowIndex)) adminState.seleccionFilas.delete(rowIndex);
+            else adminState.seleccionFilas.add(rowIndex);
+            renderGridAdmin();
+        }
+
+        function onClickCeldaAdmin(td) {
+            document.querySelectorAll('.admin-cell-selected').forEach(c => c.classList.remove('admin-cell-selected'));
+            td.classList.add('admin-cell-selected');
+            adminState.celdaSeleccionada = td;
+        }
+
+        function iniciarEdicionCeldaAdmin(td) {
+            if (adminState.cfgActual && !adminState.cfgActual.editable) {
+                setAdminStatus('Tabla solo lectura');
+                return;
+            }
+            if (adminState.celdaEditando) return;
+            const valorActual = td.textContent;
+            td.classList.add('admin-cell-editing');
+            td.innerHTML = '';
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.value = valorActual;
+            td.appendChild(inp);
+            inp.focus();
+            inp.select();
+            adminState.celdaEditando = { td, original: valorActual, input: inp };
+
+            const finalizar = (guardar) => {
+                if (!adminState.celdaEditando) return;
+                const nuevoValor = inp.value;
+                td.classList.remove('admin-cell-editing');
+                td.innerHTML = '';
+                td.textContent = guardar ? nuevoValor : valorActual;
+                adminState.celdaEditando = null;
+                if (guardar && nuevoValor !== valorActual) {
+                    guardarCeldaAdmin(td, nuevoValor);
+                }
+            };
+
+            inp.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); finalizar(true); }
+                else if (e.key === 'Escape') { e.preventDefault(); finalizar(false); }
+            });
+            inp.addEventListener('blur', () => finalizar(true));
+        }
+
+        async function guardarCeldaAdmin(td, valor) {
+            const rowIndex = parseInt(td.dataset.rowIndex, 10);
+            const col = td.dataset.col;
+            const row = adminState.rows[rowIndex];
+            if (!row) return;
+            const cfg = adminState.cfgActual;
+            if (!cfg || !cfg.editable) return;
+
+            const where = {};
+            cfg.pk.forEach(k => where[k] = row[k]);
+            const set = {};
+            set[col] = parseInputValor(valor);
+            try {
+                setAdminStatus('Guardando...');
+                await adminFetch('update', { tabla: adminState.tablaActual, where, set });
+                row[col] = set[col];
+                setAdminStatus('Guardado ✓');
+            } catch (err) {
+                setAdminStatus('Error: ' + err.message);
+                td.textContent = formatearValorAdmin(row[col]);
+            }
+        }
+
+        function parseInputValor(v) {
+            if (v === '' || v === null || v === undefined) return null;
+            const s = String(v).trim();
+            if (s === '') return null;
+            // Si parece número, conviértelo
+            if (/^-?\d+(\.\d+)?$/.test(s)) return Number(s);
+            return s;
+        }
+
+        function filtrarTablaAdmin() {
+            adminState.filtro = document.getElementById('admin-search').value || '';
+            renderGridAdmin();
+        }
+
+        async function agregarFilaAdmin() {
+            if (adminState.cfgActual && !adminState.cfgActual.editable) {
+                setAdminStatus('Tabla solo lectura'); return;
+            }
+            const nuevaFila = {};
+            adminState.columnas.forEach(c => nuevaFila[c] = null);
+            const ahora = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+            // Rellenar fechas obvias
+            ['FECHA','MARCA TEMPORAL'].forEach(c => { if (adminState.columnas.includes(c)) nuevaFila[c] = ahora; });
+
+            const promptObj = {};
+            for (const k of adminState.cfgActual.pk) {
+                if (nuevaFila[k] !== null && nuevaFila[k] !== undefined) continue;
+                const v = prompt(`Valor para ${k}:`);
+                if (v === null) return;
+                nuevaFila[k] = parseInputValor(v);
+                promptObj[k] = nuevaFila[k];
+            }
+            try {
+                setAdminStatus('Insertando...');
+                await adminFetch('insert', { tabla: adminState.tablaActual, rows: [nuevaFila] });
+                await recargarTablaAdmin();
+                setAdminStatus('Fila creada ✓');
+            } catch (err) { setAdminStatus('Error: ' + err.message); }
+        }
+
+        async function eliminarFilasSeleccionadasAdmin() {
+            if (adminState.cfgActual && !adminState.cfgActual.editable) {
+                setAdminStatus('Tabla solo lectura'); return;
+            }
+            if (adminState.seleccionFilas.size === 0) { setAdminStatus('No hay filas seleccionadas'); return; }
+            if (!confirm(`Eliminar ${adminState.seleccionFilas.size} fila(s)?`)) return;
+            try {
+                setAdminStatus('Eliminando...');
+                for (const idxStr of adminState.seleccionFilas) {
+                    const row = adminState.rows[parseInt(idxStr, 10)];
+                    if (!row) continue;
+                    const where = {};
+                    adminState.cfgActual.pk.forEach(k => where[k] = row[k]);
+                    await adminFetch('delete', { tabla: adminState.tablaActual, where });
+                }
+                adminState.seleccionFilas.clear();
+                await recargarTablaAdmin();
+                setAdminStatus('Eliminadas ✓');
+            } catch (err) { setAdminStatus('Error: ' + err.message); }
+        }
+
+        // ---- Copiar / Pegar al estilo Excel (TSV) ----
+        document.addEventListener('copy', (e) => {
+            if (!document.getElementById('screen-admin-tablas').classList.contains('hidden') === false) return;
+            // Solo si estamos en panel admin
+            const panel = document.getElementById('screen-admin-tablas');
+            if (panel.classList.contains('hidden')) return;
+            // Si hay filas seleccionadas, copiar esas filas como TSV
+            if (adminState.seleccionFilas.size > 0) {
+                const cols = adminState.columnas;
+                const filas = Array.from(adminState.seleccionFilas)
+                    .map(i => adminState.rows[parseInt(i,10)])
+                    .filter(Boolean);
+                const tsv = [cols.join('\t')].concat(
+                    filas.map(r => cols.map(c => formatearValorAdmin(r[c])).join('\t'))
+                ).join('\n');
+                e.clipboardData.setData('text/plain', tsv);
+                e.preventDefault();
+                setAdminStatus(`Copiadas ${filas.length} filas`);
+            } else if (adminState.celdaSeleccionada) {
+                e.clipboardData.setData('text/plain', adminState.celdaSeleccionada.textContent);
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('paste', async (e) => {
+            const panel = document.getElementById('screen-admin-tablas');
+            if (panel.classList.contains('hidden')) return;
+            if (adminState.cfgActual && !adminState.cfgActual.editable) return;
+            if (adminState.celdaEditando) return; // si está editando, dejar que el input reciba el paste
+
+            const texto = (e.clipboardData || window.clipboardData).getData('text');
+            if (!texto) return;
+            e.preventDefault();
+
+            const lineas = texto.split(/\r?\n/).filter(l => l.trim().length > 0);
+            if (lineas.length === 0) return;
+
+            // Si la primera línea coincide con encabezados, úsalos. Si no, usa columnas actuales.
+            let cols = adminState.columnas;
+            let dataLineas = lineas;
+            const primera = lineas[0].split('\t');
+            const coincide = primera.every(h => cols.includes(h));
+            if (coincide && primera.length > 1) {
+                cols = primera;
+                dataLineas = lineas.slice(1);
+            }
+
+            const filasPegar = dataLineas.map(l => {
+                const partes = l.split('\t');
+                const obj = {};
+                cols.forEach((c, i) => { obj[c] = parseInputValor(partes[i] ?? ''); });
+                return obj;
+            });
+
+            if (!confirm(`Pegar ${filasPegar.length} fila(s) en ${adminState.tablaActual}?`)) return;
+            try {
+                setAdminStatus('Pegando...');
+                await adminFetch('insert', { tabla: adminState.tablaActual, rows: filasPegar });
+                await recargarTablaAdmin();
+                setAdminStatus(`Pegadas ${filasPegar.length} filas ✓`);
+            } catch (err) {
+                setAdminStatus('Error al pegar: ' + err.message);
+            }
+        });
+
+        // Si el usuario sale del panel, parar polling
+        const _originalMostrarPantalla = mostrarPantalla;
+        mostrarPantalla = function(id) {
+            if (id !== 'screen-admin-tablas' && adminState.pollingId) {
+                clearInterval(adminState.pollingId);
+                adminState.pollingId = null;
+            }
+            return _originalMostrarPantalla(id);
+        };
+
+        // Borrar clave si se cierra/recarga la app (sessionStorage ya se borra solo al cerrar, pero por si acaso)
+        window.addEventListener('beforeunload', () => {
+            // sessionStorage se borra al cerrar la pestaña automáticamente; nada más que hacer
+        });
+
     </script>
 </body>
 </html>

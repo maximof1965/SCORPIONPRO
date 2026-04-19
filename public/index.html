@@ -904,7 +904,9 @@
             border: 1px solid #444;
             background: #111;
             color: #fff;
+            min-width: 160px;
         }
+        .admin-toolbar select option { background: #111; color: #fff; }
         .admin-toolbar input[type="text"] { min-width: 220px; }
         .admin-btn {
             padding: 8px 14px !important;
@@ -984,6 +986,12 @@
             background: #1a1a1a;
             border-top: 1px solid #333;
         }
+        .admin-help.admin-error {
+            color: #ff8080;
+            font-weight: bold;
+            font-size: 13px;
+            background: #2a0a0a;
+        }
         @media (max-width: 700px) {
             .admin-toolbar input[type="text"] { min-width: 140px; flex: 1; }
             .admin-status { display: none; }
@@ -1050,9 +1058,9 @@
                     <tbody id="admin-grid-body"></tbody>
                 </table>
             </div>
-            <div class="admin-help">
-                Click en una celda para editar · Enter para guardar · Esc para cancelar ·
-                Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el #️⃣ para seleccionar fila
+            <div class="admin-help" id="admin-help">
+                Doble clic en celda para editar · Enter guarda · Esc cancela ·
+                Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el # de la izquierda para seleccionar fila
             </div>
         </div>
         
@@ -4345,20 +4353,43 @@
 
         async function entrarPanelTablas() {
             mostrarPantalla('screen-admin-tablas');
+            mostrarErrorAdmin(''); // limpiar
             try {
+                setAdminStatus('Cargando tablas...');
                 const data = await adminFetch('tablas');
                 adminState.tablas = data.tablas || [];
                 const sel = document.getElementById('admin-tabla-select');
+                if (adminState.tablas.length === 0) {
+                    sel.innerHTML = '<option value="">(sin tablas)</option>';
+                    mostrarErrorAdmin('El servidor no devolvió tablas. Revisa que el deploy haya terminado.');
+                    return;
+                }
                 sel.innerHTML = adminState.tablas
                     .map(t => `<option value="${t.name}">${t.name}${t.editable ? '' : ' (solo lectura)'}</option>`)
                     .join('');
-                if (!adminState.tablaActual) adminState.tablaActual = adminState.tablas[0]?.name;
+                if (!adminState.tablaActual || !adminState.tablas.find(x => x.name === adminState.tablaActual)) {
+                    adminState.tablaActual = adminState.tablas[0].name;
+                }
                 sel.value = adminState.tablaActual;
                 await cargarTablaAdmin();
                 iniciarPollingAdmin();
             } catch (err) {
-                alert('Error: ' + err.message);
-                mostrarPantalla('screen-admin-login');
+                mostrarErrorAdmin('Error al cargar tablas: ' + err.message);
+                if (String(err.message).includes('Clave')) {
+                    setTimeout(() => mostrarPantalla('screen-admin-login'), 1500);
+                }
+            }
+        }
+
+        function mostrarErrorAdmin(msg) {
+            const help = document.getElementById('admin-help');
+            if (!help) return;
+            if (msg) {
+                help.classList.add('admin-error');
+                help.textContent = '⚠ ' + msg;
+            } else {
+                help.classList.remove('admin-error');
+                help.textContent = 'Doble clic en celda para editar · Enter guarda · Esc cancela · Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el # de la izquierda para seleccionar fila';
             }
         }
 
@@ -4381,6 +4412,7 @@
         }
 
         async function recargarTablaAdmin(silencioso = false) {
+            if (!adminState.tablaActual) return;
             try {
                 if (!silencioso) setAdminStatus('Cargando...');
                 const data = await adminFetch('list', { tabla: adminState.tablaActual });
@@ -4389,9 +4421,15 @@
                     ? Object.keys(adminState.rows[0])
                     : columnasFallback(adminState.tablaActual);
                 renderGridAdmin();
-                if (!silencioso) setAdminStatus(`${adminState.rows.length} filas`);
+                if (!silencioso) {
+                    setAdminStatus(`${adminState.rows.length} filas`);
+                    mostrarErrorAdmin('');
+                }
             } catch (err) {
-                if (!silencioso) setAdminStatus('Error: ' + err.message);
+                if (!silencioso) {
+                    setAdminStatus('Error');
+                    mostrarErrorAdmin('Error al cargar ' + adminState.tablaActual + ': ' + err.message);
+                }
             }
         }
 

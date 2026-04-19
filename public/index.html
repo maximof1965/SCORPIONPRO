@@ -1204,6 +1204,9 @@
             white-space: nowrap;
             cursor: cell;
             color: #e8e8e8;
+            /* Fondo opaco obligatorio: si no, las columnas sticky se transparentan
+               y dejan ver lo que pasa por detras al hacer scroll horizontal. */
+            background: #0d0d0d;
         }
         table.admin-grid tbody tr:nth-child(even) td { background: #131313; }
         table.admin-grid tbody td.admin-cell-selected { background: #2a3a55 !important; }
@@ -1230,7 +1233,34 @@
             user-select: none;
             position: sticky;
             left: 0;
-            z-index: 1;
+            z-index: 3;
+        }
+        /* Cabecera de la columna # tambien sticky en la esquina superior izquierda */
+        table.admin-grid thead th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+        /* ============================================================
+           COLUMNAS CONGELADAS (sticky horizontal)
+           Las primeras N columnas de cada tabla quedan fijas a la
+           izquierda al hacer scroll horizontal y tapan a las demas.
+           El left de cada una se calcula con JS (aplicarColumnasSticky)
+           porque depende del ancho real renderizado.
+           ============================================================ */
+        table.admin-grid thead th.admin-sticky-col {
+            position: sticky;
+            background: #2a2a2a;     /* opaco */
+            z-index: 4;
+        }
+        table.admin-grid tbody td.admin-sticky-col {
+            position: sticky;
+            z-index: 2;
+        }
+        /* Sombra sutil al final del bloque sticky para indicar el corte */
+        table.admin-grid thead th.admin-sticky-edge,
+        table.admin-grid tbody td.admin-sticky-edge {
+            box-shadow: 4px 0 8px -4px rgba(0,0,0,0.85);
         }
         .admin-help {
             padding: 6px 14px;
@@ -6213,6 +6243,88 @@
                 });
                 body.appendChild(tr);
             });
+
+            // Aplicamos las columnas congeladas (sticky horizontal).
+            requestAnimationFrame(aplicarColumnasSticky);
+        }
+
+        // ========================================================
+        // COLUMNAS STICKY POR TABLA
+        // ========================================================
+        // Por cada tabla definimos cuales columnas (despues del #) deben
+        // quedar fijas al hacer scroll horizontal. La columna # SIEMPRE
+        // queda fija; aqui solo se listan las que vienen DESPUES del #.
+        const STICKY_COLS_POR_TABLA = {
+            INVENTARIO: ['FECHA', 'OPER', 'NUMERO'],
+            RETIROS:    ['FECHA', 'OPER', 'NUMERO'],
+            VENDIDO:    ['FECHA', 'OPER', 'NUMERO'],
+            SALIDAS:    ['FECHA', 'OPER', 'NUMERO'],
+            HISTORIAL:  ['FECHA', 'OPER', 'NUMERO'],
+            CAJA:       ['FECHA', 'TURNO'],
+            GASTOS:     ['FECHA', 'TURNO'],
+            GUARDADERO: ['MARCA TEMPORAL'],
+            BAR:        ['MARCA TEMPORAL'],
+            XALE:       ['ENVIOS', 'FECHA'],
+            DEV:        ['DEVOLUCIONES', 'FECHA']
+        };
+
+        function aplicarColumnasSticky() {
+            const head = document.getElementById('admin-grid-head');
+            const body = document.getElementById('admin-grid-body');
+            if (!head || !body) return;
+
+            // Limpia clases/estilos anteriores
+            head.querySelectorAll('th').forEach(th => {
+                th.classList.remove('admin-sticky-col', 'admin-sticky-edge');
+                if (th !== head.firstElementChild) th.style.left = '';
+            });
+            body.querySelectorAll('td').forEach(td => {
+                td.classList.remove('admin-sticky-col', 'admin-sticky-edge');
+                if (!td.classList.contains('admin-cell-num')) td.style.left = '';
+            });
+
+            const ths = Array.from(head.querySelectorAll('th'));
+            if (ths.length === 0) return;
+
+            // La columna # (indice 0) ya es sticky por CSS, parte del bloque.
+            const stickyNames = STICKY_COLS_POR_TABLA[adminState.tablaActual] || [];
+            const colNames = adminState.columnas;
+
+            // Construimos la lista de indices (en el thead) que seran sticky:
+            // 0 -> '#'  ;  cols stickyNames -> indice = posicion en colNames + 1
+            const indices = [0];
+            stickyNames.forEach(n => {
+                const i = colNames.indexOf(n);
+                if (i >= 0) indices.push(i + 1);
+            });
+            // Solo aplicamos si tenemos al menos una columna ADEMAS del '#'.
+            // El '#' por si solo ya esta sticky por CSS y no necesita borde.
+            if (indices.length <= 1) return;
+
+            // Calculamos left acumulado en pixeles reales medidos.
+            let acc = 0;
+            indices.forEach((colIdx, i) => {
+                const th = ths[colIdx];
+                if (!th) return;
+                const ancho = th.getBoundingClientRect().width;
+                if (colIdx !== 0) {
+                    th.classList.add('admin-sticky-col');
+                    th.style.left = acc + 'px';
+                }
+                if (i === indices.length - 1) th.classList.add('admin-sticky-edge');
+
+                // Aplicamos a toda la columna en el body.
+                const tds = body.querySelectorAll('tr > td:nth-child(' + (colIdx + 1) + ')');
+                tds.forEach(td => {
+                    if (colIdx !== 0) {
+                        td.classList.add('admin-sticky-col');
+                        td.style.left = acc + 'px';
+                    }
+                    if (i === indices.length - 1) td.classList.add('admin-sticky-edge');
+                });
+
+                acc += ancho;
+            });
         }
 
         function formatearValorAdmin(v) {
@@ -6377,8 +6489,18 @@
                 tablas.classList.remove('hidden');
                 btnM.classList.remove('activa');
                 btnT.classList.add('activa');
+                // Reaplicar sticky por si las medidas cambiaron mientras
+                // la grilla estaba oculta.
+                requestAnimationFrame(aplicarColumnasSticky);
             }
         }
+
+        // Recalcular sticky al redimensionar la ventana (debounced)
+        let _stickyResizeTO = null;
+        window.addEventListener('resize', () => {
+            if (_stickyResizeTO) clearTimeout(_stickyResizeTO);
+            _stickyResizeTO = setTimeout(aplicarColumnasSticky, 150);
+        });
 
         function fechaISOlocal(d) {
             const z = (n) => String(n).padStart(2, '0');

@@ -1761,15 +1761,15 @@
             color: var(--silver-shine) !important;
         }
 
-        /* ===== Tablas (verificar / admin / ventas-lote) ===== */
-        table.tabla-verificar, table.admin-grid, table.ventas-lote-tabla {
+        /* ===== Tablas (verificar / ventas-lote) — admin-grid se maneja aparte ===== */
+        table.tabla-verificar, table.ventas-lote-tabla {
             background: transparent !important;
             color: var(--silver-bright);
             font-family: 'Inter', sans-serif;
             border-collapse: separate !important;
             border-spacing: 0;
         }
-        table.tabla-verificar th, table.admin-grid th, table.ventas-lote-tabla th {
+        table.tabla-verificar th, table.ventas-lote-tabla th {
             background: linear-gradient(180deg, #1f1f26 0%, #14141a 100%) !important;
             color: var(--silver-mid) !important;
             font-weight: 500 !important;
@@ -1780,7 +1780,7 @@
             border-bottom: 1px solid var(--metal-edge) !important;
             text-align: left;
         }
-        table.tabla-verificar td, table.admin-grid td, table.ventas-lote-tabla td {
+        table.tabla-verificar td, table.ventas-lote-tabla td {
             padding: 11px 10px !important;
             border-bottom: 1px solid rgba(216,216,220,0.05) !important;
             color: var(--silver-shine) !important;
@@ -1789,9 +1789,59 @@
             background: transparent !important;
         }
         table.tabla-verificar tbody tr:hover td,
-        table.admin-grid tbody tr:hover td,
         table.ventas-lote-tabla tbody tr:hover td {
             background: rgba(216,216,220,0.03) !important;
+        }
+
+        /* ===== admin-grid: estetica premium PERO con celdas opacas obligatorias
+                (las columnas sticky necesitan tapar el contenido que pasa por debajo) ===== */
+        table.admin-grid {
+            background: #0a0a0c !important;
+            color: var(--silver-bright);
+            font-family: 'Inter', sans-serif;
+            border-collapse: separate !important;
+            border-spacing: 0;
+        }
+        table.admin-grid th {
+            background: linear-gradient(180deg, #1f1f26 0%, #14141a 100%) !important;
+            color: var(--silver-mid) !important;
+            font-weight: 500 !important;
+            font-size: 11px !important;
+            letter-spacing: 0.10em !important;
+            text-transform: uppercase;
+            padding: 12px 10px !important;
+            border-bottom: 1px solid var(--metal-edge) !important;
+            text-align: left;
+        }
+        table.admin-grid td {
+            padding: 11px 10px !important;
+            border-bottom: 1px solid rgba(216,216,220,0.05) !important;
+            color: var(--silver-shine) !important;
+            font-family: 'JetBrains Mono', 'Courier Prime', monospace;
+            font-size: 13px;
+            background: #0d0d0d !important;       /* OPACO obligatorio */
+        }
+        table.admin-grid tbody tr:nth-child(even) td {
+            background: #131318 !important;       /* OPACO obligatorio */
+        }
+        table.admin-grid tbody tr.admin-row-selected td {
+            background: #3a2a55 !important;
+        }
+        table.admin-grid tbody td.admin-cell-selected {
+            background: #2a3a55 !important;
+        }
+        table.admin-grid tbody td.admin-cell-num {
+            background: #1a1a1f !important;       /* OPACO obligatorio (sticky #) */
+        }
+        table.admin-grid thead th:first-child {
+            background: linear-gradient(180deg, #232328 0%, #16161c 100%) !important;
+        }
+        /* Hover suave (no afecta opacidad) */
+        table.admin-grid tbody tr:hover td {
+            background: #1a1a22 !important;
+        }
+        table.admin-grid tbody tr:nth-child(even):hover td {
+            background: #1d1d26 !important;
         }
 
         /* ===== Admin toolbar ===== */

@@ -4009,6 +4009,14 @@
                             // Pasar directamente la respuesta (puede ser array, objeto o string)
                             // N8N "All Incoming Items" puede devolver diferentes formatos
                             mostrarMensajeConRespuesta(respuesta, true);
+                        } else if (respuesta && respuesta.ok === false) {
+                            // El backend devolvio HTTP 200 pero con ok:false (validacion fallida).
+                            // Mostramos el mensaje devuelto y reactivamos el boton para que el operador corrija.
+                            mostrarError(respuesta.mensaje || respuesta.message || 'NO FUE POSIBLE COMPLETAR LA OPERACION');
+                            if (btnEnviar) {
+                                btnEnviar.disabled = false;
+                                btnEnviar.textContent = 'Enviar';
+                            }
                         } else {
                             // Para todas las demás operaciones: mostrar éxito (los datos se enviaron correctamente)
                             mostrarMensajeExito();

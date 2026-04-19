@@ -1761,6 +1761,42 @@
             .btn::after { display: none !important; }
         }
 
+        /* ===== TABLAS: campo de busqueda con boton X ===== */
+        .admin-search-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .admin-search-wrap input {
+            padding-right: 30px !important;
+        }
+        .admin-search-clear {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: none;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            font-size: 16px;
+            line-height: 1;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            padding: 0;
+            font-weight: bold;
+        }
+        .admin-search-clear:hover {
+            background: rgba(255, 80, 80, 0.85);
+        }
+        .admin-search-wrap.has-text .admin-search-clear {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         /* ===== EDITAR: cards de operaciones ===== */
         .editar-cards-wrap {
             display: grid;
@@ -1931,8 +1967,12 @@
             <div class="admin-toolbar">
                 <button class="btn btn-back" onclick="volverAInicio()">← INICIO</button>
                 <select id="admin-tabla-select" onchange="cargarTablaAdmin()"></select>
-                <input type="text" id="admin-search" placeholder="🔍 Buscar..."
-                       autocomplete="off" oninput="filtrarTablaAdmin()">
+                <span class="admin-search-wrap">
+                    <input type="text" id="admin-search" placeholder="🔍 Buscar..."
+                           autocomplete="off" oninput="filtrarTablaAdmin()">
+                    <button type="button" id="admin-search-clear" class="admin-search-clear"
+                            title="Borrar busqueda" onclick="limpiarBusquedaAdmin()" aria-label="Borrar busqueda">×</button>
+                </span>
                 <button class="btn btn-secondary admin-btn" onclick="recargarTablaAdmin()">RECARGAR</button>
                 <button class="btn btn-primary admin-btn" onclick="agregarFilaAdmin()">+ FILA</button>
                 <button class="btn btn-danger admin-btn" onclick="eliminarFilasSeleccionadasAdmin()">ELIMINAR SELEC.</button>
@@ -5789,8 +5829,20 @@
         }
 
         function filtrarTablaAdmin() {
-            adminState.filtro = document.getElementById('admin-search').value || '';
+            const inp = document.getElementById('admin-search');
+            const valor = inp ? (inp.value || '') : '';
+            adminState.filtro = valor;
+            const wrap = inp ? inp.closest('.admin-search-wrap') : null;
+            if (wrap) wrap.classList.toggle('has-text', valor.length > 0);
             renderGridAdmin();
+        }
+
+        function limpiarBusquedaAdmin() {
+            const inp = document.getElementById('admin-search');
+            if (!inp) return;
+            inp.value = '';
+            filtrarTablaAdmin();
+            inp.focus();
         }
 
         async function agregarFilaAdmin() {
@@ -5979,18 +6031,22 @@
             mostrarPantalla('screen-editar-lista');
 
             try {
-                // Calcular el rango de "hoy" segun la HORA LOCAL del navegador
-                // (no UTC). El backend filtra HISTORIAL.FECHA entre desde y
-                // hasta para no perder operaciones cerca de medianoche.
+                // El backend guarda las fechas con la hora LOCAL del usuario
+                // tratada como si fuera UTC. Para que el filtro "hoy" coincida
+                // con esos timestamps, calculamos el rango usando la fecha
+                // local YYYY-MM-DD y le pegamos "Z" sin convertir.
                 const ahora = new Date();
-                const ini = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 0, 0, 0);
-                const fin = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 23, 59, 59);
+                const yyyy = ahora.getFullYear();
+                const mm = String(ahora.getMonth() + 1).padStart(2, '0');
+                const dd = String(ahora.getDate()).padStart(2, '0');
+                const desde = `${yyyy}-${mm}-${dd}T00:00:00Z`;
+                const hasta = `${yyyy}-${mm}-${dd}T23:59:59Z`;
                 const params = new URLSearchParams({
                     accion: 'list',
                     turno: estado.turno || '',
                     tipo: tipoUp,
-                    desde: ini.toISOString(),
-                    hasta: fin.toISOString()
+                    desde,
+                    hasta
                 });
                 const r = await fetch('/api/editar?' + params.toString());
                 const json = await r.json();
@@ -6082,19 +6138,18 @@
         function formatearHoraCard(fechaStr) {
             if (!fechaStr) return '';
             try {
-                // El backend guarda todo como UTC (ej "2026-04-10T23:32:00Z" o
-                // "2026-04-10T23:32:00+00:00"). Supabase a veces lo devuelve sin
-                // marcador de zona ("2026-04-10 23:32:00") -> en ese caso
-                // forzamos que se interprete como UTC para que getHours() lo
-                // convierta correctamente a la hora local del navegador.
+                // El backend almacena la hora LOCAL que tipeo el usuario
+                // (no UTC real). Para mostrarla "tal cual" se extraen los
+                // componentes en UTC, sin que el navegador aplique conversion
+                // por zona horaria local.
                 let s = String(fechaStr).trim().replace(' ', 'T');
                 const tieneTZ = /Z$/i.test(s) || /[+-]\d{2}:?\d{2}$/.test(s);
                 if (!tieneTZ) s = s + 'Z';
                 const d = new Date(s);
                 if (isNaN(d.getTime())) return '';
-                const hh = String(d.getHours()).padStart(2, '0');
-                const mm = String(d.getMinutes()).padStart(2, '0');
-                const ss = String(d.getSeconds()).padStart(2, '0');
+                const hh = String(d.getUTCHours()).padStart(2, '0');
+                const mm = String(d.getUTCMinutes()).padStart(2, '0');
+                const ss = String(d.getUTCSeconds()).padStart(2, '0');
                 return `${hh}:${mm}:${ss}`;
             } catch (_) { return ''; }
         }

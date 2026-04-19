@@ -16,6 +16,7 @@ const handlers = {
   verificar: require('../lib/handlers/verificar'),
   control: require('../lib/handlers/control'),
   buscar_live: require('../lib/handlers/buscar_live'),
+  ventas_lote: require('../lib/handlers/ventas_lote'),
   admin_login: require('../lib/handlers/admin_login'),
   admin_data: require('../lib/handlers/admin_data'),
 };

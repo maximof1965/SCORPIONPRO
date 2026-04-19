@@ -888,6 +888,105 @@
             padding: 0;
         }
         .admin-panel.hidden { display: none !important; }
+
+        /* ============================================ */
+        /* VENTAS POR LOTE */
+        /* ============================================ */
+        #screen-ventas-lote {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 10px 16px 20px;
+        }
+        .ventas-lote-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .ventas-lote-controles { display: flex; gap: 8px; }
+        .btn-ventas-pm {
+            width: 44px; height: 44px;
+            font-size: 22px;
+            font-weight: bold;
+            border: 1px solid #555;
+            background: #222;
+            color: #ffd84d;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-ventas-pm:active { background: #333; }
+        .ventas-lote-tabla-wrapper {
+            overflow-x: auto;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #111;
+        }
+        table.ventas-lote-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Courier Prime', monospace;
+        }
+        table.ventas-lote-tabla thead th {
+            background: #1f1f1f;
+            color: #ffd84d;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            border-bottom: 1px solid #333;
+        }
+        table.ventas-lote-tabla tbody td {
+            padding: 6px;
+            border-bottom: 1px solid #1f1f1f;
+        }
+        table.ventas-lote-tabla input {
+            width: 100%;
+            font-size: 18px;
+            padding: 10px 8px;
+            background: #000;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 6px;
+            text-align: center;
+            font-family: inherit;
+        }
+        table.ventas-lote-tabla input:focus {
+            outline: 2px solid #ffd84d;
+            border-color: #ffd84d;
+        }
+        table.ventas-lote-tabla tr.fila-error input {
+            border-color: #ff4040;
+            background: #2a0a0a;
+            color: #ff8080;
+        }
+        .btn-eliminar-fila {
+            width: 36px; height: 36px;
+            background: #b32020;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-eliminar-fila:active { background: #8b1818; }
+        .ventas-lote-msg {
+            margin-top: 14px;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        .ventas-lote-msg.error {
+            background: #2a0a0a;
+            color: #ff8080;
+            border: 1px solid #602020;
+        }
+        .ventas-lote-msg.ok {
+            background: #0a2a0a;
+            color: #80ff80;
+            border: 1px solid #206020;
+        }
         .admin-toolbar {
             display: flex;
             align-items: center;
@@ -1008,6 +1107,7 @@
             <div class="center menu-inicial" style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px;">
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoIngreso()" style="width: 200px;">INGRESO</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarBusquedaInicial()" style="width: 200px;">BUSCAR</button>
+                <button class="btn btn-secondary btn-menu-inicial" onclick="abrirVentasLote()" style="width: 200px;">VENTAS</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoBar()" style="width: 200px;">BAR</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGuardadero()" style="width: 200px;">GUARDADERO</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarCajaBaseCierre()" style="width: 200px;">CAJA</button>
@@ -1107,7 +1207,6 @@
                 <button class="btn-operation" onclick="mostrarFormulario('busqueda')">BUSQUEDA</button>
                 <button class="btn-operation" onclick="mostrarFormulario('salida')">SALIDA</button>
                 <button class="btn-operation" onclick="mostrarFormulario('aumento')">AUMENTO</button>
-                <button class="btn-operation" onclick="mostrarFormulario('ventas')">VENTAS</button>
                 <button class="btn-operation" onclick="mostrarFormulario('devolucion')">DEVOLUCION</button>
                 <button class="btn-operation" onclick="mostrarFormulario('gastos')">GASTOS</button>
             </div>
@@ -1128,7 +1227,6 @@
                 <button class="btn-operation" onclick="mostrarFormulario('espera')">ESPERA</button>
                 <button class="btn-operation" onclick="mostrarFormulario('salida')">SALIDA</button>
                 <button class="btn-operation" onclick="mostrarFormulario('aumento')">AUMENTO</button>
-                <button class="btn-operation" onclick="mostrarFormulario('ventas')">VENTAS</button>
                 <button class="btn-operation" onclick="mostrarFormulario('devolucion')">DEVOLUCION</button>
             </div>
             <div class="center" style="margin-top: 20px;">
@@ -1470,12 +1568,46 @@
             <h1>GUARDADERO</h1>
             <div class="subtitle">Turno: <span id="guardadero-turno"></span></div>
             <div class="form-group">
+                <label>NOMBRE *</label>
+                <input type="text" id="guardadero-nombre" placeholder="Nombre del cliente" autocomplete="off">
+            </div>
+            <div class="form-group">
                 <label>VALOR *</label>
                 <input type="text" id="guardadero-valor" placeholder="1-3 dígitos (ej: 1, 2.5, 100)" inputmode="decimal">
             </div>
             <div class="center">
                 <button class="btn btn-back" onclick="mostrarTurnoGuardadero()">← Atrás</button>
                 <button class="btn btn-primary" id="btn-enviar-guardadero" onclick="enviarDatos('guardadero')" disabled>Enviar</button>
+            </div>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- PANTALLA VENTAS POR LOTE -->
+        <!-- ================================================ -->
+        <div id="screen-ventas-lote" class="hidden">
+            <div class="ventas-lote-header">
+                <h1 style="margin:0;">VENTAS</h1>
+                <div class="ventas-lote-controles">
+                    <button class="btn-ventas-pm" onclick="quitarUltimaFilaVenta()" title="Quitar última fila">−</button>
+                    <button class="btn-ventas-pm" onclick="agregarFilaVenta(true)" title="Agregar fila">+</button>
+                </div>
+            </div>
+            <div class="ventas-lote-tabla-wrapper">
+                <table class="ventas-lote-tabla">
+                    <thead>
+                        <tr>
+                            <th style="width:45%;">NUMERO</th>
+                            <th style="width:45%;">VALOR</th>
+                            <th style="width:10%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="ventas-lote-body"></tbody>
+                </table>
+            </div>
+            <div id="ventas-lote-msg" class="ventas-lote-msg"></div>
+            <div class="center" style="margin-top:20px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <button class="btn btn-back" onclick="volverAInicio()">← INICIO</button>
+                <button class="btn btn-primary" id="btn-enviar-ventas-lote" onclick="enviarVentasLote()">ENVIAR</button>
             </div>
         </div>
         
@@ -1539,8 +1671,8 @@
             </div>
         </div>
         
-        <!-- Formulario VENTAS -->
-        <div id="form-ventas" class="hidden">
+        <!-- Formulario VENTAS (legacy - oculto, se usa screen-ventas-lote) -->
+        <div id="form-ventas" class="hidden" style="display:none;">
             <h1>VENTAS</h1>
             <div class="form-group">
                 <label>NUMERO(VEN) *</label>
@@ -1820,7 +1952,9 @@
             document.getElementById('guardadero-turno').textContent = turno;
             setTimeout(() => {
                 configurarValidacionesGuardadero();
-                document.getElementById('guardadero-valor').focus();
+                const inpNombre = document.getElementById('guardadero-nombre');
+                if (inpNombre) inpNombre.focus();
+                else document.getElementById('guardadero-valor').focus();
             }, 10);
         }
         
@@ -2618,6 +2752,10 @@
         }
         
         function configurarValidacionesGuardadero() {
+            const inputNombre = document.getElementById('guardadero-nombre');
+            if (inputNombre) {
+                inputNombre.addEventListener('input', validarFormularioGuardadero);
+            }
             const inputValor = document.getElementById('guardadero-valor');
             if (inputValor) {
                 inputValor.addEventListener('input', function(e) {
@@ -2630,7 +2768,9 @@
         
         function validarFormularioGuardadero() {
             const valor = document.getElementById('guardadero-valor').value.trim();
-            const valido = validarNumero1a3DigitosDecimal(valor);
+            const nombreEl = document.getElementById('guardadero-nombre');
+            const nombre = nombreEl ? nombreEl.value.trim() : '';
+            const valido = validarNumero1a3DigitosDecimal(valor) && nombre.length > 0;
             document.getElementById('btn-enviar-guardadero').disabled = !valido;
         }
         
@@ -2870,6 +3010,7 @@
                 case 'guardadero':
                     datos["tipo"] = 'GUARDADERO';
                     datos["VALOR"] = document.getElementById('guardadero-valor').value.trim();
+                    datos["NOMBRE"] = (document.getElementById('guardadero-nombre').value || '').trim().toUpperCase();
                     break;
                     
                 case 'gastos':
@@ -4254,6 +4395,176 @@
                 }
             }
         });
+
+        /* ============================================================ */
+        /* VENTAS POR LOTE                                               */
+        /*  - Sin selector de turno/operador (turno se calcula auto)     */
+        /*  - Enter en NUMERO -> VALOR; Enter en VALOR -> nueva fila     */
+        /*  - + / - en header, X por fila                                */
+        /*  - ENVIAR: valida todo o nada en backend                      */
+        /* ============================================================ */
+        function abrirVentasLote() {
+            const body = document.getElementById('ventas-lote-body');
+            body.innerHTML = '';
+            limpiarMsgVentasLote();
+            mostrarPantalla('screen-ventas-lote');
+            agregarFilaVenta(false);
+            setTimeout(() => {
+                const primer = document.querySelector('.ventas-lote-numero');
+                if (primer) primer.focus();
+            }, 50);
+        }
+
+        function agregarFilaVenta(focusNuevoNumero) {
+            const body = document.getElementById('ventas-lote-body');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="tel" class="ventas-lote-numero" maxlength="6" inputmode="numeric" autocomplete="off" pattern="[0-9]{6}"></td>
+                <td><input type="tel" class="ventas-lote-valor"  inputmode="numeric" autocomplete="off"></td>
+                <td style="text-align:center;"><button class="btn-eliminar-fila" type="button" title="Eliminar fila">×</button></td>
+            `;
+            body.appendChild(tr);
+            engancharEventosFilaVenta(tr);
+            if (focusNuevoNumero) {
+                const inp = tr.querySelector('.ventas-lote-numero');
+                if (inp) inp.focus();
+            }
+        }
+
+        function engancharEventosFilaVenta(tr) {
+            const inpNum = tr.querySelector('.ventas-lote-numero');
+            const inpVal = tr.querySelector('.ventas-lote-valor');
+            const btnX = tr.querySelector('.btn-eliminar-fila');
+
+            inpNum.addEventListener('input', () => {
+                inpNum.value = inpNum.value.replace(/\D/g, '').slice(0, 6);
+                tr.classList.remove('fila-error');
+            });
+            inpVal.addEventListener('input', () => {
+                inpVal.value = inpVal.value.replace(/\D/g, '');
+                tr.classList.remove('fila-error');
+            });
+
+            inpNum.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    inpVal.focus();
+                }
+            });
+            inpVal.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const filas = Array.from(document.querySelectorAll('#ventas-lote-body tr'));
+                    const idx = filas.indexOf(tr);
+                    const esUltima = idx === filas.length - 1;
+                    if (esUltima) {
+                        agregarFilaVenta(true);
+                    } else {
+                        const sig = filas[idx + 1].querySelector('.ventas-lote-numero');
+                        if (sig) sig.focus();
+                    }
+                }
+            });
+
+            btnX.addEventListener('click', () => {
+                const filas = document.querySelectorAll('#ventas-lote-body tr');
+                if (filas.length <= 1) {
+                    inpNum.value = '';
+                    inpVal.value = '';
+                    tr.classList.remove('fila-error');
+                    inpNum.focus();
+                } else {
+                    tr.remove();
+                }
+            });
+        }
+
+        function quitarUltimaFilaVenta() {
+            const filas = document.querySelectorAll('#ventas-lote-body tr');
+            if (filas.length <= 1) return;
+            filas[filas.length - 1].remove();
+        }
+
+        function limpiarMsgVentasLote() {
+            const m = document.getElementById('ventas-lote-msg');
+            if (!m) return;
+            m.textContent = '';
+            m.className = 'ventas-lote-msg';
+        }
+        function setMsgVentasLote(txt, tipo) {
+            const m = document.getElementById('ventas-lote-msg');
+            if (!m) return;
+            m.textContent = txt;
+            m.className = 'ventas-lote-msg ' + (tipo || '');
+        }
+
+        async function enviarVentasLote() {
+            const filas = Array.from(document.querySelectorAll('#ventas-lote-body tr'));
+            const ventas = [];
+            const errores = [];
+
+            filas.forEach(tr => tr.classList.remove('fila-error'));
+
+            filas.forEach((tr, idx) => {
+                const numStr = tr.querySelector('.ventas-lote-numero').value.trim();
+                const valStr = tr.querySelector('.ventas-lote-valor').value.trim();
+                if (!numStr && !valStr) return; // fila vacía: ignorar
+                const numero = parseInt(numStr, 10);
+                const valor = parseFloat(valStr);
+                if (!Number.isFinite(numero) || numero < 100000 || numero > 999999) {
+                    tr.classList.add('fila-error');
+                    errores.push(`Fila ${idx+1}: NUMERO invalido`);
+                    return;
+                }
+                if (!Number.isFinite(valor) || valor <= 0) {
+                    tr.classList.add('fila-error');
+                    errores.push(`Fila ${idx+1}: VALOR invalido`);
+                    return;
+                }
+                ventas.push({ numero, valor });
+            });
+
+            if (errores.length > 0) {
+                setMsgVentasLote(errores.join(' · '), 'error');
+                return;
+            }
+            if (ventas.length === 0) {
+                setMsgVentasLote('Agrega al menos una fila', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-enviar-ventas-lote');
+            btn.disabled = true;
+            setMsgVentasLote('Procesando...', '');
+            try {
+                const resp = await fetch('/api/ventas_lote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ventas })
+                });
+                const data = await resp.json().catch(() => ({}));
+
+                if (resp.status === 409 && Array.isArray(data.faltantes)) {
+                    const setFaltantes = new Set(data.faltantes.map(n => parseInt(n, 10)));
+                    filas.forEach(tr => {
+                        const n = parseInt(tr.querySelector('.ventas-lote-numero').value.trim(), 10);
+                        if (setFaltantes.has(n)) tr.classList.add('fila-error');
+                    });
+                    setMsgVentasLote('Articulos NO encontrados en INVENTARIO: ' + data.faltantes.join(', '), 'error');
+                    return;
+                }
+                if (!resp.ok || data.ok === false) {
+                    setMsgVentasLote('Error: ' + (data.error || resp.statusText), 'error');
+                    return;
+                }
+                setMsgVentasLote(`✓ ${data.procesadas} venta(s) registrada(s) por ${data.total}`, 'ok');
+                setTimeout(() => volverAInicio(), 1800);
+            } catch (err) {
+                setMsgVentasLote('Error de red: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
 
         /* ============================================================ */
         /* PANEL ADMIN - VISOR/EDITOR DE TABLAS                          */

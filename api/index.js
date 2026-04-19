@@ -20,6 +20,8 @@ const handlers = {
   admin_login: require('../lib/handlers/admin_login'),
   admin_data: require('../lib/handlers/admin_data'),
   editar: require('../lib/handlers/editar'),
+  recalcular_tot_in: require('../lib/handlers/recalcular_tot_in'),
+  metricas: require('../lib/handlers/metricas'),
 };
 
 module.exports = async (req, res) => {

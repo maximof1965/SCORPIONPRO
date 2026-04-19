@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
     <style>
         * {
             margin: 0;
@@ -888,6 +889,136 @@
             padding: 0;
         }
         .admin-panel.hidden { display: none !important; }
+
+        /* TABS dentro del panel admin */
+        .admin-tabs {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            border-bottom: 1px solid #2a2a2a;
+            flex-wrap: wrap;
+        }
+        .admin-tab {
+            background: #1a1a1a;
+            color: #c8c8c8;
+            border: 1px solid #2c2c2c;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .admin-tab:hover { background: #232323; color: #fff; }
+        .admin-tab.activa {
+            background: linear-gradient(180deg, #c0c0c0 0%, #707070 100%);
+            color: #0a0a0a;
+            border-color: #888;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+
+        /* TOOLBAR DE METRICAS */
+        .metricas-toolbar {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+            padding: 12px 14px;
+            background: #131313;
+            border-bottom: 1px solid #232323;
+        }
+        .metricas-fecha-label {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; color: #aaa; font-weight: 600; letter-spacing: .5px;
+        }
+        .metricas-fecha-label input[type="date"] {
+            background: #1a1a1a; color: #f0f0f0;
+            border: 1px solid #2c2c2c; border-radius: 6px;
+            padding: 6px 8px; font-size: 13px;
+        }
+
+        /* KPIs cabecera */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            padding: 14px;
+        }
+        .kpi-card {
+            background: linear-gradient(180deg, #1c1c1c 0%, #131313 100%);
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 14px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, #888, #c0c0c0, #888);
+        }
+        .kpi-card .kpi-label {
+            font-size: 10px; color: #888; letter-spacing: 1.5px;
+            font-weight: 700; text-transform: uppercase;
+        }
+        .kpi-card .kpi-value {
+            font-size: 22px; font-weight: 800; color: #f5f5f5;
+            margin-top: 6px; letter-spacing: .5px;
+        }
+        .kpi-card .kpi-sub {
+            font-size: 11px; color: #999; margin-top: 4px;
+        }
+        .kpi-card.kpi-good .kpi-value { color: #7ed957; }
+        .kpi-card.kpi-bad .kpi-value { color: #ff5e5e; }
+        .kpi-card.kpi-warn .kpi-value { color: #ffc857; }
+
+        /* Grid de graficos */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 14px;
+            padding: 0 14px 30px;
+        }
+        .chart-card {
+            background: linear-gradient(180deg, #1a1a1a 0%, #111 100%);
+            border: 1px solid #262626;
+            border-radius: 10px;
+            padding: 14px 16px;
+            min-height: 320px;
+            display: flex; flex-direction: column;
+        }
+        .chart-card.chart-card-wide { grid-column: 1 / -1; }
+        .chart-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 12px; letter-spacing: 1.5px;
+            color: #b8b8b8; font-weight: 700;
+            border-bottom: 1px solid #262626;
+            padding-bottom: 8px;
+        }
+        .chart-canvas-wrap {
+            position: relative; flex: 1; min-height: 250px;
+        }
+        .chart-canvas-wrap canvas {
+            width: 100% !important; height: 100% !important;
+        }
+
+        /* Tabla top deudores */
+        .tabla-deudores-wrap { overflow-x: auto; }
+        .tabla-deudores {
+            width: 100%; border-collapse: collapse; font-size: 13px;
+        }
+        .tabla-deudores th, .tabla-deudores td {
+            padding: 8px 10px; border-bottom: 1px solid #232323;
+            text-align: left;
+        }
+        .tabla-deudores th {
+            background: #1a1a1a; color: #888; font-size: 11px;
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+        .tabla-deudores tbody tr:hover { background: #181818; }
+        .tabla-deudores td:last-child, .tabla-deudores th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+        @media (max-width: 768px) {
+            .kpi-card .kpi-value { font-size: 18px; }
+            .chart-card { min-height: 280px; }
+        }
 
         /* ============================================ */
         /* VENTAS POR LOTE */
@@ -2173,29 +2304,101 @@
         <!-- PANEL ADMIN: VISOR DE TABLAS -->
         <!-- ================================================ -->
         <div id="screen-admin-tablas" class="hidden admin-panel">
-            <div class="admin-toolbar">
+            <div class="admin-tabs">
                 <button class="btn btn-back" onclick="volverAInicio()">← INICIO</button>
-                <select id="admin-tabla-select" onchange="cargarTablaAdmin()"></select>
-                <span class="admin-search-wrap">
-                    <input type="text" id="admin-search" placeholder="🔍 Buscar..."
-                           autocomplete="off" oninput="filtrarTablaAdmin()">
-                    <button type="button" id="admin-search-clear" class="admin-search-clear"
-                            title="Borrar busqueda" onclick="limpiarBusquedaAdmin()" aria-label="Borrar busqueda">×</button>
-                </span>
-                <button class="btn btn-secondary admin-btn" onclick="recargarTablaAdmin()">RECARGAR</button>
-                <button class="btn btn-primary admin-btn" onclick="agregarFilaAdmin()">+ FILA</button>
-                <button class="btn btn-danger admin-btn" onclick="eliminarFilasSeleccionadasAdmin()">ELIMINAR SELEC.</button>
-                <span id="admin-status" class="admin-status"></span>
+                <button id="admin-tab-tablas" class="admin-tab activa" onclick="cambiarTabAdmin('tablas')" translate="no">TABLAS</button>
+                <button id="admin-tab-metricas" class="admin-tab" onclick="cambiarTabAdmin('metricas')" translate="no">METRICAS</button>
             </div>
-            <div class="admin-grid-wrapper">
-                <table class="admin-grid" id="admin-grid">
-                    <thead><tr id="admin-grid-head"></tr></thead>
-                    <tbody id="admin-grid-body"></tbody>
-                </table>
+
+            <!-- ============== TAB: TABLAS ============== -->
+            <div id="admin-tab-content-tablas">
+                <div class="admin-toolbar">
+                    <select id="admin-tabla-select" onchange="cargarTablaAdmin()"></select>
+                    <span class="admin-search-wrap">
+                        <input type="text" id="admin-search" placeholder="🔍 Buscar..."
+                               autocomplete="off" oninput="filtrarTablaAdmin()">
+                        <button type="button" id="admin-search-clear" class="admin-search-clear"
+                                title="Borrar busqueda" onclick="limpiarBusquedaAdmin()" aria-label="Borrar busqueda">×</button>
+                    </span>
+                    <button class="btn btn-secondary admin-btn" onclick="recargarTablaAdmin()">RECARGAR</button>
+                    <button class="btn btn-primary admin-btn" onclick="agregarFilaAdmin()">+ FILA</button>
+                    <button class="btn btn-danger admin-btn" onclick="eliminarFilasSeleccionadasAdmin()">ELIMINAR SELEC.</button>
+                    <button class="btn btn-secondary admin-btn" onclick="recalcularTotInAdmin()" title="Recalcula TOT IN, TOTAL y UTIL para todo INVENTARIO">⟳ RECALCULAR TOT IN</button>
+                    <span id="admin-status" class="admin-status"></span>
+                </div>
+                <div class="admin-grid-wrapper">
+                    <table class="admin-grid" id="admin-grid">
+                        <thead><tr id="admin-grid-head"></tr></thead>
+                        <tbody id="admin-grid-body"></tbody>
+                    </table>
+                </div>
+                <div class="admin-help" id="admin-help">
+                    Doble clic en celda para editar · Enter guarda · Esc cancela ·
+                    Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el # de la izquierda para seleccionar fila
+                </div>
             </div>
-            <div class="admin-help" id="admin-help">
-                Doble clic en celda para editar · Enter guarda · Esc cancela ·
-                Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el # de la izquierda para seleccionar fila
+
+            <!-- ============== TAB: METRICAS ============== -->
+            <div id="admin-tab-content-metricas" class="hidden">
+                <div class="metricas-toolbar">
+                    <label class="metricas-fecha-label">Desde
+                        <input type="date" id="metricas-desde" onchange="cargarMetricas()">
+                    </label>
+                    <label class="metricas-fecha-label">Hasta
+                        <input type="date" id="metricas-hasta" onchange="cargarMetricas()">
+                    </label>
+                    <button class="btn btn-secondary admin-btn" onclick="setMetricasMesActual()">MES ACTUAL</button>
+                    <button class="btn btn-secondary admin-btn" onclick="setMetricasMesAnterior()">MES ANTERIOR</button>
+                    <button class="btn btn-secondary admin-btn" onclick="setMetricasAnioActual()">ESTE AÑO</button>
+                    <button class="btn btn-primary admin-btn" onclick="cargarMetricas()">ACTUALIZAR</button>
+                    <span id="metricas-status" class="admin-status"></span>
+                </div>
+
+                <!-- KPIs cabecera -->
+                <div class="kpi-grid" id="kpi-grid"></div>
+
+                <!-- Graficos -->
+                <div class="charts-grid">
+                    <div class="chart-card chart-card-wide">
+                        <h3 translate="no">FLUJO DE CAJA DIARIO</h3>
+                        <div class="chart-canvas-wrap"><canvas id="chart-flujo"></canvas></div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3 translate="no">MIX DE OPERACIONES</h3>
+                        <div class="chart-canvas-wrap"><canvas id="chart-mix"></canvas></div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3 translate="no">ANTIGUEDAD INVENTARIO</h3>
+                        <div class="chart-canvas-wrap"><canvas id="chart-antiguedad"></canvas></div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3 translate="no">TOP TIPOS DE ARTICULO</h3>
+                        <div class="chart-canvas-wrap"><canvas id="chart-articulos"></canvas></div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3 translate="no">COMPARATIVA POR TURNO</h3>
+                        <div class="chart-canvas-wrap"><canvas id="chart-turnos"></canvas></div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3 translate="no">SALIDA vs VENTA (PERIODO)</h3>
+                        <div class="chart-canvas-wrap"><canvas id="chart-cierre"></canvas></div>
+                    </div>
+
+                    <div class="chart-card chart-card-wide">
+                        <h3 translate="no">TOP DEUDORES</h3>
+                        <div class="tabla-deudores-wrap">
+                            <table class="tabla-deudores" id="tabla-deudores">
+                                <thead><tr><th>#</th><th>NOMBRE</th><th>CONTRATOS</th><th>TOTAL POR COBRAR</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -6098,6 +6301,290 @@
             inp.value = '';
             filtrarTablaAdmin();
             inp.focus();
+        }
+
+        // ========================================================
+        // RECALCULAR TOT IN para todo el inventario (boton)
+        // ========================================================
+        async function recalcularTotInAdmin() {
+            if (!confirm('Esto va a recalcular y persistir TOT IN, TOTAL y UTIL para TODO el inventario.\n\n¿Continuar?')) return;
+            setAdminStatus('Recalculando...');
+            try {
+                const pwd = adminGetPassword() || '';
+                const r = await fetch('/api/recalcular_tot_in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Password': pwd
+                    },
+                    body: JSON.stringify({ password: pwd })
+                });
+                const j = await r.json();
+                if (!j.ok) throw new Error(j.error || 'Error');
+                setAdminStatus(`OK · ${j.actualizadas} actualizadas / ${j.sin_cambio} sin cambio · ${j.errores} errores`);
+                if (adminState.tabla === 'INVENTARIO') recargarTablaAdmin(true);
+            } catch (e) {
+                setAdminStatus('ERROR: ' + (e.message || e));
+            }
+        }
+
+        // ========================================================
+        // TABS DEL PANEL ADMIN (TABLAS / METRICAS)
+        // ========================================================
+        let metricasState = {
+            chartFlujo: null, chartMix: null, chartAntiguedad: null,
+            chartArticulos: null, chartTurnos: null, chartCierre: null,
+            cargado: false
+        };
+
+        function cambiarTabAdmin(tab) {
+            const tablas   = document.getElementById('admin-tab-content-tablas');
+            const metricas = document.getElementById('admin-tab-content-metricas');
+            const btnT     = document.getElementById('admin-tab-tablas');
+            const btnM     = document.getElementById('admin-tab-metricas');
+            if (tab === 'metricas') {
+                tablas.classList.add('hidden');
+                metricas.classList.remove('hidden');
+                btnT.classList.remove('activa');
+                btnM.classList.add('activa');
+                if (!metricasState.cargado) {
+                    setMetricasMesActual(); // arranca con mes actual
+                }
+            } else {
+                metricas.classList.add('hidden');
+                tablas.classList.remove('hidden');
+                btnM.classList.remove('activa');
+                btnT.classList.add('activa');
+            }
+        }
+
+        function fechaISOlocal(d) {
+            const z = (n) => String(n).padStart(2, '0');
+            return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate());
+        }
+
+        function setMetricasMesActual() {
+            const hoy = new Date();
+            const ini = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            document.getElementById('metricas-desde').value = fechaISOlocal(ini);
+            document.getElementById('metricas-hasta').value = fechaISOlocal(hoy);
+            cargarMetricas();
+        }
+        function setMetricasMesAnterior() {
+            const hoy = new Date();
+            const ini = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+            const fin = new Date(hoy.getFullYear(), hoy.getMonth(), 0);
+            document.getElementById('metricas-desde').value = fechaISOlocal(ini);
+            document.getElementById('metricas-hasta').value = fechaISOlocal(fin);
+            cargarMetricas();
+        }
+        function setMetricasAnioActual() {
+            const hoy = new Date();
+            const ini = new Date(hoy.getFullYear(), 0, 1);
+            document.getElementById('metricas-desde').value = fechaISOlocal(ini);
+            document.getElementById('metricas-hasta').value = fechaISOlocal(hoy);
+            cargarMetricas();
+        }
+
+        function fmtMoneda(n) {
+            const v = Math.round(Number(n) || 0);
+            return '$' + v.toLocaleString('es-CO');
+        }
+        function fmtNum(n) {
+            return (Number(n) || 0).toLocaleString('es-CO');
+        }
+
+        async function cargarMetricas() {
+            const desde = document.getElementById('metricas-desde').value;
+            const hasta = document.getElementById('metricas-hasta').value;
+            const status = document.getElementById('metricas-status');
+            if (status) status.textContent = 'Cargando...';
+            try {
+                const pwd = adminGetPassword() || '';
+                const r = await fetch('/api/metricas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Password': pwd
+                    },
+                    body: JSON.stringify({ desde, hasta, password: pwd })
+                });
+                const j = await r.json();
+                if (!j.ok) throw new Error(j.error || 'Error');
+                pintarMetricas(j);
+                metricasState.cargado = true;
+                if (status) status.textContent = `OK · ${desde} → ${hasta}`;
+            } catch (e) {
+                if (status) status.textContent = 'ERROR: ' + (e.message || e);
+            }
+        }
+
+        function pintarMetricas(d) {
+            // KPIs
+            const kpi = document.getElementById('kpi-grid');
+            const k = d.kpis || {};
+            kpi.innerHTML = `
+                <div class="kpi-card"><div class="kpi-label">Cartera activa</div>
+                    <div class="kpi-value">${fmtMoneda(k.cartera_activa)}</div>
+                    <div class="kpi-sub">por cobrar a clientes (TOTAL)</div></div>
+                <div class="kpi-card"><div class="kpi-label">Contratos activos</div>
+                    <div class="kpi-value">${fmtNum(k.contratos_activos)}</div>
+                    <div class="kpi-sub">filas vivas en INVENTARIO</div></div>
+                <div class="kpi-card"><div class="kpi-label">Capital prestado vivo</div>
+                    <div class="kpi-value">${fmtMoneda(k.valor_prestado_vivo)}</div>
+                    <div class="kpi-sub">VR PR del inventario</div></div>
+                <div class="kpi-card"><div class="kpi-label">Ticket promedio</div>
+                    <div class="kpi-value">${fmtMoneda(k.ticket_promedio)}</div>
+                    <div class="kpi-sub">VR PR / contratos</div></div>
+                <div class="kpi-card kpi-good"><div class="kpi-label">Utilidad realizada (periodo)</div>
+                    <div class="kpi-value">${fmtMoneda(k.utilidad_realizada_periodo)}</div>
+                    <div class="kpi-sub">de SALIDAS del periodo</div></div>
+                <div class="kpi-card kpi-warn"><div class="kpi-label">Utilidad esperada (cartera)</div>
+                    <div class="kpi-value">${fmtMoneda(k.utilidad_esperada_inventario)}</div>
+                    <div class="kpi-sub">VR RT − VR PR del inventario</div></div>
+                <div class="kpi-card"><div class="kpi-label">Ingresos del periodo</div>
+                    <div class="kpi-value">${fmtNum(k.ingresos_periodo)}</div>
+                    <div class="kpi-sub">contratos nuevos</div></div>
+                <div class="kpi-card"><div class="kpi-label">Tasa de salida</div>
+                    <div class="kpi-value">${(k.tasa_salida_pct || 0).toFixed(1)}%</div>
+                    <div class="kpi-sub">${k.salidas_periodo} salidas / ${k.vendidos_periodo} ventas</div></div>
+            `;
+
+            // Paleta plata/negro
+            const colores = ['#c0c0c0','#888','#7ed957','#ff5e5e','#ffc857','#5db8ff','#b78fff','#ff8a3d','#7ee0d4','#e8e8e8'];
+            const fontColor = '#cfcfcf';
+            const gridColor = 'rgba(255,255,255,0.06)';
+            const baseOpts = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: fontColor, font: { size: 11 } } } },
+                scales: {
+                    x: { ticks: { color: fontColor, font: { size: 10 } }, grid: { color: gridColor } },
+                    y: { ticks: { color: fontColor, font: { size: 10 } }, grid: { color: gridColor } }
+                }
+            };
+
+            // 1) FLUJO DE CAJA DIARIO
+            destruirChart('chartFlujo');
+            const fc = d.flujo_caja || [];
+            metricasState.chartFlujo = new Chart(document.getElementById('chart-flujo'), {
+                type: 'line',
+                data: {
+                    labels: fc.map(x => x.dia),
+                    datasets: [
+                        { label: 'Ingresos', data: fc.map(x => x.ingresos), borderColor: '#7ed957', backgroundColor: 'rgba(126,217,87,0.18)', fill: true, tension: 0.25 },
+                        { label: 'Egresos',  data: fc.map(x => x.egresos),  borderColor: '#ff5e5e', backgroundColor: 'rgba(255,94,94,0.18)',  fill: true, tension: 0.25 },
+                        { label: 'Cuadre',   data: fc.map(x => x.cuadre),   borderColor: '#c0c0c0', backgroundColor: 'rgba(192,192,192,0.10)', fill: false, tension: 0.25, borderDash: [4,4] }
+                    ]
+                },
+                options: baseOpts
+            });
+
+            // 2) MIX DE OPERACIONES (dona)
+            destruirChart('chartMix');
+            const mx = d.mix_operaciones || [];
+            metricasState.chartMix = new Chart(document.getElementById('chart-mix'), {
+                type: 'doughnut',
+                data: {
+                    labels: mx.map(x => x.tipo),
+                    datasets: [{ data: mx.map(x => x.cantidad), backgroundColor: colores, borderColor: '#0d0d0d', borderWidth: 2 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { color: fontColor, font: { size: 11 } } } } }
+            });
+
+            // 3) ANTIGUEDAD INVENTARIO (barras)
+            destruirChart('chartAntiguedad');
+            const ant = d.antiguedad_inventario || [];
+            metricasState.chartAntiguedad = new Chart(document.getElementById('chart-antiguedad'), {
+                type: 'bar',
+                data: {
+                    labels: ant.map(x => x.rango + ' dias'),
+                    datasets: [
+                        { label: 'Contratos', data: ant.map(x => x.cantidad), backgroundColor: '#c0c0c0' },
+                        { label: 'Capital ($)', data: ant.map(x => x.valor), backgroundColor: '#7ed957', yAxisID: 'y2' }
+                    ]
+                },
+                options: {
+                    ...baseOpts,
+                    scales: {
+                        x: baseOpts.scales.x,
+                        y:  { ticks: { color: fontColor }, grid: { color: gridColor }, position: 'left' },
+                        y2: { ticks: { color: '#7ed957' }, grid: { drawOnChartArea: false }, position: 'right' }
+                    }
+                }
+            });
+
+            // 4) TOP TIPOS DE ARTICULO
+            destruirChart('chartArticulos');
+            const ta = d.top_articulos || [];
+            metricasState.chartArticulos = new Chart(document.getElementById('chart-articulos'), {
+                type: 'bar',
+                data: {
+                    labels: ta.map(x => x.art),
+                    datasets: [
+                        { label: 'Capital prestado', data: ta.map(x => x.valor), backgroundColor: '#c0c0c0' },
+                        { label: 'Cantidad',         data: ta.map(x => x.cantidad), backgroundColor: '#5db8ff', yAxisID: 'y2' }
+                    ]
+                },
+                options: {
+                    ...baseOpts, indexAxis: 'y',
+                    scales: {
+                        x: { ticks: { color: fontColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: fontColor }, grid: { color: gridColor } },
+                        y2: { display: false }
+                    }
+                }
+            });
+
+            // 5) COMPARATIVA POR TURNO
+            destruirChart('chartTurnos');
+            const tn = d.turnos || [];
+            metricasState.chartTurnos = new Chart(document.getElementById('chart-turnos'), {
+                type: 'bar',
+                data: {
+                    labels: tn.map(x => 'TURNO ' + x.turno),
+                    datasets: [
+                        { label: 'Operaciones', data: tn.map(x => x.cantidad), backgroundColor: '#c0c0c0' },
+                        { label: 'Valor movido', data: tn.map(x => x.valor), backgroundColor: '#7ed957', yAxisID: 'y2' }
+                    ]
+                },
+                options: {
+                    ...baseOpts,
+                    scales: {
+                        x: baseOpts.scales.x,
+                        y:  { ticks: { color: fontColor }, grid: { color: gridColor }, position: 'left' },
+                        y2: { ticks: { color: '#7ed957' }, grid: { drawOnChartArea: false }, position: 'right' }
+                    }
+                }
+            });
+
+            // 6) SALIDA vs VENTA (pie)
+            destruirChart('chartCierre');
+            metricasState.chartCierre = new Chart(document.getElementById('chart-cierre'), {
+                type: 'pie',
+                data: {
+                    labels: ['Salida (cliente recoge)', 'Vendido al publico'],
+                    datasets: [{ data: [k.salidas_periodo || 0, k.vendidos_periodo || 0],
+                                 backgroundColor: ['#7ed957','#ff5e5e'], borderColor: '#0d0d0d', borderWidth: 2 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: fontColor, font: { size: 11 } } } } }
+            });
+
+            // 7) TOP DEUDORES (tabla)
+            const td = d.top_deudores || [];
+            const tbody = document.querySelector('#tabla-deudores tbody');
+            tbody.innerHTML = td.map((x, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${x.nombre}</td>
+                    <td>${x.contratos}</td>
+                    <td>${fmtMoneda(x.total)}</td>
+                </tr>`).join('');
+        }
+
+        function destruirChart(name) {
+            if (metricasState[name]) { try { metricasState[name].destroy(); } catch (_) {} metricasState[name] = null; }
         }
 
         async function agregarFilaAdmin() {

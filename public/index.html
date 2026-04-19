@@ -1762,6 +1762,14 @@
         }
 
         /* ===== MENU HAMBURGUESA + DRAWER LATERAL ===== */
+        /* Por defecto el icono hamburguesa NO se muestra (PC).
+           En tablets y celulares (<= 1024px) si se muestra. */
+        .btn-hamburguesa { display: none; }
+        @media (max-width: 1024px) {
+            .btn-hamburguesa { display: flex; }
+            .solo-pc { display: none !important; }
+        }
+
         .btn-hamburguesa {
             position: absolute;
             top: 22px;
@@ -2099,10 +2107,14 @@
             <div class="center menu-inicial" style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px;">
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoIngreso()" style="width: 200px;">INGRESO</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarBusquedaInicial()" style="width: 200px;">BUSCAR</button>
+                <button class="btn btn-secondary btn-menu-inicial solo-pc" onclick="abrirVentasLote()" style="width: 200px;">VENTAS</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoBar()" style="width: 200px;">BAR</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGuardadero()" style="width: 200px;">GUARDADERO</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarCajaBaseCierre()" style="width: 200px;">CAJA</button>
+                <button class="btn btn-secondary btn-menu-inicial solo-pc" onclick="mostrarControl()" style="width: 200px;">CONTROL</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGastos()" style="width: 200px;">GASTOS</button>
+                <button class="btn btn-secondary btn-menu-inicial solo-pc" onclick="mostrarFechaVerificar()" style="width: 200px;">VERIFICAR</button>
+                <button class="btn btn-secondary btn-menu-inicial solo-pc" onclick="abrirTablas()" style="width: 200px;">TABLAS</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="abrirEditar()" style="width: 200px;">EDITAR</button>
             </div>
         </div>

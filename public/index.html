@@ -7267,7 +7267,15 @@
                 case 'ingreso': {
                     const n = original.NUMERO != null ? String(original.NUMERO) : '';
                     const num = setVal('ingreso-numero', n);
-                    if (num) num.readOnly = true; // No permitir cambiar NUMERO en edicion
+                    // En INGRESO SI permitimos editar el NUMERO (caso comun:
+                    // se digito mal el numero del articulo). El backend valida
+                    // que el nuevo numero no exista ya en INVENTARIO.
+                    if (num) {
+                        num.readOnly = false;
+                        num.removeAttribute('readonly');
+                        num.dataset.numeroOriginal = n;
+                        num.title = 'Podes corregir el numero del articulo si lo digitaste mal';
+                    }
                     setVal('ingreso-valor', original.VALOR != null ? original.VALOR : '');
                     setVal('ingreso-v_retiro', det['VR RT'] || '');
                     setVal('ingreso-nombre_completo', original.NOMBRE || '');

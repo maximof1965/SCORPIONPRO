@@ -1761,6 +1761,175 @@
             .btn::after { display: none !important; }
         }
 
+        /* ===== MENU HAMBURGUESA + DRAWER LATERAL ===== */
+        .btn-hamburguesa {
+            position: absolute;
+            top: 22px;
+            left: 22px;
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(145deg, rgba(40,40,40,0.85), rgba(15,15,15,0.95));
+            border: 1px solid rgba(200, 200, 210, 0.25);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            padding: 0;
+            z-index: 50;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.5),
+                        inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        .btn-hamburguesa:hover {
+            border-color: rgba(220, 220, 230, 0.55);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.6),
+                        inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+        .btn-hamburguesa span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: linear-gradient(90deg, #d8d8e0, #8a8a92);
+            border-radius: 2px;
+            transition: all 0.25s ease;
+        }
+        .btn-hamburguesa.abierto span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+        .btn-hamburguesa.abierto span:nth-child(2) { opacity: 0; }
+        .btn-hamburguesa.abierto span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        .menu-lateral-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 90;
+        }
+        .menu-lateral-backdrop.abierto {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-lateral {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            max-width: 85vw;
+            background: linear-gradient(160deg, #1a1a1c 0%, #0a0a0b 100%);
+            border-right: 1px solid rgba(200, 200, 210, 0.22);
+            box-shadow: 4px 0 28px rgba(0, 0, 0, 0.65);
+            transform: translateX(-105%);
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+        .menu-lateral.abierto { transform: translateX(0); }
+
+        .menu-lateral-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(200, 200, 210, 0.15);
+        }
+        .menu-lateral-titulo {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            letter-spacing: 6px;
+            font-weight: 600;
+            background: linear-gradient(180deg, #f0f0f4 0%, #9a9aa2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        .menu-lateral-close {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 1px solid rgba(200, 200, 210, 0.2);
+            color: #c8c8d0;
+            font-size: 22px;
+            line-height: 1;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: all 0.2s ease;
+        }
+        .menu-lateral-close:hover {
+            background: rgba(255, 80, 80, 0.18);
+            border-color: rgba(255, 100, 100, 0.45);
+            color: #fff;
+        }
+
+        .menu-lateral-items {
+            display: flex;
+            flex-direction: column;
+            padding: 14px 12px;
+            gap: 6px;
+            overflow-y: auto;
+        }
+        .menu-lateral-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: linear-gradient(145deg, rgba(45,45,48,0.6), rgba(22,22,24,0.6));
+            border: 1px solid rgba(200, 200, 210, 0.12);
+            border-radius: 10px;
+            color: #e4e4ea;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            letter-spacing: 2.5px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            width: 100%;
+        }
+        .menu-lateral-item:hover {
+            background: linear-gradient(145deg, rgba(70,70,75,0.85), rgba(35,35,40,0.85));
+            border-color: rgba(220, 220, 230, 0.42);
+            transform: translateX(3px);
+        }
+        .menu-lateral-icono {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: linear-gradient(145deg, rgba(70,70,75,0.6), rgba(25,25,28,0.6));
+            border: 1px solid rgba(200, 200, 210, 0.2);
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            color: #d8d8e0;
+            flex-shrink: 0;
+        }
+
+        /* En pantallas chicas el icono se queda dentro del header */
+        @media (max-width: 600px) {
+            .btn-hamburguesa { top: 14px; left: 14px; width: 42px; height: 42px; }
+            .menu-lateral { width: 260px; }
+        }
+
         /* ===== TABLAS: campo de busqueda con boton X ===== */
         .admin-search-wrap {
             position: relative;
@@ -1923,21 +2092,49 @@
     <div class="content-wrapper">
         <!-- Pantalla Inicial -->
         <div id="screen-inicial">
+            <button id="btn-hamburguesa" class="btn-hamburguesa" onclick="abrirMenuLateral()" aria-label="Abrir menu" translate="no">
+                <span></span><span></span><span></span>
+            </button>
             <h1>скорпион</h1>
             <div class="center menu-inicial" style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px;">
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoIngreso()" style="width: 200px;">INGRESO</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarBusquedaInicial()" style="width: 200px;">BUSCAR</button>
-                <button class="btn btn-secondary btn-menu-inicial" onclick="abrirVentasLote()" style="width: 200px;">VENTAS</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoBar()" style="width: 200px;">BAR</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGuardadero()" style="width: 200px;">GUARDADERO</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarCajaBaseCierre()" style="width: 200px;">CAJA</button>
-                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarControl()" style="width: 200px;">CONTROL</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarTurnoGastos()" style="width: 200px;">GASTOS</button>
-                <button class="btn btn-secondary btn-menu-inicial" onclick="mostrarFechaVerificar()" style="width: 200px;">VERIFICAR</button>
-                <button class="btn btn-secondary btn-menu-inicial" onclick="abrirTablas()" style="width: 200px;">TABLAS</button>
                 <button class="btn btn-secondary btn-menu-inicial" onclick="abrirEditar()" style="width: 200px;">EDITAR</button>
             </div>
         </div>
+
+        <!-- ================================================ -->
+        <!-- MENU LATERAL (HAMBURGUESA) - solo en pantalla inicial -->
+        <!-- ================================================ -->
+        <div id="menu-lateral-backdrop" class="menu-lateral-backdrop" onclick="cerrarMenuLateral()"></div>
+        <aside id="menu-lateral" class="menu-lateral" aria-hidden="true">
+            <div class="menu-lateral-header">
+                <span class="menu-lateral-titulo" translate="no">MENÚ</span>
+                <button class="menu-lateral-close" onclick="cerrarMenuLateral()" aria-label="Cerrar menu">×</button>
+            </div>
+            <nav class="menu-lateral-items">
+                <button class="menu-lateral-item" onclick="cerrarMenuLateral(); abrirVentasLote();">
+                    <span class="menu-lateral-icono">$</span>
+                    <span class="menu-lateral-label">VENTAS</span>
+                </button>
+                <button class="menu-lateral-item" onclick="cerrarMenuLateral(); mostrarControl();">
+                    <span class="menu-lateral-icono">◎</span>
+                    <span class="menu-lateral-label">CONTROL</span>
+                </button>
+                <button class="menu-lateral-item" onclick="cerrarMenuLateral(); mostrarFechaVerificar();">
+                    <span class="menu-lateral-icono">✓</span>
+                    <span class="menu-lateral-label">VERIFICAR</span>
+                </button>
+                <button class="menu-lateral-item" onclick="cerrarMenuLateral(); abrirTablas();">
+                    <span class="menu-lateral-icono">▦</span>
+                    <span class="menu-lateral-label">TABLAS</span>
+                </button>
+            </nav>
+        </aside>
 
         <!-- ================================================ -->
         <!-- PANEL ADMIN: LOGIN -->
@@ -2713,6 +2910,17 @@
         
         // Funciones de navegación
         function mostrarPantalla(id) {
+            // Cerrar el menu lateral si quedo abierto
+            const drawer = document.getElementById('menu-lateral');
+            if (drawer && drawer.classList.contains('abierto')) {
+                drawer.classList.remove('abierto');
+                drawer.setAttribute('aria-hidden', 'true');
+                const back = document.getElementById('menu-lateral-backdrop');
+                const btnHam = document.getElementById('btn-hamburguesa');
+                if (back)   back.classList.remove('abierto');
+                if (btnHam) btnHam.classList.remove('abierto');
+                document.body.style.overflow = '';
+            }
             // Ocultar todas las pantallas, formularios y mensajes
             document.querySelectorAll('[id^="screen"], [id^="form"], [id^="mensaje"]').forEach(el => {
                 if (el) {
@@ -2739,6 +2947,33 @@
             estado.controlSubtipo = null;
             mostrarPantalla('screen-inicial');
         }
+
+        function abrirMenuLateral() {
+            const drawer  = document.getElementById('menu-lateral');
+            const back    = document.getElementById('menu-lateral-backdrop');
+            const btnHam  = document.getElementById('btn-hamburguesa');
+            if (drawer)  { drawer.classList.add('abierto'); drawer.setAttribute('aria-hidden', 'false'); }
+            if (back)    back.classList.add('abierto');
+            if (btnHam)  btnHam.classList.add('abierto');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarMenuLateral() {
+            const drawer  = document.getElementById('menu-lateral');
+            const back    = document.getElementById('menu-lateral-backdrop');
+            const btnHam  = document.getElementById('btn-hamburguesa');
+            if (drawer)  { drawer.classList.remove('abierto'); drawer.setAttribute('aria-hidden', 'true'); }
+            if (back)    back.classList.remove('abierto');
+            if (btnHam)  btnHam.classList.remove('abierto');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const drawer = document.getElementById('menu-lateral');
+                if (drawer && drawer.classList.contains('abierto')) cerrarMenuLateral();
+            }
+        });
         
         function volverAOperaciones() {
             if (estado.desdeResultados) {

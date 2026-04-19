@@ -1761,15 +1761,15 @@
             color: var(--silver-shine) !important;
         }
 
-        /* ===== Tablas (verificar / ventas-lote) — admin-grid se maneja aparte ===== */
-        table.tabla-verificar, table.ventas-lote-tabla {
+        /* ===== Tabla ventas-lote (plateada sobre fondo oscuro) ===== */
+        table.ventas-lote-tabla {
             background: transparent !important;
             color: var(--silver-bright);
             font-family: 'Inter', sans-serif;
             border-collapse: separate !important;
             border-spacing: 0;
         }
-        table.tabla-verificar th, table.ventas-lote-tabla th {
+        table.ventas-lote-tabla th {
             background: linear-gradient(180deg, #1f1f26 0%, #14141a 100%) !important;
             color: var(--silver-mid) !important;
             font-weight: 500 !important;
@@ -1780,7 +1780,7 @@
             border-bottom: 1px solid var(--metal-edge) !important;
             text-align: left;
         }
-        table.tabla-verificar td, table.ventas-lote-tabla td {
+        table.ventas-lote-tabla td {
             padding: 11px 10px !important;
             border-bottom: 1px solid rgba(216,216,220,0.05) !important;
             color: var(--silver-shine) !important;
@@ -1788,9 +1788,54 @@
             font-size: 13px;
             background: transparent !important;
         }
-        table.tabla-verificar tbody tr:hover td,
         table.ventas-lote-tabla tbody tr:hover td {
             background: rgba(216,216,220,0.03) !important;
+        }
+
+        /* ===== Tabla VERIFICAR: estilo claro / legible (texto negro sobre blanco) ===== */
+        /* Esta es tabla de auditoria: tiene que leerse perfecto. */
+        .tabla-verificar-wrapper {
+            background: #f8f8fa !important;
+            border: 1px solid #bfbfbf !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        table.tabla-verificar {
+            background: #ffffff !important;
+            color: #111 !important;
+            font-family: 'JetBrains Mono', 'Courier Prime', monospace;
+            border-collapse: collapse !important;
+        }
+        table.tabla-verificar th {
+            background: #4472C4 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            letter-spacing: 0.04em !important;
+            text-transform: uppercase;
+            padding: 10px 10px !important;
+            border: 1px solid #3a63ab !important;
+            text-align: left;
+        }
+        table.tabla-verificar tbody tr { background: #ffffff !important; }
+        table.tabla-verificar tbody tr:nth-child(even) { background: #f2f4f8 !important; }
+        table.tabla-verificar tbody tr:hover { background: #d9e1f2 !important; }
+        table.tabla-verificar td {
+            padding: 9px 10px !important;
+            border: 1px solid #d0cece !important;
+            color: #111 !important;
+            font-size: 13px !important;
+            background: transparent !important;
+        }
+        .encabezado-tabla-verificar {
+            background: #4472C4 !important;
+            color: #ffffff !important;
+            border-color: #3a63ab !important;
+        }
+        .encabezado-tabla-verificar .titulo,
+        .encabezado-tabla-verificar .total {
+            color: #ffffff !important;
         }
 
         /* ===== admin-grid: estetica premium PERO con celdas opacas obligatorias

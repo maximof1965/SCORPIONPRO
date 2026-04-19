@@ -2372,6 +2372,36 @@
             75%  { transform: translateX(-3px); }
             100% { transform: translateX(0); }
         }
+
+        /* =================================================================
+           OVERRIDE FINAL — TABLA VERIFICAR
+           Forzamos color NEGRO en todas las celdas/textos por encima de
+           cualquier regla anterior. Maxima especificidad y al final del
+           bloque <style> para ganar la cascada CSS.
+           ================================================================= */
+        .tabla-verificar-wrapper,
+        .tabla-verificar-wrapper * {
+            color: #000000 !important;
+        }
+        .tabla-verificar-wrapper table.tabla-verificar,
+        .tabla-verificar-wrapper table.tabla-verificar tbody,
+        .tabla-verificar-wrapper table.tabla-verificar tbody tr,
+        .tabla-verificar-wrapper table.tabla-verificar tbody tr td,
+        .tabla-verificar-wrapper table.tabla-verificar tbody tr td * {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            text-shadow: none !important;
+            opacity: 1 !important;
+            font-weight: 600 !important;
+        }
+        /* La cabecera (TH y banner azul) si va en blanco sobre azul */
+        .tabla-verificar-wrapper table.tabla-verificar thead tr th,
+        .tabla-verificar-wrapper table.tabla-verificar thead tr th *,
+        .tabla-verificar-wrapper .encabezado-tabla-verificar,
+        .tabla-verificar-wrapper .encabezado-tabla-verificar * {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
     </style>
 </head>
 <body>

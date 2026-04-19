@@ -4937,7 +4937,16 @@
                 console.log(`crearTablaVerificar: No hay datos para "${titulo}"`);
                 return '';
             }
-            
+
+            // Orden ascendente por NUMERO (red de seguridad por si el backend
+            // no lo devolviera ya ordenado).
+            datosArray = [...datosArray].sort((a, b) => {
+                const na = Number(a && a.NUMERO);
+                const nb = Number(b && b.NUMERO);
+                if (!isNaN(na) && !isNaN(nb)) return na - nb;
+                return String(a && a.NUMERO).localeCompare(String(b && b.NUMERO));
+            });
+
             console.log(`=== crearTablaVerificar para "${titulo}" ===`);
             console.log(`Total registros: ${datosArray.length}`);
             console.log(`Primer registro:`, datosArray[0]);

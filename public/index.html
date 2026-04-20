@@ -1936,6 +1936,18 @@
             border-color: var(--silver-soft) !important;
             background: linear-gradient(180deg, #30303a 0%, #18181f 100%) !important;
         }
+        /* Boton RECARGAR destacado (se usa como refresh manual) */
+        .admin-btn.admin-btn-recargar {
+            background: linear-gradient(180deg, #2d4a8a 0%, #1b2e5a 100%) !important;
+            border-color: #3a63ab !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(68, 114, 196, 0.25);
+        }
+        .admin-btn.admin-btn-recargar:hover {
+            background: linear-gradient(180deg, #3c5fa8 0%, #24407a 100%) !important;
+            border-color: #5781c9 !important;
+            box-shadow: 0 4px 14px rgba(68, 114, 196, 0.4);
+        }
         .admin-status {
             color: var(--silver-soft) !important;
             font-family: 'JetBrains Mono', monospace !important;
@@ -2517,7 +2529,7 @@
                         <button type="button" id="admin-search-clear" class="admin-search-clear"
                                 title="Borrar busqueda" onclick="limpiarBusquedaAdmin()" aria-label="Borrar busqueda">×</button>
                     </span>
-                    <button class="btn btn-secondary admin-btn" onclick="recargarTablaAdmin()">RECARGAR</button>
+                    <button class="btn btn-primary admin-btn admin-btn-recargar" onclick="recargarTablaAdmin()" title="Recargar datos desde el servidor">↻ RECARGAR</button>
                     <button class="btn btn-primary admin-btn" onclick="agregarFilaAdmin()">+ FILA</button>
                     <button class="btn btn-danger admin-btn" onclick="eliminarFilasSeleccionadasAdmin()">ELIMINAR SELEC.</button>
                     <button class="btn btn-secondary admin-btn" onclick="recalcularTotInAdmin()" title="Recalcula TOT IN, TOTAL y UTIL para todo INVENTARIO">⟳ RECALCULAR TOT IN</button>
@@ -2531,7 +2543,8 @@
                 </div>
                 <div class="admin-help" id="admin-help">
                     Doble clic en celda para editar · Enter guarda · Esc cancela ·
-                    Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el # de la izquierda para seleccionar fila
+                    Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el # de la izquierda para seleccionar fila ·
+                    Usa <b>↻ RECARGAR</b> para ver cambios hechos desde otro lado
                 </div>
             </div>
 
@@ -6275,7 +6288,10 @@
                 }
                 sel.value = adminState.tablaActual;
                 await cargarTablaAdmin();
-                iniciarPollingAdmin();
+                // Sin polling automatico: la tabla se refresca en vivo
+                // solo cuando el propio usuario edita, pega o borra filas
+                // (esas acciones llaman a recargarTablaAdmin()).
+                // Para refrescar manualmente esta el boton "↻ RECARGAR".
             } catch (err) {
                 mostrarErrorAdmin('Error al cargar tablas: ' + err.message);
                 if (String(err.message).includes('Clave')) {
@@ -6292,16 +6308,21 @@
                 help.textContent = '⚠ ' + msg;
             } else {
                 help.classList.remove('admin-error');
-                help.textContent = 'Doble clic en celda para editar · Enter guarda · Esc cancela · Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el # de la izquierda para seleccionar fila';
+                help.textContent = 'Doble clic en celda para editar · Enter guarda · Esc cancela · Ctrl+C / Ctrl+V para copiar y pegar varias filas · Click en el # de la izquierda para seleccionar fila · Usa ↻ RECARGAR para ver cambios externos';
             }
         }
 
+        // NO-OP: el polling automatico se elimino por performance.
+        // Se mantiene la funcion solo para compatibilidad, por si algun
+        // callback externo la invoca. El refresco ahora es event-driven:
+        // cada accion del usuario (insert/update/delete/paste) dispara su
+        // propio recargarTablaAdmin(). Tambien hay un boton "↻ RECARGAR"
+        // manual.
         function iniciarPollingAdmin() {
-            if (adminState.pollingId) clearInterval(adminState.pollingId);
-            adminState.pollingId = setInterval(() => {
-                if (adminState.celdaEditando) return; // no refrescar mientras edita
-                recargarTablaAdmin(true);
-            }, 3000);
+            if (adminState.pollingId) {
+                clearInterval(adminState.pollingId);
+                adminState.pollingId = null;
+            }
         }
 
         async function cargarTablaAdmin() {

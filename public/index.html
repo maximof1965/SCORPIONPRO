@@ -2467,23 +2467,50 @@
             mix-blend-mode: normal !important;
         }
 
-        /* ===== Tipografia: titulos oscuros ===== */
-        h1, h2, h3 {
-            color: #0b1220 !important;
-        }
-        h1 {
-            text-shadow: none !important;
-        }
-        /* El titulo decorativo СКОРПИОН / SCORPION en pantalla inicial:
-           gradiente azul-marino metalico sobre fondo claro. */
-        [class*="titulo-principal"],
+        /* ===== Titulos metalicos reales (plata forjada) =====
+           Gradiente multi-stop vertical que simula la curvatura 3D de
+           una letra de metal pulido: oscuro arriba y abajo, claro al
+           centro (brillo del reflejo). Sobre fondo blanco se refuerza
+           con -webkit-text-stroke para marcar la forma, y un drop-shadow
+           sutil para separarlas del fondo. Nada de neon ni glow. */
+        h1,
+        h2,
+        h3,
+        .titulo-principal,
         .app-title,
-        h1.titulo-decorativo {
-            background: linear-gradient(180deg, #1e3a8a 0%, #4472C4 45%, #1e3a8a 100%) !important;
+        h1.titulo-decorativo,
+        [class*="titulo-principal"] {
+            background:
+                linear-gradient(180deg,
+                    #2a2f38  0%,
+                    #4b5261  18%,
+                    #808896  40%,
+                    #d4d8df  50%,
+                    #808896  60%,
+                    #4b5261  82%,
+                    #23272f 100%
+                ) !important;
             -webkit-background-clip: text !important;
             background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             color: transparent !important;
+            -webkit-text-stroke: 0.4px rgba(15, 23, 42, 0.38) !important;
+            filter:
+                drop-shadow(0 1px 0 rgba(255, 255, 255, 0.8))
+                drop-shadow(0 2px 3px rgba(15, 23, 42, 0.25)) !important;
+            text-shadow: none !important;
+            font-weight: 600 !important;
+        }
+        /* Los titulos h2/h3 mas pequenos pueden quedar en solid slate,
+           sin efecto metalico (para que no se vean pesados). */
+        h2, h3 {
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            background-clip: initial !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            color: #0b1220 !important;
+            -webkit-text-stroke: 0 !important;
+            filter: none !important;
         }
 
         /* ===== Inputs / selects / textareas =====
@@ -2627,7 +2654,25 @@
             -webkit-backdrop-filter: none !important;
         }
 
-        /* ===== Botones: todos los .btn (base y variantes) en claro ===== */
+        /* ===== Botones: todos los .btn (base y variantes) en claro =====
+           Reset GLOBAL de text-shadow en cualquier boton/button para
+           evitar las sombras negras heredadas del CSS premium original
+           (afectaban a .btn-operation y similares en pantallas internas). */
+        button,
+        .btn,
+        .btn-operation,
+        .btn-turno,
+        .btn-menu-inicial,
+        .btn-hamburguesa {
+            text-shadow: none !important;
+        }
+        button *,
+        .btn *,
+        .btn-operation *,
+        .btn-turno *,
+        .btn-menu-inicial * {
+            text-shadow: none !important;
+        }
         .btn {
             background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
             color: #0b1220 !important;
@@ -2692,14 +2737,52 @@
             border-color: #3a63ab !important;
         }
 
-        /* Operacion (botones de la home): blanco con texto oscuro elegante */
-        .btn.btn-operation {
+        /* Operacion (botones de la home y del selector de tipo en EDITAR):
+           blanco con texto oscuro elegante, SIN text-shadow (para que
+           queden identicos a los botones del inicio).
+           Ojo: muchas instancias usan solo `.btn-operation` (sin el
+           prefijo `.btn`), por eso repetimos el selector sin prefijo. */
+        .btn.btn-operation,
+        .btn-operation,
+        button.btn-operation {
             background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(241,245,249,0.92) 100%) !important;
+            background-image: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(241,245,249,0.92) 100%) !important;
             color: #0b1220 !important;
             -webkit-text-fill-color: #0b1220 !important;
             border: 1px solid rgba(15,23,42,0.14) !important;
+            box-shadow:
+                0 1px 2px rgba(15,23,42,0.06),
+                0 4px 14px rgba(15,23,42,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.9) !important;
+            text-shadow: none !important;
             backdrop-filter: blur(4px) !important;
             -webkit-backdrop-filter: blur(4px) !important;
+        }
+        .btn.btn-operation *,
+        .btn-operation *,
+        button.btn-operation * {
+            text-shadow: none !important;
+            -webkit-text-fill-color: inherit !important;
+        }
+        /* Matamos el overlay oscuro interno de .btn-operation::before (gradiente
+           blanco sobre claro ya no aporta nada) y repetimos hover en claro. */
+        .btn-operation::before,
+        button.btn-operation::before {
+            background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, transparent 100%) !important;
+        }
+        .btn-operation:hover,
+        button.btn-operation:hover,
+        .btn.btn-operation:hover {
+            background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%) !important;
+            background-image: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%) !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            border-color: #4472C4 !important;
+            box-shadow:
+                0 2px 6px rgba(15,23,42,0.08),
+                0 8px 22px rgba(68,114,196,0.18),
+                inset 0 1px 0 rgba(255,255,255,0.95) !important;
+            text-shadow: none !important;
         }
 
         /* Boton "volver/cancelar/atras" si existe con esas clases */

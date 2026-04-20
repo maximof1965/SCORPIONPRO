@@ -2406,6 +2406,462 @@
         }
 
         /* =================================================================
+           ═══════════════════════════════════════════════════════════════
+              TEMA CLARO (light theme) — OVERRIDE FINAL
+           ═══════════════════════════════════════════════════════════════
+           Paleta profesional estilo fintech/banca premium:
+             - Superficies: blanco / gris perla / gris piedra
+             - Texto: slate-900 a slate-500 (alto contraste garantizado)
+             - Acento: azul corporativo #4472C4 (igual que tabla VERIFICAR)
+           Se reescriben las variables :root para que TODAS las reglas
+           existentes que ya usan var(--silver-*) / var(--metal-*) queden
+           automaticamente en claro. Despues se hacen overrides puntuales
+           para elementos con colores hardcoded (gradientes oscuros, etc.).
+           ================================================================= */
+        :root {
+            /* Superficies claras (antes metal-* oscuro, mismo nombre) */
+            --metal-deep:    #e9ecf1 !important;
+            --metal-base:    #f5f7fa !important;
+            --metal-mid:     #ffffff !important;
+            --metal-elev:    #fbfcfe !important;
+            --metal-edge:    #d0d7e1 !important;
+
+            /* Texto: invertido, manteniendo nombres (shine = mas oscuro = mas contraste) */
+            --silver-shine:  #0b1220 !important;
+            --silver-bright: #1b2637 !important;
+            --silver-mid:    #475569 !important;
+            --silver-soft:   #64748b !important;
+            --silver-dark:   #94a3b8 !important;
+
+            /* Sombras suaves sobre claro */
+            --shadow-elev-1: 0 2px 8px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04) !important;
+            --shadow-elev-2: 0 8px 24px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.05) !important;
+            --shadow-elev-3: 0 16px 48px rgba(15,23,42,0.12), 0 4px 12px rgba(15,23,42,0.06) !important;
+
+            /* Glows adaptados al tema claro */
+            --glow-silver:   0 0 0 1px rgba(68,114,196,0.22), 0 0 18px rgba(68,114,196,0.10) !important;
+            --glow-success:  0 0 0 1px rgba(5,150,105,0.30), 0 0 18px rgba(5,150,105,0.14) !important;
+            --glow-danger:   0 0 0 1px rgba(220,38,38,0.30), 0 0 18px rgba(220,38,38,0.14) !important;
+        }
+
+        /* ===== Body con fondo claro, mantiene la silueta del escorpion muy sutil ===== */
+        body.light-body,
+        body {
+            color: var(--silver-bright) !important;
+            background: var(--metal-deep) !important;
+        }
+        body::before {
+            background-image:
+                linear-gradient(180deg, rgba(233,236,241,0.92) 0%, rgba(245,247,250,0.96) 100%),
+                url('assets/SCORPIONPLATEADO.jpg') !important;
+            filter: contrast(0.90) saturate(0.80) brightness(1.15) !important;
+            opacity: 1 !important;
+        }
+        body::after {
+            background:
+                repeating-linear-gradient(90deg,
+                    rgba(15,23,42,0.008) 0px,
+                    rgba(15,23,42,0.008) 1px,
+                    transparent 2px, transparent 3px),
+                radial-gradient(circle at 50% 0%, rgba(68,114,196,0.06) 0%, transparent 60%) !important;
+            mix-blend-mode: normal !important;
+        }
+
+        /* ===== Tipografia: titulos oscuros ===== */
+        h1, h2, h3 {
+            color: #0b1220 !important;
+        }
+        h1 {
+            text-shadow: none !important;
+        }
+        /* El titulo decorativo СКОРПИОН / SCORPION en pantalla inicial:
+           gradiente azul-marino metalico sobre fondo claro. */
+        [class*="titulo-principal"],
+        .app-title,
+        h1.titulo-decorativo {
+            background: linear-gradient(180deg, #1e3a8a 0%, #4472C4 45%, #1e3a8a 100%) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            color: transparent !important;
+        }
+
+        /* ===== Inputs / selects / textareas ===== */
+        input, select, textarea {
+            background: #ffffff !important;
+            color: var(--silver-shine) !important;
+            border: 1px solid var(--metal-edge) !important;
+            -webkit-text-fill-color: var(--silver-shine) !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: var(--silver-dark) !important;
+            opacity: 1 !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #4472C4 !important;
+            box-shadow: 0 0 0 3px rgba(68,114,196,0.18) !important;
+            outline: none !important;
+        }
+        input:disabled, input[readonly] {
+            background: #f1f5f9 !important;
+            color: var(--silver-soft) !important;
+            -webkit-text-fill-color: var(--silver-soft) !important;
+        }
+        label {
+            color: var(--silver-mid) !important;
+        }
+
+        /* ===== Botones ===== */
+        button {
+            color: var(--silver-shine) !important;
+        }
+        .btn {
+            transition: all 140ms cubic-bezier(.4,0,.2,1) !important;
+        }
+        .btn-primary {
+            background: linear-gradient(180deg, #4472C4 0%, #3a63ab 100%) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            border: 1px solid #3a63ab !important;
+            box-shadow: 0 2px 6px rgba(68,114,196,0.25) !important;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(180deg, #5381d1 0%, #4472C4 100%) !important;
+            box-shadow: 0 4px 12px rgba(68,114,196,0.35) !important;
+        }
+        .btn-secondary {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            -webkit-text-fill-color: var(--silver-bright) !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04) !important;
+        }
+        .btn-secondary:hover {
+            background: #f1f5f9 !important;
+            border-color: #4472C4 !important;
+            color: #4472C4 !important;
+        }
+        .btn-danger {
+            background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            border: 1px solid #991b1b !important;
+            box-shadow: 0 2px 6px rgba(220,38,38,0.25) !important;
+        }
+        .btn-danger:hover {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important;
+        }
+
+        /* ===== Cards / pantallas ===== */
+        [id^="screen-"]:not(#screen-inicial) {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-2) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        /* Pantalla inicial: fondo claro semi-transparente para que se vea la silueta del escorpion */
+        #screen-inicial {
+            background: rgba(255,255,255,0.70) !important;
+            border: 1px solid rgba(15,23,42,0.10) !important;
+            box-shadow: var(--shadow-elev-2) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+        }
+
+        /* ===== Autocomplete (sugerencias de busqueda) ===== */
+        .autocomplete-results {
+            background: #ffffff !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-3) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        .autocomplete-item {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            -webkit-text-fill-color: var(--silver-bright) !important;
+            border-bottom: 1px solid #eef2f6 !important;
+        }
+        .autocomplete-item:hover,
+        .autocomplete-item:active,
+        .autocomplete-item.active,
+        .autocomplete-item.selected {
+            background: #eef4fc !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+        }
+        .autocomplete-item .ac-numero { color: #1e3a8a !important; }
+        .autocomplete-item .ac-nombre { color: #0b1220 !important; }
+        .autocomplete-item .ac-art    { color: #64748b !important; }
+        .autocomplete-item .ac-valor  { color: #475569 !important; }
+        .autocomplete-results::-webkit-scrollbar-track { background: #f1f5f9 !important; }
+        .autocomplete-results::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #cbd5e1, #94a3b8) !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        /* ===== Tabla admin (panel TABLAS) ===== */
+        .admin-grid-wrapper {
+            background: #ffffff !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-2) !important;
+        }
+        table.admin-grid {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+        }
+        table.admin-grid thead th,
+        table.admin-grid th {
+            background: linear-gradient(180deg, #e8eef7 0%, #dbe4f0 100%) !important;
+            color: #1e3a8a !important;
+            -webkit-text-fill-color: #1e3a8a !important;
+            border-bottom: 1px solid #b8c6dc !important;
+            font-weight: 600 !important;
+        }
+        table.admin-grid td,
+        table.admin-grid tbody td {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            -webkit-text-fill-color: var(--silver-bright) !important;
+            border-bottom: 1px solid #eef2f6 !important;
+        }
+        table.admin-grid tbody tr:nth-child(even) td {
+            background: #f7f9fc !important;
+        }
+        table.admin-grid tbody tr:hover td {
+            background: #eef4fc !important;
+        }
+        table.admin-grid tbody tr.admin-row-selected td {
+            background: #dde8fb !important;
+        }
+        table.admin-grid tbody td.admin-cell-selected {
+            background: #c9d8f5 !important;
+        }
+        table.admin-grid tbody td.admin-cell-num {
+            background: linear-gradient(180deg, #e8eef7 0%, #dbe4f0 100%) !important;
+            color: #1e3a8a !important;
+            font-weight: 700 !important;
+            border-right: 1px solid #b8c6dc !important;
+        }
+        table.admin-grid tbody td.admin-cell-editing {
+            background: #ffffff !important;
+            box-shadow: inset 0 0 0 2px #4472C4 !important;
+        }
+        table.admin-grid tbody td.admin-cell-editing input {
+            background: #ffffff !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        table.admin-grid thead th.admin-sticky-edge,
+        table.admin-grid tbody td.admin-sticky-edge {
+            box-shadow: 6px 0 12px -4px rgba(15,23,42,0.15) !important;
+        }
+
+        /* ===== Toolbar del panel admin ===== */
+        .admin-toolbar {
+            background: #f5f7fa !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.04) !important;
+        }
+        .admin-toolbar select {
+            background: #ffffff !important;
+            color: var(--silver-shine) !important;
+            border: 1px solid var(--metal-edge) !important;
+        }
+        .admin-toolbar select option {
+            background: #ffffff !important;
+            color: var(--silver-shine) !important;
+        }
+        .admin-btn {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            -webkit-text-fill-color: var(--silver-bright) !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04) !important;
+        }
+        .admin-btn:hover {
+            background: #f1f5f9 !important;
+            border-color: #4472C4 !important;
+            color: #4472C4 !important;
+            -webkit-text-fill-color: #4472C4 !important;
+        }
+        .admin-btn.admin-btn-recargar {
+            background: linear-gradient(180deg, #4472C4 0%, #3a63ab 100%) !important;
+            border-color: #3a63ab !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(68,114,196,0.25) !important;
+        }
+        .admin-btn.admin-btn-recargar:hover {
+            background: linear-gradient(180deg, #5381d1 0%, #4472C4 100%) !important;
+            box-shadow: 0 4px 14px rgba(68,114,196,0.40) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        .admin-search-wrap input {
+            background: #ffffff !important;
+            color: var(--silver-shine) !important;
+            border: 1px solid var(--metal-edge) !important;
+        }
+        .admin-status {
+            color: var(--silver-mid) !important;
+        }
+        .admin-help {
+            color: var(--silver-soft) !important;
+        }
+        .admin-help b {
+            color: #1e3a8a !important;
+            font-weight: 700 !important;
+        }
+        .admin-tabs button {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            border: 1px solid var(--metal-edge) !important;
+        }
+        .admin-tabs button.active,
+        .admin-tabs button[aria-selected="true"] {
+            background: linear-gradient(180deg, #4472C4 0%, #3a63ab 100%) !important;
+            color: #ffffff !important;
+            border-color: #3a63ab !important;
+        }
+
+        /* ===== Tabla de VENTAS-LOTE (batch) ===== */
+        .ventas-lote-tabla-wrapper {
+            background: #ffffff !important;
+            border: 1px solid var(--metal-edge) !important;
+        }
+        table.ventas-lote-tabla {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+        }
+        table.ventas-lote-tabla th {
+            background: linear-gradient(180deg, #e8eef7 0%, #dbe4f0 100%) !important;
+            color: #1e3a8a !important;
+            border-bottom: 1px solid #b8c6dc !important;
+        }
+        table.ventas-lote-tabla td {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            -webkit-text-fill-color: var(--silver-bright) !important;
+            border-bottom: 1px solid #eef2f6 !important;
+        }
+        table.ventas-lote-tabla tbody tr:hover td {
+            background: #eef4fc !important;
+        }
+
+        /* ===== Tabla de resultados individuales (BUSCAR card grande) ===== */
+        .result-label { color: var(--silver-mid) !important; }
+        .result-value { color: var(--silver-shine) !important; }
+        .search-results {
+            background: #ffffff !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-2) !important;
+        }
+
+        /* ===== Cards / badges / alertas ===== */
+        .editar-card {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-1) !important;
+        }
+        .editar-card:hover {
+            border-color: #4472C4 !important;
+            box-shadow: 0 4px 14px rgba(68,114,196,0.18) !important;
+        }
+        .mensaje, .toast, .modal {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-3) !important;
+        }
+        .mensaje-exito { color: #047857 !important; }
+        .mensaje-error { color: #b91c1c !important; }
+
+        /* ===== Dropdown / overlays ===== */
+        .hamburger-menu,
+        .dropdown-menu {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-2) !important;
+            backdrop-filter: none !important;
+        }
+        .hamburger-menu button,
+        .dropdown-menu button,
+        .hamburger-menu a,
+        .dropdown-menu a {
+            color: var(--silver-bright) !important;
+        }
+        .hamburger-menu button:hover,
+        .dropdown-menu button:hover {
+            background: #eef4fc !important;
+            color: #1e3a8a !important;
+        }
+
+        /* ===== Campo con error (borde rojo) ===== */
+        .campo-error-duplicado,
+        input.error,
+        .error-input {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 3px rgba(220,38,38,0.18) !important;
+            background: #fef2f2 !important;
+        }
+
+        /* ===== Checkbox / radio labels ===== */
+        input[type="checkbox"] + label,
+        input[type="radio"] + label,
+        .checkbox-label,
+        .radio-label {
+            color: var(--silver-bright) !important;
+        }
+
+        /* ===== Scrollbar global elegante (claro) ===== */
+        * { scrollbar-color: #94a3b8 #e2e8f0; }
+        *::-webkit-scrollbar { width: 10px; height: 10px; }
+        *::-webkit-scrollbar-track { background: #e2e8f0; }
+        *::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #94a3b8, #64748b);
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+        }
+        *::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #64748b, #475569);
+        }
+
+        /* ===== KPI / metricas ===== */
+        .kpi-card {
+            background: #ffffff !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-1) !important;
+        }
+        .kpi-card .kpi-label { color: var(--silver-mid) !important; }
+        .kpi-card .kpi-value { color: #0b1220 !important; }
+        .chart-card {
+            background: #ffffff !important;
+            border: 1px solid var(--metal-edge) !important;
+            box-shadow: var(--shadow-elev-1) !important;
+        }
+        .tabla-deudores,
+        .tabla-deudores th,
+        .tabla-deudores td {
+            background: #ffffff !important;
+            color: var(--silver-bright) !important;
+            border-color: #eef2f6 !important;
+        }
+        .tabla-deudores th {
+            background: linear-gradient(180deg, #e8eef7 0%, #dbe4f0 100%) !important;
+            color: #1e3a8a !important;
+        }
+        .tabla-deudores tbody tr:hover {
+            background: #eef4fc !important;
+        }
+
+        /* =================================================================
            OVERRIDE FINAL — TABLA VERIFICAR
            Forzamos color NEGRO en todas las celdas/textos por encima de
            cualquier regla anterior. Maxima especificidad y al final del

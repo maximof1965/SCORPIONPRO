@@ -1745,7 +1745,27 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             margin-top: 6px !important;
-            overflow: hidden;
+            /* Permitir scroll vertical cuando hay muchas sugerencias. */
+            max-height: 320px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Scrollbar fina plateada para el autocomplete */
+        .autocomplete-results::-webkit-scrollbar {
+            width: 8px;
+        }
+        .autocomplete-results::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.4);
+        }
+        .autocomplete-results::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3a3a42, #1e1e24);
+            border-radius: 4px;
+            border: 1px solid rgba(216,216,220,0.08);
+        }
+        .autocomplete-results::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #505058, #2a2a30);
         }
         .autocomplete-item {
             padding: 14px 16px !important;

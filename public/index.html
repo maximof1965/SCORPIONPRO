@@ -2486,29 +2486,85 @@
             color: transparent !important;
         }
 
-        /* ===== Inputs / selects / textareas ===== */
-        input, select, textarea {
+        /* ===== Inputs / selects / textareas =====
+           IMPORTANTE: repetimos los mismos selectores de tipo
+           (input[type="text"], input[type="tel"], etc.) que usa el CSS
+           "premium" original, porque esos tienen mayor especificidad que
+           un simple `input` y pisarian nuestro override si no lo hacemos. */
+        input,
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="password"],
+        input[type="search"],
+        input[type="email"],
+        input[type="date"],
+        textarea,
+        select {
             background: #ffffff !important;
-            color: var(--silver-shine) !important;
-            border: 1px solid var(--metal-edge) !important;
-            -webkit-text-fill-color: var(--silver-shine) !important;
+            background-image: none !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow:
+                inset 0 1px 2px rgba(15,23,42,0.04),
+                0 1px 2px rgba(15,23,42,0.03) !important;
+            caret-color: #4472C4 !important;
         }
-        input::placeholder, textarea::placeholder {
-            color: var(--silver-dark) !important;
+        input::placeholder,
+        input[type="text"]::placeholder,
+        input[type="tel"]::placeholder,
+        input[type="search"]::placeholder,
+        input[type="number"]::placeholder,
+        textarea::placeholder {
+            color: #94a3b8 !important;
             opacity: 1 !important;
+            -webkit-text-fill-color: #94a3b8 !important;
         }
-        input:focus, select:focus, textarea:focus {
+        input:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="tel"]:focus,
+        input[type="password"]:focus,
+        input[type="search"]:focus,
+        input[type="email"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            background: #ffffff !important;
             border-color: #4472C4 !important;
-            box-shadow: 0 0 0 3px rgba(68,114,196,0.18) !important;
+            box-shadow:
+                inset 0 1px 2px rgba(15,23,42,0.02),
+                0 0 0 3px rgba(68,114,196,0.18) !important;
             outline: none !important;
         }
-        input:disabled, input[readonly] {
+        input:disabled,
+        input[readonly],
+        input[type="text"][readonly],
+        input[type="tel"][readonly],
+        input[type="number"][readonly],
+        textarea[readonly],
+        textarea:disabled,
+        select:disabled {
             background: #f1f5f9 !important;
-            color: var(--silver-soft) !important;
-            -webkit-text-fill-color: var(--silver-soft) !important;
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
+            border-color: #e2e8f0 !important;
+            cursor: not-allowed;
+        }
+        /* Autofill del navegador (Chrome) pinta fondo amarillo feo.
+           Lo forzamos a blanco con texto oscuro. */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        select:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            caret-color: #4472C4 !important;
         }
         label {
-            color: var(--silver-mid) !important;
+            color: #475569 !important;
         }
 
         /* ===== Botones ===== */

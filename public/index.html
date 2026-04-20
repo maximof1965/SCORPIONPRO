@@ -2444,26 +2444,26 @@
             --glow-danger:   0 0 0 1px rgba(220,38,38,0.30), 0 0 18px rgba(220,38,38,0.14) !important;
         }
 
-        /* ===== Body con fondo claro, mantiene la silueta del escorpion muy sutil ===== */
+        /* ===== Body con fondo: imagen original del escorpion visible,
+                sin velo oscuro ni velo claro que la lave. ===== */
         body.light-body,
         body {
             color: var(--silver-bright) !important;
-            background: var(--metal-deep) !important;
+            background: #eef1f5 !important;
         }
         body::before {
-            background-image:
-                linear-gradient(180deg, rgba(233,236,241,0.92) 0%, rgba(245,247,250,0.96) 100%),
-                url('assets/SCORPIONPLATEADO.jpg') !important;
-            filter: contrast(0.90) saturate(0.80) brightness(1.15) !important;
+            /* La imagen original tal cual, con brillo aumentado para que
+               quede nitida sobre el tema claro. Sin overlay encima. */
+            background-image: url('assets/SCORPIONPLATEADO.jpg') !important;
+            background-size: cover !important;
+            background-position: center !important;
+            filter: brightness(1.25) contrast(1.05) saturate(1.0) !important;
             opacity: 1 !important;
         }
         body::after {
+            /* Solo un vineteo muy sutil en las esquinas, nada que tape la imagen */
             background:
-                repeating-linear-gradient(90deg,
-                    rgba(15,23,42,0.008) 0px,
-                    rgba(15,23,42,0.008) 1px,
-                    transparent 2px, transparent 3px),
-                radial-gradient(circle at 50% 0%, rgba(68,114,196,0.06) 0%, transparent 60%) !important;
+                radial-gradient(ellipse at center, transparent 50%, rgba(15,23,42,0.08) 100%) !important;
             mix-blend-mode: normal !important;
         }
 
@@ -2552,7 +2552,7 @@
             background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important;
         }
 
-        /* ===== Cards / pantallas ===== */
+        /* ===== Cards / pantallas (salvo la home) ===== */
         [id^="screen-"]:not(#screen-inicial) {
             background: #ffffff !important;
             color: var(--silver-bright) !important;
@@ -2561,13 +2561,203 @@
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
         }
-        /* Pantalla inicial: fondo claro semi-transparente para que se vea la silueta del escorpion */
+        /* Pantalla inicial: SIN recuadro. Los botones flotan sobre la
+           imagen del escorpion. Se quita background, border y sombra. */
         #screen-inicial {
-            background: rgba(255,255,255,0.70) !important;
-            border: 1px solid rgba(15,23,42,0.10) !important;
-            box-shadow: var(--shadow-elev-2) !important;
-            backdrop-filter: blur(8px) !important;
-            -webkit-backdrop-filter: blur(8px) !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        /* ===== Botones: todos los .btn (base y variantes) en claro ===== */
+        .btn {
+            background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            border: 1px solid #cbd5e1 !important;
+            text-shadow: none !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                0 2px 4px rgba(15,23,42,0.06),
+                0 1px 2px rgba(15,23,42,0.04) !important;
+        }
+        .btn::before {
+            background: linear-gradient(180deg,
+                rgba(255,255,255,0.50) 0%,
+                rgba(255,255,255,0.10) 60%,
+                transparent 100%) !important;
+        }
+        .btn::after {
+            background: linear-gradient(110deg,
+                transparent 0%,
+                rgba(68,114,196,0.10) 45%,
+                rgba(68,114,196,0.20) 50%,
+                rgba(68,114,196,0.10) 55%,
+                transparent 100%) !important;
+        }
+        .btn:hover:not(:disabled) {
+            background: linear-gradient(180deg, #ffffff 0%, #e8eef7 100%) !important;
+            border-color: #4472C4 !important;
+            color: #1e3a8a !important;
+            -webkit-text-fill-color: #1e3a8a !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                0 4px 12px rgba(68,114,196,0.18),
+                0 2px 4px rgba(15,23,42,0.06) !important;
+        }
+        .btn:active:not(:disabled) {
+            transform: translateY(1px) !important;
+            box-shadow:
+                inset 0 2px 4px rgba(15,23,42,0.08),
+                0 1px 2px rgba(15,23,42,0.04) !important;
+        }
+        .btn:disabled {
+            background: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            -webkit-text-fill-color: #94a3b8 !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+        }
+
+        /* Turnos: cápsulas azules sutiles (llaman la atencion sin ser agresivas) */
+        .btn.btn-turno {
+            background: linear-gradient(180deg, #ffffff 0%, #e8eef7 100%) !important;
+            color: #1e3a8a !important;
+            -webkit-text-fill-color: #1e3a8a !important;
+            border: 1px solid #b8c6dc !important;
+        }
+        .btn.btn-turno:hover:not(:disabled) {
+            background: linear-gradient(180deg, #4472C4 0%, #3a63ab 100%) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            border-color: #3a63ab !important;
+        }
+
+        /* Operacion (botones de la home): blanco con texto oscuro elegante */
+        .btn.btn-operation {
+            background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(241,245,249,0.92) 100%) !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            border: 1px solid rgba(15,23,42,0.14) !important;
+            backdrop-filter: blur(4px) !important;
+            -webkit-backdrop-filter: blur(4px) !important;
+        }
+
+        /* Boton "volver/cancelar/atras" si existe con esas clases */
+        .btn.btn-back,
+        .btn.btn-volver,
+        .btn.btn-cancel {
+            background: #ffffff !important;
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+
+        /* ===== Menu lateral (hamburger) en claro ===== */
+        .menu-lateral {
+            background: linear-gradient(160deg, #ffffff 0%, #f1f5f9 100%) !important;
+            border-right: 1px solid #cbd5e1 !important;
+            box-shadow: 4px 0 28px rgba(15,23,42,0.12) !important;
+        }
+        .menu-lateral-header {
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+        .menu-lateral-titulo {
+            background: linear-gradient(180deg, #1e3a8a 0%, #4472C4 100%) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            color: transparent !important;
+        }
+        .menu-lateral-close {
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #475569 !important;
+        }
+        .menu-lateral-close:hover {
+            background: #fee2e2 !important;
+            border-color: #dc2626 !important;
+            color: #b91c1c !important;
+        }
+        .menu-lateral-item {
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #1b2637 !important;
+            -webkit-text-fill-color: #1b2637 !important;
+            text-shadow: none !important;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04) !important;
+        }
+        .menu-lateral-item:hover {
+            background: linear-gradient(145deg, #eef4fc, #dbe4f0) !important;
+            border-color: #4472C4 !important;
+            color: #1e3a8a !important;
+            -webkit-text-fill-color: #1e3a8a !important;
+            transform: translateX(3px);
+        }
+        .menu-lateral-icono {
+            color: #4472C4 !important;
+        }
+        .menu-lateral-backdrop.abierto {
+            background: rgba(15, 23, 42, 0.35) !important;
+        }
+
+        /* Boton hamburger en la esquina superior izquierda */
+        .btn-hamburguesa,
+        #btn-hamburguesa {
+            background: linear-gradient(145deg, #ffffff, #e8eef7) !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow:
+                0 2px 6px rgba(15,23,42,0.10),
+                inset 0 1px 0 rgba(255,255,255,0.9) !important;
+        }
+        .btn-hamburguesa:hover,
+        #btn-hamburguesa:hover {
+            background: linear-gradient(145deg, #eef4fc, #dbe4f0) !important;
+            border-color: #4472C4 !important;
+            box-shadow:
+                0 4px 12px rgba(68,114,196,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.9) !important;
+        }
+        .btn-hamburguesa span {
+            background: #1e3a8a !important;
+        }
+
+        /* Botones principales del home (INGRESO/BUSCAR/VENTAS/etc).
+           Usan la clase .btn-menu-inicial y tambien heredan .btn/.btn-secondary.
+           Los dejamos en blanco limpio con texto oscuro, borde sutil. */
+        .btn-menu-inicial {
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(241,245,249,0.96) 100%) !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            border: 1px solid rgba(15,23,42,0.14) !important;
+            text-shadow: none !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                0 2px 8px rgba(15,23,42,0.08) !important;
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
+        }
+        .btn-menu-inicial:hover:not(:disabled) {
+            background: linear-gradient(180deg, #ffffff 0%, #eef4fc 100%) !important;
+            border-color: #4472C4 !important;
+            color: #1e3a8a !important;
+            -webkit-text-fill-color: #1e3a8a !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                0 6px 16px rgba(68,114,196,0.22) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Refuerzo: aseguramos que cualquier <button> sin clases especificas
+           tambien quede legible en claro. */
+        button:not(.btn):not(.admin-btn):not(.menu-lateral-item):not(.menu-lateral-close):not(.btn-hamburguesa):not(.admin-search-clear) {
+            background: #ffffff !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            border: 1px solid #cbd5e1 !important;
         }
 
         /* ===== Autocomplete (sugerencias de busqueda) ===== */

@@ -8109,14 +8109,18 @@
                 return;
             }
 
-            // Forzar el turno desde la operacion original (no el seleccionado).
-            estado.turno = String(original.OPER || estado.turno || '');
-            // Para INGRESO y similares, dejar identificador disponible.
+            // IMPORTANTE: NO sobreescribir estado.turno aqui.
+            // Mantenemos el turno del operador que ESTA editando (el que
+            // selecciono en EDITAR -> TURNO X). El turno del registro
+            // original viaja dentro de estado.modoEdicion.operOriginal y
+            // se usa solo al armar el payload para /api/editar; asi las
+            // operaciones NORMALES posteriores no se contaminan.
             estado.identificador = original.NUMERO != null ? String(original.NUMERO) : null;
             estado.modoEdicion = {
                 tipo: tipoUp,
                 original,
-                formulario: formTipo
+                formulario: formTipo,
+                operOriginal: String(original.OPER || '')
             };
 
             // Reusar la funcion estandar (limpia y luego prellenamos).
@@ -8302,11 +8306,19 @@
             }
             try {
                 const datos = obtenerDatosFormulario(tipo);
+                // En modo EDICION preservamos el turno de la operacion
+                // original (no el del operador que esta editando). Asi el
+                // registro editado mantiene su OPER historico. El turno del
+                // editor se registra aparte en el historial EDICION_XXX.
+                if (me.operOriginal) {
+                    datos.TURNO = me.operOriginal;
+                }
                 const body = {
                     accion: 'aplicar',
                     tipo: me.tipo,
                     original: me.original,
-                    nuevo: datos
+                    nuevo: datos,
+                    turnoEditor: estado.turno || ''
                 };
                 const r = await fetch('/api/editar', {
                     method: 'POST',

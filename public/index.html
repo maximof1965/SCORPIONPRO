@@ -3310,6 +3310,48 @@
             border: 1px solid #f59e0b !important;
             box-shadow: 0 2px 8px rgba(245,158,11,0.18) !important;
         }
+        /* ===== Selector de turno dentro del banner de EDICION ===== */
+        .editar-banner-linea {
+            margin-bottom: 8px;
+        }
+        .editar-banner-turno {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(120, 53, 15, 0.35);
+        }
+        .editar-banner-lbl {
+            font-size: 12px;
+            font-weight: 700;
+            color: #78350f;
+            margin-right: 4px;
+            letter-spacing: 0.5px;
+        }
+        .editar-turno-btn {
+            background: #ffffff;
+            color: #78350f;
+            border: 1.5px solid #f59e0b;
+            border-radius: 999px;
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            letter-spacing: 0.5px;
+        }
+        .editar-turno-btn:hover {
+            background: #fef3c7;
+            transform: translateY(-1px);
+        }
+        .editar-turno-btn.activo {
+            background: linear-gradient(180deg, #4472C4 0%, #3a63ab 100%);
+            color: #ffffff;
+            border-color: #3a63ab;
+            box-shadow: 0 2px 6px rgba(68,114,196,0.35);
+        }
     </style>
 </head>
 <body>
@@ -8140,15 +8182,52 @@
             const banner = document.createElement('div');
             banner.className = 'editar-banner';
             const hora = formatearHoraCard(original.FECHA);
-            banner.innerHTML = `MODO EDICION · ${EDITAR_TIPOS_LABEL[tipoUp] || tipoUp}` +
+            const operActual = String(original.OPER || '');
+
+            // Inicializamos el turno corregido = operador original. Si el
+            // operador se equivoco al elegir turno cuando hizo la operacion,
+            // puede cambiarlo aqui y quedara reflejado en INVENTARIO /
+            // RETIROS / SALIDAS / etc. + HISTORIAL + CAJA.
+            if (estado.modoEdicion) {
+                estado.modoEdicion.turnoCorregido = operActual;
+            }
+
+            banner.innerHTML =
+                `<div class="editar-banner-linea">` +
+                `MODO EDICION · ${EDITAR_TIPOS_LABEL[tipoUp] || tipoUp}` +
                 (original.NUMERO ? ` · #${original.NUMERO}` : '') +
-                ` · turno ${original.OPER || ''} · ${hora}`;
+                ` · turno original: <b>${operActual || '-'}</b> · ${hora}` +
+                `</div>` +
+                `<div class="editar-banner-turno">` +
+                `<span class="editar-banner-lbl">CORREGIR TURNO:</span>` +
+                `<button type="button" class="editar-turno-btn" data-turno="1">TURNO 1</button>` +
+                `<button type="button" class="editar-turno-btn" data-turno="2">TURNO 2</button>` +
+                `<button type="button" class="editar-turno-btn" data-turno="3">TURNO 3</button>` +
+                `</div>`;
+
             const h1 = formEl.querySelector('h1');
             if (h1 && h1.nextSibling) {
                 formEl.insertBefore(banner, h1.nextSibling);
             } else {
                 formEl.insertBefore(banner, formEl.firstChild);
             }
+
+            // Marcar el turno activo y conectar los clicks.
+            const botones = banner.querySelectorAll('.editar-turno-btn');
+            const activar = (turno) => {
+                botones.forEach(b => {
+                    if (String(b.dataset.turno) === String(turno)) {
+                        b.classList.add('activo');
+                    } else {
+                        b.classList.remove('activo');
+                    }
+                });
+                if (estado.modoEdicion) estado.modoEdicion.turnoCorregido = String(turno);
+            };
+            botones.forEach(b => {
+                b.addEventListener('click', () => activar(b.dataset.turno));
+            });
+            activar(operActual || '1');
             // Disparar revalidacion en todos los inputs/selects del form
             // para que el boton Enviar se habilite con los datos prellenados.
             formEl.querySelectorAll('input, textarea, select').forEach(el => {
@@ -8306,18 +8385,19 @@
             }
             try {
                 const datos = obtenerDatosFormulario(tipo);
-                // En modo EDICION preservamos el turno de la operacion
-                // original (no el del operador que esta editando). Asi el
-                // registro editado mantiene su OPER historico. El turno del
-                // editor se registra aparte en el historial EDICION_XXX.
-                if (me.operOriginal) {
-                    datos.TURNO = me.operOriginal;
+                // En modo EDICION el TURNO del payload refleja el turno
+                // corregido (elegido por el operador en el banner). Si no
+                // tocaron los botones del banner se queda con el original.
+                const turnoCorregido = (me.turnoCorregido || me.operOriginal || '').toString().trim();
+                if (turnoCorregido) {
+                    datos.TURNO = turnoCorregido;
                 }
                 const body = {
                     accion: 'aplicar',
                     tipo: me.tipo,
                     original: me.original,
                     nuevo: datos,
+                    turnoCorregido: turnoCorregido,
                     turnoEditor: estado.turno || ''
                 };
                 const r = await fetch('/api/editar', {

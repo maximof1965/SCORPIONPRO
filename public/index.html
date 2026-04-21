@@ -2952,21 +2952,41 @@
         table.admin-grid td,
         table.admin-grid tbody td {
             background: #ffffff !important;
-            color: var(--silver-bright) !important;
-            -webkit-text-fill-color: var(--silver-bright) !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
             border-bottom: 1px solid #eef2f6 !important;
         }
         table.admin-grid tbody tr:nth-child(even) td {
             background: #f7f9fc !important;
         }
-        table.admin-grid tbody tr:hover td {
+        /* HOVER de filas (cubre impares, pares y sticky num) con azul
+           claro, garantizando contraste con el texto oscuro.
+           Repetimos los selectores mas especificos para ganarle a la
+           regla dark original que pintaba la fila de negro. */
+        table.admin-grid tbody tr:hover td,
+        table.admin-grid tbody tr:nth-child(odd):hover td,
+        table.admin-grid tbody tr:nth-child(even):hover td,
+        table.admin-grid tbody tr:hover td.admin-cell-num {
             background: #eef4fc !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
         }
-        table.admin-grid tbody tr.admin-row-selected td {
+        /* La celda sticky "#" conserva su degrade azul claro en hover */
+        table.admin-grid tbody tr:hover td.admin-cell-num {
+            background: linear-gradient(180deg, #dde8fb 0%, #c9d8f5 100%) !important;
+            color: #1e3a8a !important;
+            -webkit-text-fill-color: #1e3a8a !important;
+        }
+        table.admin-grid tbody tr.admin-row-selected td,
+        table.admin-grid tbody tr.admin-row-selected:hover td {
             background: #dde8fb !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
         }
         table.admin-grid tbody td.admin-cell-selected {
             background: #c9d8f5 !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
         }
         table.admin-grid tbody td.admin-cell-num {
             background: linear-gradient(180deg, #e8eef7 0%, #dbe4f0 100%) !important;

@@ -3219,6 +3219,77 @@
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
         }
+
+        /* =================================================================
+           OVERRIDE FINAL — CARDS DE EDITAR (lista de transacciones del dia)
+           Las cards originales eran de fondo oscuro. En el tema claro las
+           forzamos a fondo blanco con texto oscuro para que se lean bien.
+           ================================================================= */
+        .editar-cards-wrap .editar-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f5f8fc 100%) !important;
+            background-image: linear-gradient(145deg, #ffffff 0%, #f5f8fc 100%) !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            box-shadow:
+                0 2px 6px rgba(15,23,42,0.06),
+                0 8px 22px rgba(15,23,42,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.9) !important;
+            text-shadow: none !important;
+        }
+        .editar-cards-wrap .editar-card * {
+            text-shadow: none !important;
+        }
+        .editar-cards-wrap .editar-card:hover,
+        .editar-cards-wrap .editar-card:focus {
+            border-color: #4472C4 !important;
+            box-shadow:
+                0 4px 12px rgba(68,114,196,0.18),
+                0 10px 28px rgba(68,114,196,0.14),
+                inset 0 1px 0 rgba(255,255,255,0.95) !important;
+        }
+        .editar-cards-wrap .editar-card .card-header {
+            border-bottom: 1px dashed rgba(15,23,42,0.12) !important;
+        }
+        .editar-cards-wrap .editar-card .card-numero {
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            font-weight: 700 !important;
+        }
+        .editar-cards-wrap .editar-card .card-hora {
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
+        }
+        .editar-cards-wrap .editar-card .card-row .k {
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
+        }
+        .editar-cards-wrap .editar-card .card-row .v {
+            color: #0b1220 !important;
+            -webkit-text-fill-color: #0b1220 !important;
+            font-weight: 600 !important;
+        }
+        .editar-cards-wrap .editar-card .card-valor {
+            color: #166534 !important;
+            -webkit-text-fill-color: #166534 !important;
+            font-weight: 700 !important;
+        }
+        .editar-cards-wrap .editar-card .card-edit-hint {
+            color: #4472C4 !important;
+            -webkit-text-fill-color: #4472C4 !important;
+            font-weight: 600 !important;
+        }
+        .editar-empty {
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
+        }
+        .editar-banner {
+            background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%) !important;
+            color: #78350f !important;
+            -webkit-text-fill-color: #78350f !important;
+            border: 1px solid #f59e0b !important;
+            box-shadow: 0 2px 8px rgba(245,158,11,0.18) !important;
+        }
     </style>
 </head>
 <body>

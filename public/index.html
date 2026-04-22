@@ -3310,6 +3310,106 @@
             border: 1px solid #f59e0b !important;
             box-shadow: 0 2px 8px rgba(245,158,11,0.18) !important;
         }
+        /* =================================================================
+           PAGINADOR DEL PANEL TABLAS (admin)
+           Mantiene la UI fluida en equipos lentos: solo se renderizan N
+           filas a la vez. La busqueda filtra sobre TODO el dataset.
+           ================================================================= */
+        .admin-pager {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 12px;
+            margin: 6px 0 0;
+            background: #f7f9fc;
+            border: 1px solid #dbe3ee;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #0b1220;
+        }
+        .admin-pager-info {
+            font-weight: 600;
+            color: #334155;
+        }
+        .admin-pager-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .admin-pager-btn {
+            background: #ffffff;
+            color: #0b1220;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.12s ease;
+            min-width: 32px;
+            text-align: center;
+        }
+        .admin-pager-btn:hover:not(:disabled) {
+            background: #eef4fc;
+            border-color: #4472C4;
+            color: #1e3a8a;
+        }
+        .admin-pager-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .admin-pager-page {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 6px;
+            color: #334155;
+            font-weight: 600;
+        }
+        .admin-pager-page input[type="number"] {
+            width: 58px;
+            padding: 4px 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #0b1220;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            -moz-appearance: textfield;
+        }
+        .admin-pager-page input[type="number"]::-webkit-outer-spin-button,
+        .admin-pager-page input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .admin-pager-size {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #334155;
+            font-weight: 600;
+        }
+        .admin-pager-size select {
+            padding: 4px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #0b1220;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        @media (max-width: 700px) {
+            .admin-pager { font-size: 12px; padding: 6px 8px; }
+            .admin-pager-info { width: 100%; text-align: center; }
+            .admin-pager-controls { width: 100%; justify-content: center; }
+            .admin-pager-btn { padding: 3px 8px; min-width: 28px; }
+        }
         /* ===== Selector de turno dentro del banner de EDICION ===== */
         .editar-banner-linea {
             margin-bottom: 8px;
@@ -3458,6 +3558,32 @@
                         <thead><tr id="admin-grid-head"></tr></thead>
                         <tbody id="admin-grid-body"></tbody>
                     </table>
+                </div>
+                <!-- Paginador: mantiene la UI fluida aunque la tabla tenga miles de filas.
+                     La busqueda opera sobre TODO el dataset, no solo sobre la pagina. -->
+                <div class="admin-pager" id="admin-pager">
+                    <span class="admin-pager-info" id="admin-pager-info">Mostrando 0 de 0</span>
+                    <div class="admin-pager-controls">
+                        <button type="button" class="admin-pager-btn" onclick="irAPaginaAdmin(1)" title="Primera pagina">«</button>
+                        <button type="button" class="admin-pager-btn" onclick="pagAnteriorAdmin()" title="Anterior">‹</button>
+                        <span class="admin-pager-page">
+                            Pag.
+                            <input type="number" id="admin-pager-input" min="1" value="1"
+                                onchange="irAPaginaDesdeInput()" onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault();}" />
+                            / <span id="admin-pager-total">1</span>
+                        </span>
+                        <button type="button" class="admin-pager-btn" onclick="pagSiguienteAdmin()" title="Siguiente">›</button>
+                        <button type="button" class="admin-pager-btn" onclick="ultimaPaginaAdmin()" title="Ultima pagina">»</button>
+                        <label class="admin-pager-size">
+                            Filas:
+                            <select id="admin-pager-size-select" onchange="cambiarTamPaginaAdmin()">
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="500">500</option>
+                            </select>
+                        </label>
+                    </div>
                 </div>
                 <div class="admin-help" id="admin-help">
                     Doble clic en celda para editar · Enter guarda · Esc cancela ·
@@ -7110,7 +7236,14 @@
             seleccionFilas: new Set(),
             celdaEditando: null,
             celdaSeleccionada: null,
-            pollingId: null
+            pollingId: null,
+            // ===== PAGINACION CLIENT-SIDE =====
+            // Renderizamos solo filasPorPagina a la vez para mantener el
+            // DOM ligero (en PCs "malitos" hace una diferencia enorme).
+            // La BUSQUEDA opera sobre TODO el dataset (rows), asi que
+            // siempre encuentra matches aunque esten en otra pagina.
+            paginaActual: 1,
+            filasPorPagina: 20
         };
 
         function adminGetPassword() {
@@ -7250,6 +7383,9 @@
             adminState.cfgActual = cfg;
             adminState.seleccionFilas.clear();
             adminState.celdaSeleccionada = null;
+            // Al cambiar de tabla, volvemos a la primera pagina (el total
+            // de filas cambia completamente, no tiene sentido mantenerla).
+            adminState.paginaActual = 1;
             await recargarTablaAdmin();
         }
 
@@ -7309,36 +7445,152 @@
                 head.appendChild(th);
             });
 
+            // 1) FILTRADO GLOBAL sobre TODO el dataset (no solo la pagina).
+            //    Guardamos el indice absoluto en el array rows para que la
+            //    edicion/eliminacion/seleccion sigan apuntando al mismo
+            //    registro aunque cambie la pagina.
             const filtro = (adminState.filtro || '').toLowerCase();
-            const rowsFiltradas = filtro
-                ? adminState.rows.filter(r => Object.values(r).some(v => String(v ?? '').toLowerCase().includes(filtro)))
-                : adminState.rows;
+            const filtradas = [];
+            if (filtro) {
+                for (let i = 0; i < adminState.rows.length; i++) {
+                    const r = adminState.rows[i];
+                    const vals = Object.values(r);
+                    for (let j = 0; j < vals.length; j++) {
+                        if (String(vals[j] ?? '').toLowerCase().includes(filtro)) {
+                            filtradas.push({ row: r, rowIndex: i });
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (let i = 0; i < adminState.rows.length; i++) {
+                    filtradas.push({ row: adminState.rows[i], rowIndex: i });
+                }
+            }
 
-            rowsFiltradas.forEach((row, idx) => {
+            // 2) PAGINACION: solo renderizamos el slice correspondiente.
+            const tamPag   = Math.max(1, Number(adminState.filasPorPagina) || 20);
+            const total    = filtradas.length;
+            const totalPag = Math.max(1, Math.ceil(total / tamPag));
+            if (adminState.paginaActual > totalPag) adminState.paginaActual = totalPag;
+            if (adminState.paginaActual < 1)        adminState.paginaActual = 1;
+            const pag    = adminState.paginaActual;
+            const inicio = (pag - 1) * tamPag;
+            const fin    = Math.min(inicio + tamPag, total);
+            const slice  = filtradas.slice(inicio, fin);
+
+            // 3) Render del slice. El # visible es el correlativo DENTRO
+            //    de la lista filtrada (no el del array crudo) para que el
+            //    usuario vea 1..N contiguo al paginar.
+            const frag = document.createDocumentFragment();
+            slice.forEach(({ row, rowIndex }, idxLocal) => {
                 const tr = document.createElement('tr');
-                tr.dataset.rowIndex = adminState.rows.indexOf(row);
-                if (adminState.seleccionFilas.has(tr.dataset.rowIndex)) tr.classList.add('admin-row-selected');
+                const rowIndexStr = String(rowIndex);
+                tr.dataset.rowIndex = rowIndexStr;
+                if (adminState.seleccionFilas.has(rowIndexStr)) tr.classList.add('admin-row-selected');
 
                 const tdNum = document.createElement('td');
-                tdNum.textContent = idx + 1;
+                tdNum.textContent = inicio + idxLocal + 1;
                 tdNum.className = 'admin-cell-num';
-                tdNum.onclick = () => toggleSeleccionFila(tr.dataset.rowIndex);
+                tdNum.onclick = () => toggleSeleccionFila(rowIndexStr);
                 tr.appendChild(tdNum);
 
                 cols.forEach(col => {
                     const td = document.createElement('td');
                     td.textContent = formatearValorAdmin(row[col]);
                     td.dataset.col = col;
-                    td.dataset.rowIndex = tr.dataset.rowIndex;
+                    td.dataset.rowIndex = rowIndexStr;
                     td.onclick = () => onClickCeldaAdmin(td);
                     td.ondblclick = () => iniciarEdicionCeldaAdmin(td);
                     tr.appendChild(td);
                 });
-                body.appendChild(tr);
+                frag.appendChild(tr);
             });
+            body.appendChild(frag);
 
-            // Aplicamos las columnas congeladas (sticky horizontal).
+            // 4) Actualizar controles del paginador + contador.
+            actualizarPaginadorAdmin(total, totalPag, inicio, fin);
+
+            // 5) Sticky horizontal.
             requestAnimationFrame(aplicarColumnasSticky);
+        }
+
+        // ========================================================
+        // PAGINADOR DEL PANEL TABLAS
+        // ========================================================
+        function actualizarPaginadorAdmin(total, totalPag, inicio, fin) {
+            const info   = document.getElementById('admin-pager-info');
+            const input  = document.getElementById('admin-pager-input');
+            const totEl  = document.getElementById('admin-pager-total');
+            const selTam = document.getElementById('admin-pager-size-select');
+            if (!info || !input || !totEl) return;
+
+            if (total === 0) {
+                info.textContent = 'Sin filas para mostrar';
+            } else {
+                const filtradoTxt = adminState.filtro
+                    ? ` (filtrado de ${adminState.rows.length})`
+                    : '';
+                info.textContent = `Mostrando ${inicio + 1}–${fin} de ${total}${filtradoTxt}`;
+            }
+            input.value = adminState.paginaActual;
+            input.max   = totalPag;
+            totEl.textContent = totalPag;
+
+            // Sincroniza el select de tamano si el valor en state fue
+            // cambiado por codigo (no via UI).
+            if (selTam && String(selTam.value) !== String(adminState.filasPorPagina)) {
+                selTam.value = String(adminState.filasPorPagina);
+            }
+
+            // Habilita/deshabilita botones segun posicion.
+            const botones = document.querySelectorAll('.admin-pager-btn');
+            if (botones.length >= 4) {
+                const enPrimera = adminState.paginaActual <= 1;
+                const enUltima  = adminState.paginaActual >= totalPag;
+                botones[0].disabled = enPrimera;
+                botones[1].disabled = enPrimera;
+                botones[2].disabled = enUltima;
+                botones[3].disabled = enUltima;
+            }
+        }
+
+        function irAPaginaAdmin(n) {
+            const num = Math.max(1, parseInt(n, 10) || 1);
+            adminState.paginaActual = num;
+            renderGridAdmin();
+        }
+        function irAPaginaDesdeInput() {
+            const input = document.getElementById('admin-pager-input');
+            if (!input) return;
+            irAPaginaAdmin(input.value);
+        }
+        function pagAnteriorAdmin() {
+            if (adminState.paginaActual > 1) {
+                adminState.paginaActual--;
+                renderGridAdmin();
+            }
+        }
+        function pagSiguienteAdmin() {
+            adminState.paginaActual++;
+            renderGridAdmin();
+        }
+        function ultimaPaginaAdmin() {
+            // Usamos un numero grande; renderGridAdmin lo clampa al total.
+            adminState.paginaActual = 999999;
+            renderGridAdmin();
+        }
+        function cambiarTamPaginaAdmin() {
+            const sel = document.getElementById('admin-pager-size-select');
+            if (!sel) return;
+            const nuevo = Math.max(1, parseInt(sel.value, 10) || 20);
+            adminState.filasPorPagina = nuevo;
+            // Mantener al usuario cerca de donde estaba: calculamos el
+            // indice absoluto del tope de la pagina actual y reabrimos
+            // la pagina que contenga esa fila con el nuevo tamano.
+            const topeAbs = (adminState.paginaActual - 1) * nuevo;
+            adminState.paginaActual = Math.floor(topeAbs / nuevo) + 1;
+            renderGridAdmin();
         }
 
         // ========================================================
@@ -7517,6 +7769,9 @@
             const inp = document.getElementById('admin-search');
             const valor = inp ? (inp.value || '') : '';
             adminState.filtro = valor;
+            // Al cambiar el filtro, saltamos a la primera pagina para
+            // que el primer match sea lo primero que el usuario vea.
+            adminState.paginaActual = 1;
             const wrap = inp ? inp.closest('.admin-search-wrap') : null;
             if (wrap) wrap.classList.toggle('has-text', valor.length > 0);
             renderGridAdmin();

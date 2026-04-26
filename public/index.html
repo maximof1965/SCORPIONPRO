@@ -880,13 +880,20 @@
         /* ============================================ */
         .admin-panel {
             position: fixed;
+            /* dvh: altura real en moviles (evita 100vh cortado con barra del navegador) */
             top: 0; left: 0; right: 0; bottom: 0;
+            height: 100vh; /* fallback */
+            height: 100dvh;
+            max-height: 100dvh;
+            min-height: -webkit-fill-available;
             background: #0d0d0d;
             color: #f0f0f0;
             display: flex;
             flex-direction: column;
             z-index: 9000;
             padding: 0;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+            box-sizing: border-box;
         }
         .admin-panel.hidden { display: none !important; }
 
@@ -918,16 +925,29 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
         }
 
-        /* Cada pestaña debe poder ocupar el alto restante del panel
-           para que el scroll de la grilla y de los graficos funcione. */
+        /* Cada pestaña ocupa el alto del panel. TABLAS: grid (no solo flex) para
+           que la fila central 1fr siempre reciba el espacio restante en
+           tableta/celular y el scroll quede DENTRO de .admin-grid-wrapper. */
         #admin-tab-content-tablas {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;          /* clave para que flex respete overflow */
+            flex: 1 1 0;
+            min-height: 0;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr) auto auto;
+            align-content: stretch;
             overflow: hidden;
         }
         #admin-tab-content-tablas.hidden { display: none !important; }
+        #admin-tab-content-tablas .admin-toolbar { min-height: 0; }
+        #admin-tab-content-tablas .admin-grid-wrapper {
+            /* Area central: se encoge, el scroll es aqui (vertical + horizontal) */
+            min-height: 0;
+            flex: initial;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        #admin-tab-content-tablas .admin-pager,
+        #admin-tab-content-tablas .admin-help { flex: none; }
 
         #admin-tab-content-metricas {
             flex: 1;
@@ -1175,7 +1195,8 @@
             color: #aaa;
         }
         .admin-grid-wrapper {
-            flex: 1;
+            /* En TABLAS, el contenedor padre (grid) reparte el alto: ver #admin-tab-content-tablas */
+            flex: 1 1 0;
             min-height: 0;
             overflow: auto;
             -webkit-overflow-scrolling: touch;
@@ -3409,6 +3430,59 @@
             .admin-pager-info { width: 100%; text-align: center; }
             .admin-pager-controls { width: 100%; justify-content: center; }
             .admin-pager-btn { padding: 3px 8px; min-width: 28px; }
+        }
+        /* ===== TABLAS: tablet/telefono (sin encoger el area con scroll) =====
+           Paisado en tablet deja poca altura: se compacta chrome y se
+           asegura que .admin-grid-wrapper sea el unico con overflow. */
+        @media (max-width: 1024px) {
+            .admin-tabs {
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            .admin-tabs .btn, .admin-tabs .admin-tab {
+                padding: 6px 10px !important;
+                font-size: 11px !important;
+            }
+            .admin-toolbar {
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            .admin-toolbar .admin-btn, .admin-toolbar .btn {
+                padding: 6px 8px !important;
+                font-size: 10px !important;
+            }
+            .admin-toolbar select, .admin-toolbar .admin-search-wrap input {
+                font-size: 12px !important;
+                padding: 5px 8px !important;
+            }
+            #admin-tab-content-tablas .admin-pager {
+                margin: 2px 0 0;
+                padding: 4px 6px;
+                font-size: 11px;
+                gap: 4px;
+            }
+            #admin-tab-content-tablas .admin-pager-btn {
+                padding: 2px 6px;
+                min-width: 24px;
+                font-size: 12px;
+            }
+            #admin-tab-content-tablas .admin-pager-page input {
+                width: 44px;
+                padding: 2px 4px;
+            }
+            #admin-tab-content-tablas .admin-help {
+                /* Texto de ayuda largo: baja a una linea para no "comer" la grilla */
+                max-height: 1.1em;
+                line-height: 1.1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+        }
+        @media (max-width: 1024px) and (max-height: 520px) {
+            #admin-tab-content-tablas .admin-help { display: none; }
         }
         /* ===== Selector de turno dentro del banner de EDICION ===== */
         .editar-banner-linea {

@@ -22,6 +22,9 @@ const handlers = {
   editar: require('../lib/handlers/editar'),
   recalcular_tot_in: require('../lib/handlers/recalcular_tot_in'),
   metricas: require('../lib/handlers/metricas'),
+  // Acceso a la app SCORPION (contraseña en SCORPION_APP_PASSWORD)
+  'app-login': require('../lib/handlers/app_login'),
+  app_login: require('../lib/handlers/app_login'),
 };
 
 module.exports = async (req, res) => {

@@ -3526,9 +3526,54 @@
             border-color: #3a63ab;
             box-shadow: 0 2px 6px rgba(68,114,196,0.35);
         }
+
+        .ventas-lote-turno-btn.ventas-lote-turno-btn-on {
+            box-shadow:
+                0 0 0 3px rgba(220, 180, 80, 0.55),
+                0 6px 24px rgba(0, 0, 0, 0.45);
+            border-color: rgba(220, 200, 120, 0.7) !important;
+            filter: brightness(1.12);
+        }
     </style>
 </head>
 <body>
+    <!-- ============================================================ -->
+    <!-- ACCESO SCORPION (contraseña en /api/app-login)                -->
+    <!--   - Variable Vercel: SCORPION_APP_PASSWORD                    -->
+    <!--   - sessionStorage: persiste con F5; se borra al cerrar pesta-->
+    <!--     ña/navegador (vuelve a pedir contraseña).                 -->
+    <!-- ============================================================ -->
+    <div id="login-app-scorpion" class="login-app-gate" style="
+            position: fixed; inset: 0; z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column;
+            padding: 24px;
+            background: linear-gradient(160deg, #1a1a1e 0%, #2d2d35 100%);
+            color: #f0f0f0; font-family: 'Cinzel', serif;">
+        <h1 style="font-size: 1.7rem; margin: 0 0 6px; letter-spacing: 0.05em; color: #f0f0f0;">SCORPION</h1>
+        <p style="font-size: 0.95rem; opacity: 0.85; margin: 0 0 18px; text-align: center;">
+            Ingrese la contraseña de acceso
+        </p>
+        <div style="width: 100%; max-width: 280px;">
+            <input type="password" id="app-login-password" autocomplete="current-password"
+                placeholder="Contraseña"
+                style="width: 100%; padding: 12px 14px; border-radius: 8px;
+                       border: 1px solid #555; background: #111; color: #fff;
+                       font-size: 1rem; box-sizing: border-box;" />
+            <p id="app-login-error" style="display:none; color: #f88; font-size: 0.85rem;
+                       margin-top: 8px; text-align: center;"></p>
+            <button type="button" id="app-login-btn"
+                    onclick="intentarAppLogin()"
+                    style="width: 100%; margin-top: 16px; padding: 12px;
+                           border: 1px solid rgba(255,255,255,0.15);
+                           border-radius: 8px; background: linear-gradient(180deg,#1a1a1c 0%,#0a0a0a 50%,#000 100%);
+                           color:#fff; font-family:'Cinzel', serif; font-weight:600; cursor:pointer;
+                           letter-spacing:0.04em;">
+                Entrar
+            </button>
+        </div>
+    </div>
+
     <div class="content-wrapper">
         <!-- Pantalla Inicial -->
         <div id="screen-inicial">
@@ -4214,6 +4259,15 @@
                     <button class="btn-ventas-pm" onclick="agregarFilaVenta(true)" title="Agregar fila">+</button>
                 </div>
             </div>
+            <!-- Selector de turno: el operador elige el turno (no la hora) -->
+            <div class="center" style="margin: 6px 0 10px; flex-wrap: wrap; display:flex; gap:8px; justify-content:center;">
+                <button type="button" id="ventas-lote-btn-turno-1" class="btn btn-turno ventas-lote-turno-btn" onclick="seleccionarTurnoVentasLote('1')">TURNO 1</button>
+                <button type="button" id="ventas-lote-btn-turno-2" class="btn btn-turno ventas-lote-turno-btn" onclick="seleccionarTurnoVentasLote('2')">TURNO 2</button>
+                <button type="button" id="ventas-lote-btn-turno-3" class="btn btn-turno ventas-lote-turno-btn" onclick="seleccionarTurnoVentasLote('3')">TURNO 3</button>
+            </div>
+            <div class="subtitle center" style="margin-bottom: 10px;">
+                Turno seleccionado: <span id="ventas-lote-turno-label" style="font-weight: 700;">—</span>
+            </div>
             <div class="ventas-lote-tabla-wrapper">
                 <table class="ventas-lote-tabla">
                     <thead>
@@ -4406,6 +4460,76 @@
     </div>
     
     <script>
+        // ============================================================
+        //  ACCESO A LA APP - contraseña en /api/app-login (Vercel env)
+        //  - sessionStorage: persiste con F5; se borra al cerrar pestaña
+        // ============================================================
+        const APP_LOGIN_KEY = 'scorpion_app_ok';
+
+        function appLoginShowGate() {
+            const g = document.getElementById('login-app-scorpion');
+            if (g) { g.style.display = 'flex'; }
+        }
+        function appLoginHideGate() {
+            const g = document.getElementById('login-app-scorpion');
+            if (g) { g.style.display = 'none'; }
+        }
+        async function intentarAppLogin() {
+            const inp = document.getElementById('app-login-password');
+            const errEl = document.getElementById('app-login-error');
+            const btn = document.getElementById('app-login-btn');
+            const pass = inp ? String(inp.value || '') : '';
+            if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
+            if (!pass.trim()) {
+                if (errEl) { errEl.textContent = 'Ingrese la contraseña'; errEl.style.display = 'block'; }
+                return;
+            }
+            if (btn) { btn.disabled = true; btn.textContent = 'Verificando...'; }
+            try {
+                const res = await fetch('/api/app-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass })
+                });
+                let data = {};
+                try { data = await res.json(); } catch (_) { data = {}; }
+                if (res.ok && data.ok) {
+                    sessionStorage.setItem(APP_LOGIN_KEY, '1');
+                    appLoginHideGate();
+                    if (inp) inp.value = '';
+                } else {
+                    if (errEl) {
+                        errEl.textContent = data.error || 'Contraseña incorrecta';
+                        errEl.style.display = 'block';
+                    }
+                }
+            } catch (_) {
+                if (errEl) {
+                    errEl.textContent = 'No se pudo conectar. Intente de nuevo.';
+                    errEl.style.display = 'block';
+                }
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Entrar'; }
+            }
+        }
+        function initAppAccess() {
+            if (sessionStorage.getItem(APP_LOGIN_KEY) === '1') {
+                appLoginHideGate();
+            } else {
+                appLoginShowGate();
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            initAppAccess();
+            const pw = document.getElementById('app-login-password');
+            if (pw) {
+                pw.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') { e.preventDefault(); intentarAppLogin(); }
+                });
+                setTimeout(function () { try { pw.focus(); } catch (_) {} }, 50);
+            }
+        });
+
         // URL del backend SCORPION (relativa porque frontend y API están en Vercel)
         function obtenerUrlWebhook(tipo) {
             const rutas = {
@@ -7125,10 +7249,36 @@
         /*  - + / - en header, X por fila                                */
         /*  - ENVIAR: valida todo o nada en backend                      */
         /* ============================================================ */
+        // Turno elegido por el operador para VENTAS POR LOTE
+        // (el backend ya NO decide el turno por la hora; lo elige el operador)
+        let turnoVentasLote = null;
+
+        function resetVentasLoteTurnoUI() {
+            turnoVentasLote = null;
+            const lbl = document.getElementById('ventas-lote-turno-label');
+            if (lbl) lbl.textContent = '—';
+            document.querySelectorAll('.ventas-lote-turno-btn').forEach(b =>
+                b.classList.remove('ventas-lote-turno-btn-on')
+            );
+        }
+
+        function seleccionarTurnoVentasLote(t) {
+            turnoVentasLote = String(t);
+            const lbl = document.getElementById('ventas-lote-turno-label');
+            if (lbl) lbl.textContent = turnoVentasLote;
+            document.querySelectorAll('.ventas-lote-turno-btn').forEach(b =>
+                b.classList.remove('ventas-lote-turno-btn-on')
+            );
+            const a = document.getElementById('ventas-lote-btn-turno-' + turnoVentasLote);
+            if (a) a.classList.add('ventas-lote-turno-btn-on');
+            limpiarMsgVentasLote();
+        }
+
         function abrirVentasLote() {
             const body = document.getElementById('ventas-lote-body');
             body.innerHTML = '';
             limpiarMsgVentasLote();
+            resetVentasLoteTurnoUI();
             mostrarPantalla('screen-ventas-lote');
             agregarFilaVenta(false);
             setTimeout(() => {
@@ -7225,6 +7375,11 @@
             const ventas = [];
             const errores = [];
 
+            if (!turnoVentasLote || !/^[123]$/.test(String(turnoVentasLote))) {
+                setMsgVentasLote('Seleccione el turno (1, 2 o 3)', 'error');
+                return;
+            }
+
             filas.forEach(tr => tr.classList.remove('fila-error'));
 
             filas.forEach((tr, idx) => {
@@ -7262,7 +7417,7 @@
                 const resp = await fetch('/api/ventas_lote', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ventas })
+                    body: JSON.stringify({ ventas, turno: turnoVentasLote })
                 });
                 const data = await resp.json().catch(() => ({}));
 

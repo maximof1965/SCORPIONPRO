@@ -22,7 +22,6 @@ const handlers = {
   editar: require('../lib/handlers/editar'),
   recalcular_tot_in: require('../lib/handlers/recalcular_tot_in'),
   metricas: require('../lib/handlers/metricas'),
-  'app-login': require('../lib/handlers/app_login'),
 };
 
 module.exports = async (req, res) => {

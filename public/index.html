@@ -1055,6 +1055,18 @@
         .tabla-deudores tbody tr:hover { background: #181818; }
         .tabla-deudores td:last-child, .tabla-deudores th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
 
+        /* Tabla CAJA mensual: todas las columnas numericas alineadas a la derecha */
+        .tabla-caja-mensual th:not(:first-child),
+        .tabla-caja-mensual td:not(:first-child) {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        .tabla-caja-mensual th:first-child,
+        .tabla-caja-mensual td:first-child {
+            white-space: nowrap;
+        }
+
         @media (max-width: 768px) {
             .kpi-card .kpi-value { font-size: 18px; }
             .chart-card { min-height: 280px; }
@@ -3542,14 +3554,25 @@
     <!--   - Variable Vercel: SCORPION_APP_PASSWORD                    -->
     <!--   - sessionStorage: persiste con F5; se borra al cerrar pesta-->
     <!--     ña/navegador (vuelve a pedir contraseña).                 -->
+    <!--                                                                -->
+    <!-- IMPORTANTE: usamos top/right/bottom/left explicitos en vez de -->
+    <!-- 'inset:0' por compat con iPad Safari/iOS antiguo, y fondo     -->
+    <!-- 100% opaco para que NUNCA se vea la app detras.               -->
     <!-- ============================================================ -->
     <div id="login-app-scorpion" class="login-app-gate" style="
-            position: fixed; inset: 0; z-index: 99999;
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            width: 100%; height: 100%;
+            min-height: 100vh;
+            z-index: 2147483647;
             display: flex; align-items: center; justify-content: center;
             flex-direction: column;
             padding: 24px;
-            background: linear-gradient(160deg, #1a1a1e 0%, #2d2d35 100%);
-            color: #f0f0f0; font-family: 'Cinzel', serif;">
+            background: #1a1a1e;
+            background-image: linear-gradient(160deg, #1a1a1e 0%, #2d2d35 100%);
+            color: #f0f0f0; font-family: 'Cinzel', serif;
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;">
         <h1 style="font-size: 1.7rem; margin: 0 0 6px; letter-spacing: 0.05em; color: #f0f0f0;">SCORPION</h1>
         <p style="font-size: 0.95rem; opacity: 0.85; margin: 0 0 18px; text-align: center;">
             Ingrese la contraseña de acceso
@@ -3559,20 +3582,165 @@
                 placeholder="Contraseña"
                 style="width: 100%; padding: 12px 14px; border-radius: 8px;
                        border: 1px solid #555; background: #111; color: #fff;
-                       font-size: 1rem; box-sizing: border-box;" />
+                       font-size: 16px;
+                       box-sizing: border-box;
+                       -webkit-appearance: none;
+                       appearance: none;" />
             <p id="app-login-error" style="display:none; color: #f88; font-size: 0.85rem;
                        margin-top: 8px; text-align: center;"></p>
             <button type="button" id="app-login-btn"
-                    onclick="intentarAppLogin()"
-                    style="width: 100%; margin-top: 16px; padding: 12px;
+                    style="width: 100%; margin-top: 16px; padding: 14px;
                            border: 1px solid rgba(255,255,255,0.15);
-                           border-radius: 8px; background: linear-gradient(180deg,#1a1a1c 0%,#0a0a0a 50%,#000 100%);
-                           color:#fff; font-family:'Cinzel', serif; font-weight:600; cursor:pointer;
-                           letter-spacing:0.04em;">
+                           border-radius: 8px;
+                           background: #0a0a0a;
+                           background-image: linear-gradient(180deg,#1a1a1c 0%,#0a0a0a 50%,#000 100%);
+                           color:#fff; font-family:'Cinzel', serif; font-weight:600;
+                           font-size: 1rem;
+                           cursor:pointer;
+                           letter-spacing:0.04em;
+                           -webkit-appearance: none;
+                           appearance: none;
+                           touch-action: manipulation;">
                 Entrar
             </button>
         </div>
     </div>
+
+    <!-- Script de login INDEPENDIENTE: si el script grande de la app
+         falla por cualquier motivo, el login sigue funcionando.       -->
+    <script>
+    (function () {
+        var APP_LOGIN_KEY = 'scorpion_app_ok';
+        var gate, inp, btn, err;
+
+        function $(id) { return document.getElementById(id); }
+
+        function lockBody() {
+            try {
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            } catch (e) {}
+        }
+        function unlockBody() {
+            try {
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
+            } catch (e) {}
+        }
+        function showGate() {
+            gate = gate || $('login-app-scorpion');
+            if (gate) {
+                gate.style.display = 'flex';
+                gate.removeAttribute('hidden');
+                gate.setAttribute('aria-hidden', 'false');
+            }
+            lockBody();
+        }
+        function hideGate() {
+            gate = gate || $('login-app-scorpion');
+            if (gate) {
+                gate.style.display = 'none';
+                gate.setAttribute('aria-hidden', 'true');
+            }
+            unlockBody();
+        }
+
+        function setError(txt) {
+            err = err || $('app-login-error');
+            if (!err) return;
+            if (txt) {
+                err.textContent = txt;
+                err.style.display = 'block';
+            } else {
+                err.textContent = '';
+                err.style.display = 'none';
+            }
+        }
+
+        function intentarLogin() {
+            inp = inp || $('app-login-password');
+            btn = btn || $('app-login-btn');
+            var pass = inp ? String(inp.value || '') : '';
+            setError('');
+            if (!pass.trim()) { setError('Ingrese la contraseña'); return; }
+            if (btn) { btn.disabled = true; btn.textContent = 'Verificando...'; }
+
+            fetch('/api/app-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pass }),
+                cache: 'no-store',
+                credentials: 'same-origin'
+            }).then(function (res) {
+                return res.json().catch(function () { return {}; }).then(function (data) {
+                    return { ok: res.ok, status: res.status, data: data || {} };
+                });
+            }).then(function (r) {
+                if (r.ok && r.data && r.data.ok) {
+                    try { sessionStorage.setItem(APP_LOGIN_KEY, '1'); } catch (e) {}
+                    hideGate();
+                    if (inp) inp.value = '';
+                } else {
+                    setError((r.data && r.data.error) || 'Contraseña incorrecta');
+                }
+            }).catch(function () {
+                setError('No se pudo conectar. Intente de nuevo.');
+            }).then(function () {
+                if (btn) { btn.disabled = false; btn.textContent = 'Entrar'; }
+            });
+        }
+
+        function initAccess() {
+            gate = $('login-app-scorpion');
+            inp  = $('app-login-password');
+            btn  = $('app-login-btn');
+            err  = $('app-login-error');
+
+            var ok = false;
+            try { ok = sessionStorage.getItem(APP_LOGIN_KEY) === '1'; } catch (e) {}
+
+            if (ok) {
+                hideGate();
+                return;
+            }
+            showGate();
+
+            if (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault(); e.stopPropagation();
+                    intentarLogin();
+                }, false);
+                // Algunos iPad reportan eventos de teclado/lap-touch raros con onclick puro
+                btn.addEventListener('touchend', function (e) {
+                    e.preventDefault(); e.stopPropagation();
+                    intentarLogin();
+                }, false);
+            }
+            if (inp) {
+                inp.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.keyCode === 13) {
+                        e.preventDefault();
+                        intentarLogin();
+                    }
+                }, false);
+                // Auto-focus para que ya aparezca el teclado
+                setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60);
+            }
+        }
+
+        // Exponer para el resto del script (no se vuelve a sobreescribir)
+        window.intentarAppLogin = intentarLogin;
+        window.initAppAccess    = initAccess;
+        window.appLoginShowGate = showGate;
+        window.appLoginHideGate = hideGate;
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAccess, false);
+        } else {
+            initAccess();
+        }
+    })();
+    </script>
 
     <div class="content-wrapper">
         <!-- Pantalla Inicial -->
@@ -3767,6 +3935,35 @@
                         <div class="tabla-deudores-wrap">
                             <table class="tabla-deudores" id="tabla-deudores">
                                 <thead><tr><th>#</th><th>NOMBRE</th><th>CONTRATOS</th><th>TOTAL POR COBRAR</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ====================================================== -->
+                    <!-- CAJA MENSUAL - HISTORICO COMPLETO (no respeta el rango -->
+                    <!-- de fechas: siempre toda la historia, por pedido admin) -->
+                    <!-- ====================================================== -->
+                    <div class="chart-card chart-card-wide">
+                        <h3 translate="no">CAJA MENSUAL (HISTORICO COMPLETO)</h3>
+                        <p style="font-size: 13px; color: #475569; margin: 0 0 10px;">
+                            Totales del mes (todos los turnos juntos). No se filtra por el rango Desde/Hasta.
+                        </p>
+                        <div class="tabla-deudores-wrap" style="max-height: 420px;">
+                            <table class="tabla-deudores tabla-caja-mensual" id="tabla-caja-mensual">
+                                <thead>
+                                    <tr>
+                                        <th>MES/AÑO</th>
+                                        <th>BASE</th>
+                                        <th>RETIRO</th>
+                                        <th>GUARDA</th>
+                                        <th>BAR</th>
+                                        <th>CONTRATOS</th>
+                                        <th>GASTOS</th>
+                                        <th>VENTAS</th>
+                                        <th>CUADRE CAJA</th>
+                                    </tr>
+                                </thead>
                                 <tbody></tbody>
                             </table>
                         </div>
@@ -4460,75 +4657,9 @@
     </div>
     
     <script>
-        // ============================================================
-        //  ACCESO A LA APP - contraseña en /api/app-login (Vercel env)
-        //  - sessionStorage: persiste con F5; se borra al cerrar pestaña
-        // ============================================================
-        const APP_LOGIN_KEY = 'scorpion_app_ok';
-
-        function appLoginShowGate() {
-            const g = document.getElementById('login-app-scorpion');
-            if (g) { g.style.display = 'flex'; }
-        }
-        function appLoginHideGate() {
-            const g = document.getElementById('login-app-scorpion');
-            if (g) { g.style.display = 'none'; }
-        }
-        async function intentarAppLogin() {
-            const inp = document.getElementById('app-login-password');
-            const errEl = document.getElementById('app-login-error');
-            const btn = document.getElementById('app-login-btn');
-            const pass = inp ? String(inp.value || '') : '';
-            if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
-            if (!pass.trim()) {
-                if (errEl) { errEl.textContent = 'Ingrese la contraseña'; errEl.style.display = 'block'; }
-                return;
-            }
-            if (btn) { btn.disabled = true; btn.textContent = 'Verificando...'; }
-            try {
-                const res = await fetch('/api/app-login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: pass })
-                });
-                let data = {};
-                try { data = await res.json(); } catch (_) { data = {}; }
-                if (res.ok && data.ok) {
-                    sessionStorage.setItem(APP_LOGIN_KEY, '1');
-                    appLoginHideGate();
-                    if (inp) inp.value = '';
-                } else {
-                    if (errEl) {
-                        errEl.textContent = data.error || 'Contraseña incorrecta';
-                        errEl.style.display = 'block';
-                    }
-                }
-            } catch (_) {
-                if (errEl) {
-                    errEl.textContent = 'No se pudo conectar. Intente de nuevo.';
-                    errEl.style.display = 'block';
-                }
-            } finally {
-                if (btn) { btn.disabled = false; btn.textContent = 'Entrar'; }
-            }
-        }
-        function initAppAccess() {
-            if (sessionStorage.getItem(APP_LOGIN_KEY) === '1') {
-                appLoginHideGate();
-            } else {
-                appLoginShowGate();
-            }
-        }
-        document.addEventListener('DOMContentLoaded', function () {
-            initAppAccess();
-            const pw = document.getElementById('app-login-password');
-            if (pw) {
-                pw.addEventListener('keydown', function (e) {
-                    if (e.key === 'Enter') { e.preventDefault(); intentarAppLogin(); }
-                });
-                setTimeout(function () { try { pw.focus(); } catch (_) {} }, 50);
-            }
-        });
+        // Login/gate viven en un <script> separado al inicio del body
+        // (intentarAppLogin/initAppAccess/appLoginShowGate/appLoginHideGate
+        //  ya estan disponibles como window.* desde alli).
 
         // URL del backend SCORPION (relativa porque frontend y API están en Vercel)
         function obtenerUrlWebhook(tipo) {
@@ -5039,7 +5170,20 @@
                 });
                 
                 if (response.ok) {
-                    mostrarMensajeExito();
+                    // Si fueron DEVOLUCIONES y el backend nos dice que eliminó
+                    // algunos numeros de la tabla RETIROS, lo informamos breve.
+                    let mensajeExtra = '';
+                    if (subtipo === 'DEVOLUCIONES') {
+                        try {
+                            const dataResp = await response.clone().json();
+                            const eliminados = (dataResp && dataResp.eliminados_retiros) || {};
+                            const count = Number(eliminados.count || 0);
+                            if (count > 0) {
+                                mensajeExtra = `${count} número${count > 1 ? 's' : ''} eliminado${count > 1 ? 's' : ''} de RETIROS`;
+                            }
+                        } catch (_) { /* ignorar si no es JSON */ }
+                    }
+                    mostrarMensajeExito(mensajeExtra);
                 } else {
                     const errorText = await response.text();
                     mostrarError(`ENVÍO DE INFORMACIÓN FALLIDA\n\nError del servidor: ${response.status}\n${errorText.substring(0, 200)}\n\nPor favor vuelva a intentar enviar los datos.`);
@@ -6856,7 +7000,7 @@
         }
         
         // Mensajes
-        function mostrarMensajeExito() {
+        function mostrarMensajeExito(mensajeExtra) {
             // Restablecer estilos por defecto (verde)
             const mensajeExito = document.getElementById('mensaje-exito');
             const regreso = document.getElementById('mensaje-exito-regreso');
@@ -6864,7 +7008,10 @@
             
             mensajeExito.className = 'success-message';
             document.getElementById('mensaje-exito-titulo').textContent = '✅ ENVIADO EXITOSAMENTE';
-            document.getElementById('mensaje-exito-texto').textContent = 'Los datos se han enviado correctamente';
+            const textoBase = 'Los datos se han enviado correctamente';
+            const extra = (mensajeExtra && String(mensajeExtra).trim()) || '';
+            document.getElementById('mensaje-exito-texto').textContent =
+                extra ? (textoBase + ' · ' + extra) : textoBase;
             
             // Ocultar botón y mostrar regreso automático
             botonContainer.style.display = 'none';
@@ -8301,6 +8448,43 @@
                     <td>${x.nombre}</td>
                     <td>${x.contratos}</td>
                     <td>${fmtMoneda(x.total)}</td>
+                </tr>`).join('');
+
+            // 8) CAJA MENSUAL HISTORICO (no respeta filtro de fechas)
+            renderCajaMensual(d.caja_mensual || []);
+        }
+
+        // Formato amigable de "YYYY-MM" -> "MES YYYY" en mayusculas
+        const MESES_ES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+        function formatearMesAnio(key) {
+            // key viene como "YYYY-MM"
+            if (!key || typeof key !== 'string') return '';
+            const partes = key.split('-');
+            if (partes.length < 2) return key;
+            const y = partes[0];
+            const m = parseInt(partes[1], 10);
+            if (!m || m < 1 || m > 12) return key;
+            return MESES_ES[m - 1] + ' ' + y;
+        }
+
+        function renderCajaMensual(filas) {
+            const tbody = document.querySelector('#tabla-caja-mensual tbody');
+            if (!tbody) return;
+            if (!filas || filas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:14px; color:#64748b;">Sin datos historicos de CAJA todavía.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filas.map(r => `
+                <tr>
+                    <td style="font-weight:600;">${formatearMesAnio(r.mes)}</td>
+                    <td>${fmtMoneda(r.BASE)}</td>
+                    <td>${fmtMoneda(r.RETIRO)}</td>
+                    <td>${fmtMoneda(r.GUARDA)}</td>
+                    <td>${fmtMoneda(r.BAR)}</td>
+                    <td>${fmtMoneda(r.CONTRATOS)}</td>
+                    <td>${fmtMoneda(r.GASTOS)}</td>
+                    <td>${fmtMoneda(r.VENTAS)}</td>
+                    <td>${fmtMoneda(r['CUADRE CAJA'])}</td>
                 </tr>`).join('');
         }
 

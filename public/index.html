@@ -5982,7 +5982,7 @@
                     datos["V RETIRO(ING) "] = document.getElementById('ingreso-v_retiro').value.trim();
                     datos["NOMBRE COMPLETO(ING) "] = document.getElementById('ingreso-nombre_completo').value.trim();
                     datos["CEDULA(ING) "] = document.getElementById('ingreso-cedula').value.trim();
-                    datos["ART(ING)"] = document.querySelector('input[name="ingreso-art"]:checked')?.value || '';
+                    datos["ART(ING)"] = (document.querySelector('input[name="ingreso-art"]:checked') || {}).value || '';
                     datos["DESCRIPCION"] = descripcion || 'nulo';
                     datos["LLEVAR"] = document.getElementById('ingreso-llevar').checked ? 'NO LLEVAR' : '';
                     break;
@@ -6019,7 +6019,7 @@
                     datos["numero"] = document.getElementById('busqueda-numero').value.trim();
                     datos["nombre_completo"] = document.getElementById('busqueda-nombre_completo').value.trim();
                     datos["cedula"] = document.getElementById('busqueda-cedula').value.trim();
-                    datos["art"] = document.querySelector('input[name="busqueda-art"]:checked')?.value || '';
+                    datos["art"] = (document.querySelector('input[name="busqueda-art"]:checked') || {}).value || '';
                     break;
                     
                 case 'salida':
@@ -7928,7 +7928,7 @@
                     const r = adminState.rows[i];
                     const vals = Object.values(r);
                     for (let j = 0; j < vals.length; j++) {
-                        if (String(vals[j] ?? '').toLowerCase().includes(filtro)) {
+                        if (String(vals[j] != null ? vals[j] : '').toLowerCase().includes(filtro)) {
                             filtradas.push({ row: r, rowIndex: i });
                             break;
                         }
@@ -8685,7 +8685,7 @@
             const filasPegar = dataLineas.map(l => {
                 const partes = l.split('\t');
                 const obj = {};
-                cols.forEach((c, i) => { obj[c] = parseInputValor(partes[i] ?? ''); });
+                cols.forEach((c, i) => { obj[c] = parseInputValor(partes[i] != null ? partes[i] : ''); });
                 return obj;
             });
 

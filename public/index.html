@@ -3563,15 +3563,13 @@
             position: fixed;
             top: 0; right: 0; bottom: 0; left: 0;
             width: 100%; height: 100%;
-            min-height: 100vh;
-            z-index: 2147483647;
+            z-index: 99999;
             display: flex; align-items: center; justify-content: center;
             flex-direction: column;
             padding: 24px;
             background: #1a1a1e;
             background-image: linear-gradient(160deg, #1a1a1e 0%, #2d2d35 100%);
             color: #f0f0f0; font-family: 'Cinzel', serif;
-            -webkit-overflow-scrolling: touch;
             box-sizing: border-box;">
         <h1 style="font-size: 1.7rem; margin: 0 0 6px; letter-spacing: 0.05em; color: #f0f0f0;">SCORPION</h1>
         <p style="font-size: 0.95rem; opacity: 0.85; margin: 0 0 18px; text-align: center;">
@@ -3607,42 +3605,75 @@
     </div>
 
     <!-- Script de login INDEPENDIENTE: si el script grande de la app
-         falla por cualquier motivo, el login sigue funcionando.       -->
+         falla por cualquier motivo, el login sigue funcionando.
+
+         Estrategia iPad-safe:
+           - NO tocamos document.documentElement (iOS Safari deja layout
+             en estado raro al alternar overflow en <html>).
+           - Tras login OK, ELIMINAMOS el gate del DOM (.remove()), no
+             solo display:none. Asi no queda stacking-context residual
+             con z-index 2^31-1 que intercepte toques. -->
     <script>
     (function () {
         var APP_LOGIN_KEY = 'scorpion_app_ok';
         var gate, inp, btn, err;
+        var gateRemoved = false;
 
         function $(id) { return document.getElementById(id); }
 
-        function lockBody() {
-            try {
-                document.documentElement.style.overflow = 'hidden';
-                document.body.style.overflow = 'hidden';
-            } catch (e) {}
+        function lockBodyScroll() {
+            // Solo BODY; nunca <html>. Tampoco position:fixed para
+            // evitar perder posicion de scroll al reactivar.
+            try { document.body.style.overflow = 'hidden'; } catch (e) {}
         }
-        function unlockBody() {
-            try {
-                document.documentElement.style.overflow = '';
-                document.body.style.overflow = '';
-            } catch (e) {}
+        function unlockBodyScroll() {
+            try { document.body.style.overflow = ''; } catch (e) {}
         }
+
         function showGate() {
+            if (gateRemoved) return; // ya entro antes en esta sesion
             gate = gate || $('login-app-scorpion');
             if (gate) {
                 gate.style.display = 'flex';
+                gate.style.visibility = 'visible';
+                gate.style.pointerEvents = 'auto';
+                gate.style.opacity = '1';
                 gate.removeAttribute('hidden');
                 gate.setAttribute('aria-hidden', 'false');
             }
-            lockBody();
+            lockBodyScroll();
         }
+
         function hideGate() {
             gate = gate || $('login-app-scorpion');
             if (gate) {
+                // Defensa en profundidad ANTES de remover (por si el
+                // navegador hace algo asincrono con el repaint).
                 gate.style.display = 'none';
+                gate.style.visibility = 'hidden';
+                gate.style.pointerEvents = 'none';
+                gate.style.opacity = '0';
+                gate.style.zIndex = '-1';
                 gate.setAttribute('aria-hidden', 'true');
+                // IMPORTANTE: sacar el nodo del DOM. Asi no hay
+                // stacking-context residual en iOS Safari/iPad ni
+                // hijos que reciban toques.
+                try {
+                    if (gate.parentNode) gate.parentNode.removeChild(gate);
+                } catch (e) {}
+                gate = null;
+                gateRemoved = true;
             }
-            unlockBody();
+            unlockBodyScroll();
+            // Forzar reflow para que iOS recalcule layout (hamburger,
+            // botones, etc.) tras quitar el overlay.
+            try {
+                var b = document.body;
+                /* eslint-disable no-unused-expressions */
+                b.offsetHeight;
+                /* eslint-enable no-unused-expressions */
+                window.scrollTo(0, 0);
+            } catch (e) {}
         }
 
         function setError(txt) {
@@ -3658,6 +3689,7 @@
         }
 
         function intentarLogin() {
+            if (gateRemoved) return;
             inp = inp || $('app-login-password');
             btn = btn || $('app-login-btn');
             var pass = inp ? String(inp.value || '') : '';
@@ -3678,8 +3710,9 @@
             }).then(function (r) {
                 if (r.ok && r.data && r.data.ok) {
                     try { sessionStorage.setItem(APP_LOGIN_KEY, '1'); } catch (e) {}
-                    hideGate();
                     if (inp) inp.value = '';
+                    if (inp && inp.blur) { try { inp.blur(); } catch (e) {} }
+                    hideGate();
                 } else {
                     setError((r.data && r.data.error) || 'Contraseña incorrecta');
                 }
@@ -3700,6 +3733,9 @@
             try { ok = sessionStorage.getItem(APP_LOGIN_KEY) === '1'; } catch (e) {}
 
             if (ok) {
+                // Ya autenticado en esta sesion: NO mostrar el gate y
+                // sacarlo del DOM directamente (no queda nada que pueda
+                // interferir con los clicks de la app).
                 hideGate();
                 return;
             }

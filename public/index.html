@@ -2127,7 +2127,10 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 5px;
+            /* NO usamos 'gap' aqui: iPad/iOS Safari < 14.5 no lo soporta
+               en flexbox y los 3 spans se solapan en el centro mostrando
+               UNA SOLA linea. La separacion se hace con margin en el span. */
+            gap: 0;
             padding: 0;
             z-index: 50;
             transition: all 0.25s ease;
@@ -2147,7 +2150,11 @@
             background: linear-gradient(90deg, #d8d8e0, #8a8a92);
             border-radius: 2px;
             transition: all 0.25s ease;
+            /* Separacion entre lineas a prueba de iPad antiguo */
+            margin: 3px 0;
         }
+        .btn-hamburguesa span:first-child { margin-top: 0; }
+        .btn-hamburguesa span:last-child  { margin-bottom: 0; }
         .btn-hamburguesa.abierto span:nth-child(1) {
             transform: translateY(7px) rotate(45deg);
         }
@@ -3551,133 +3558,91 @@
 <body>
     <!-- ============================================================ -->
     <!-- ACCESO SCORPION (contraseña en /api/app-login)                -->
-    <!--   - Variable Vercel: SCORPION_APP_PASSWORD                    -->
-    <!--   - sessionStorage: persiste con F5; se borra al cerrar pesta-->
-    <!--     ña/navegador (vuelve a pedir contraseña).                 -->
     <!--                                                                -->
-    <!-- IMPORTANTE: usamos top/right/bottom/left explicitos en vez de -->
-    <!-- 'inset:0' por compat con iPad Safari/iOS antiguo, y fondo     -->
-    <!-- 100% opaco para que NUNCA se vea la app detras.               -->
+    <!-- ESTRATEGIA iPad-safe (clave para evitar bugs de layout):       -->
+    <!--   1) El overlay de login NO existe en el HTML inicial.         -->
+    <!--   2) Si hay sesion valida (sessionStorage), la app se carga    -->
+    <!--      EXACTAMENTE igual a como funcionaba antes: cero gate, cero-->
+    <!--      stacking-context extra, cero interferencia con el layout. -->
+    <!--   3) Si no hay sesion, el script crea el gate dinamicamente al -->
+    <!--      cargar y al hacer login OK recargamos la pagina con la    -->
+    <!--      flag puesta. En la segunda carga ya no se mete nada en el -->
+    <!--      DOM. iPad/iOS arranca con layout 100% limpio.             -->
     <!-- ============================================================ -->
-    <div id="login-app-scorpion" class="login-app-gate" style="
-            position: fixed;
-            top: 0; right: 0; bottom: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 99999;
-            display: flex; align-items: center; justify-content: center;
-            flex-direction: column;
-            padding: 24px;
-            background: #1a1a1e;
-            background-image: linear-gradient(160deg, #1a1a1e 0%, #2d2d35 100%);
-            color: #f0f0f0; font-family: 'Cinzel', serif;
-            box-sizing: border-box;">
-        <h1 style="font-size: 1.7rem; margin: 0 0 6px; letter-spacing: 0.05em; color: #f0f0f0;">SCORPION</h1>
-        <p style="font-size: 0.95rem; opacity: 0.85; margin: 0 0 18px; text-align: center;">
-            Ingrese la contraseña de acceso
-        </p>
-        <div style="width: 100%; max-width: 280px;">
-            <input type="password" id="app-login-password" autocomplete="current-password"
-                placeholder="Contraseña"
-                style="width: 100%; padding: 12px 14px; border-radius: 8px;
-                       border: 1px solid #555; background: #111; color: #fff;
-                       font-size: 16px;
-                       box-sizing: border-box;
-                       -webkit-appearance: none;
-                       appearance: none;" />
-            <p id="app-login-error" style="display:none; color: #f88; font-size: 0.85rem;
-                       margin-top: 8px; text-align: center;"></p>
-            <button type="button" id="app-login-btn"
-                    style="width: 100%; margin-top: 16px; padding: 14px;
-                           border: 1px solid rgba(255,255,255,0.15);
-                           border-radius: 8px;
-                           background: #0a0a0a;
-                           background-image: linear-gradient(180deg,#1a1a1c 0%,#0a0a0a 50%,#000 100%);
-                           color:#fff; font-family:'Cinzel', serif; font-weight:600;
-                           font-size: 1rem;
-                           cursor:pointer;
-                           letter-spacing:0.04em;
-                           -webkit-appearance: none;
-                           appearance: none;
-                           touch-action: manipulation;">
-                Entrar
-            </button>
-        </div>
-    </div>
-
-    <!-- Script de login INDEPENDIENTE: si el script grande de la app
-         falla por cualquier motivo, el login sigue funcionando.
-
-         Estrategia iPad-safe:
-           - NO tocamos document.documentElement (iOS Safari deja layout
-             en estado raro al alternar overflow en <html>).
-           - Tras login OK, ELIMINAMOS el gate del DOM (.remove()), no
-             solo display:none. Asi no queda stacking-context residual
-             con z-index 2^31-1 que intercepte toques. -->
     <script>
     (function () {
         var APP_LOGIN_KEY = 'scorpion_app_ok';
-        var gate, inp, btn, err;
-        var gateRemoved = false;
 
-        function $(id) { return document.getElementById(id); }
+        function tieneSesionValida() {
+            try { return sessionStorage.getItem(APP_LOGIN_KEY) === '1'; }
+            catch (e) { return false; }
+        }
+
+        // Si ya hay sesion: no hacemos absolutamente nada y la app se
+        // carga normal. Esta es la ruta "rapida" para iPad: cero DOM
+        // adicional, cero scripts, cero overlays. La app funciona igual
+        // que antes de que existiera el login.
+        if (tieneSesionValida()) return;
+
+        // -----------------------------------------------------------
+        //  No hay sesion: hay que mostrar el gate de contraseña.
+        // -----------------------------------------------------------
+        var gate, inp, btn, err;
 
         function lockBodyScroll() {
-            // Solo BODY; nunca <html>. Tampoco position:fixed para
-            // evitar perder posicion de scroll al reactivar.
+            // Solo BODY; nunca <html>. iOS deja layout sucio si tocas
+            // overflow en <html>.
             try { document.body.style.overflow = 'hidden'; } catch (e) {}
         }
         function unlockBodyScroll() {
             try { document.body.style.overflow = ''; } catch (e) {}
         }
 
-        function showGate() {
-            if (gateRemoved) return; // ya entro antes en esta sesion
-            gate = gate || $('login-app-scorpion');
-            if (gate) {
-                gate.style.display = 'flex';
-                gate.style.visibility = 'visible';
-                gate.style.pointerEvents = 'auto';
-                gate.style.opacity = '1';
-                gate.removeAttribute('hidden');
-                gate.setAttribute('aria-hidden', 'false');
-            }
+        function renderGate() {
+            gate = document.createElement('div');
+            gate.id = 'login-app-scorpion';
+            gate.setAttribute('role', 'dialog');
+            gate.setAttribute('aria-modal', 'true');
+            // Estilos defensivos para iOS Safari/Chrome (WebKit). NO
+            // usamos 'inset:0' (Safari < 14.5), NO usamos z-index
+            // exagerado (causa stacking-context raros).
+            gate.style.cssText = [
+                'position:fixed',
+                'top:0','right:0','bottom:0','left:0',
+                'width:100%','height:100%',
+                'z-index:99999',
+                'display:flex',
+                'align-items:center',
+                'justify-content:center',
+                'flex-direction:column',
+                'padding:24px',
+                'background:#1a1a1e',
+                'background-image:linear-gradient(160deg,#1a1a1e 0%,#2d2d35 100%)',
+                'color:#f0f0f0',
+                "font-family:'Cinzel', serif",
+                'box-sizing:border-box',
+                'margin:0'
+            ].join(';') + ';';
+
+            gate.innerHTML =
+                '<h1 style="font-size:1.7rem;margin:0 0 6px;letter-spacing:0.05em;color:#f0f0f0;">SCORPION</h1>' +
+                '<p style="font-size:0.95rem;opacity:0.85;margin:0 0 18px;text-align:center;color:#f0f0f0;">Ingrese la contraseña de acceso</p>' +
+                '<div style="width:100%;max-width:280px;">' +
+                  '<input type="password" id="app-login-password" autocomplete="current-password" placeholder="Contraseña" ' +
+                  'style="width:100%;padding:12px 14px;border-radius:8px;border:1px solid #555;background:#111;color:#fff;font-size:16px;box-sizing:border-box;-webkit-appearance:none;appearance:none;" />' +
+                  '<p id="app-login-error" style="display:none;color:#f88;font-size:0.85rem;margin-top:8px;text-align:center;"></p>' +
+                  '<button type="button" id="app-login-btn" ' +
+                  'style="width:100%;margin-top:16px;padding:14px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;background:#0a0a0a;background-image:linear-gradient(180deg,#1a1a1c 0%,#0a0a0a 50%,#000 100%);color:#fff;font-family:\'Cinzel\',serif;font-weight:600;font-size:1rem;cursor:pointer;letter-spacing:0.04em;-webkit-appearance:none;appearance:none;touch-action:manipulation;">Entrar</button>' +
+                '</div>';
+
+            document.body.appendChild(gate);
+            inp = document.getElementById('app-login-password');
+            btn = document.getElementById('app-login-btn');
+            err = document.getElementById('app-login-error');
             lockBodyScroll();
         }
 
-        function hideGate() {
-            gate = gate || $('login-app-scorpion');
-            if (gate) {
-                // Defensa en profundidad ANTES de remover (por si el
-                // navegador hace algo asincrono con el repaint).
-                gate.style.display = 'none';
-                gate.style.visibility = 'hidden';
-                gate.style.pointerEvents = 'none';
-                gate.style.opacity = '0';
-                gate.style.zIndex = '-1';
-                gate.setAttribute('aria-hidden', 'true');
-                // IMPORTANTE: sacar el nodo del DOM. Asi no hay
-                // stacking-context residual en iOS Safari/iPad ni
-                // hijos que reciban toques.
-                try {
-                    if (gate.parentNode) gate.parentNode.removeChild(gate);
-                } catch (e) {}
-                gate = null;
-                gateRemoved = true;
-            }
-            unlockBodyScroll();
-            // Forzar reflow para que iOS recalcule layout (hamburger,
-            // botones, etc.) tras quitar el overlay.
-            try {
-                var b = document.body;
-                /* eslint-disable no-unused-expressions */
-                b.offsetHeight;
-                /* eslint-enable no-unused-expressions */
-                window.scrollTo(0, 0);
-            } catch (e) {}
-        }
-
         function setError(txt) {
-            err = err || $('app-login-error');
             if (!err) return;
             if (txt) {
                 err.textContent = txt;
@@ -3689,9 +3654,6 @@
         }
 
         function intentarLogin() {
-            if (gateRemoved) return;
-            inp = inp || $('app-login-password');
-            btn = btn || $('app-login-btn');
             var pass = inp ? String(inp.value || '') : '';
             setError('');
             if (!pass.trim()) { setError('Ingrese la contraseña'); return; }
@@ -3712,41 +3674,28 @@
                     try { sessionStorage.setItem(APP_LOGIN_KEY, '1'); } catch (e) {}
                     if (inp) inp.value = '';
                     if (inp && inp.blur) { try { inp.blur(); } catch (e) {} }
-                    hideGate();
+                    // RECARGAMOS la pagina. En la segunda carga el
+                    // sessionStorage ya tiene la flag, asi que el script
+                    // hace return inmediato y NO inyecta el gate. iOS
+                    // arranca con un layout totalmente limpio.
+                    unlockBodyScroll();
+                    try { window.location.reload(); } catch (e) { /* nada */ }
                 } else {
                     setError((r.data && r.data.error) || 'Contraseña incorrecta');
+                    if (btn) { btn.disabled = false; btn.textContent = 'Entrar'; }
                 }
             }).catch(function () {
                 setError('No se pudo conectar. Intente de nuevo.');
-            }).then(function () {
                 if (btn) { btn.disabled = false; btn.textContent = 'Entrar'; }
             });
         }
 
-        function initAccess() {
-            gate = $('login-app-scorpion');
-            inp  = $('app-login-password');
-            btn  = $('app-login-btn');
-            err  = $('app-login-error');
-
-            var ok = false;
-            try { ok = sessionStorage.getItem(APP_LOGIN_KEY) === '1'; } catch (e) {}
-
-            if (ok) {
-                // Ya autenticado en esta sesion: NO mostrar el gate y
-                // sacarlo del DOM directamente (no queda nada que pueda
-                // interferir con los clicks de la app).
-                hideGate();
-                return;
-            }
-            showGate();
-
+        function attachHandlers() {
             if (btn) {
                 btn.addEventListener('click', function (e) {
                     e.preventDefault(); e.stopPropagation();
                     intentarLogin();
                 }, false);
-                // Algunos iPad reportan eventos de teclado/lap-touch raros con onclick puro
                 btn.addEventListener('touchend', function (e) {
                     e.preventDefault(); e.stopPropagation();
                     intentarLogin();
@@ -3759,16 +3708,16 @@
                         intentarLogin();
                     }
                 }, false);
-                // Auto-focus para que ya aparezca el teclado
-                setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60);
+                setTimeout(function () { try { inp.focus(); } catch (e) {} }, 80);
             }
         }
 
-        // Exponer para el resto del script (no se vuelve a sobreescribir)
+        function initAccess() {
+            renderGate();
+            attachHandlers();
+        }
+
         window.intentarAppLogin = intentarLogin;
-        window.initAppAccess    = initAccess;
-        window.appLoginShowGate = showGate;
-        window.appLoginHideGate = hideGate;
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initAccess, false);

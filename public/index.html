@@ -9202,6 +9202,64 @@
             }
             return _mostrarFormularioOriginal(tipo);
         };
+
+        // ============================================================
+        // CHECKPOINT FINAL: este flag confirma que el <script> grande
+        // se parseo Y ejecuto hasta el final sin syntax-error. Si esta
+        // bandera NO existe en el siguiente <script>, sabemos que el
+        // script grande fue rechazado por el parser de iPad Safari.
+        // ============================================================
+        window.__SCORPION_MAIN_OK__ = true;
+    </script>
+
+    <!-- Sanity check del script grande: si window.__SCORPION_MAIN_OK__
+         no esta seteada, es porque el navegador (tipicamente iPad/iOS
+         Safari con version antigua) rechazo el script por sintaxis no
+         soportada. Mostramos un banner explicito asi el usuario sabe
+         que pasa y puede mandarnos los datos para arreglarlo. -->
+    <script>
+    (function () {
+        function showBanner(bg, txt) {
+            try {
+                var box = document.createElement('div');
+                box.style.cssText = [
+                    'position:fixed','left:8px','right:8px','top:8px',
+                    'z-index:2147483646','padding:10px 12px',
+                    'background:' + bg,'color:#fff',
+                    'font:13px/1.35 -apple-system,Segoe UI,Roboto,sans-serif',
+                    'border:1px solid rgba(0,0,0,0.25)','border-radius:8px',
+                    'box-shadow:0 6px 18px rgba(0,0,0,0.35)',
+                    'white-space:pre-wrap','max-height:40vh','overflow:auto'
+                ].join(';') + ';';
+                box.addEventListener('click', function () { box.remove(); });
+                box.textContent = txt;
+                document.body.appendChild(box);
+            } catch (_) {}
+        }
+        if (!window.__SCORPION_MAIN_OK__) {
+            showBanner('#7f1d1d',
+                'EL SCRIPT PRINCIPAL FALLO AL CARGAR EN ESTE NAVEGADOR.\n' +
+                'Tu iPad/navegador no acepta alguna instruccion JS del codigo.\n' +
+                'Por favor envia esto al admin junto con una foto.\n' +
+                'UA: ' + (navigator.userAgent || '').slice(0, 200) +
+                '\n(toca para cerrar)');
+        } else {
+            // El script principal SI corrio. Verificamos cuales funciones
+            // criticas quedaron definidas.
+            var faltan = [];
+            ['abrirMenuLateral','mostrarTurnoIngreso','mostrarBusquedaInicial',
+             'mostrarTurnoBar','mostrarTurnoGuardadero','mostrarCajaBaseCierre',
+             'mostrarTurnoGastos','abrirEditar','volverAInicio','mostrarPantalla']
+            .forEach(function (fn) {
+                if (typeof window[fn] !== 'function') faltan.push(fn);
+            });
+            if (faltan.length) {
+                showBanner('#9a3412',
+                    'Funciones que faltan: ' + faltan.join(', ') +
+                    '\n(toca para cerrar)');
+            }
+        }
+    })();
     </script>
 </body>
 </html>

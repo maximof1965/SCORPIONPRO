@@ -14,7 +14,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+    <!-- Chart.js 3.9.1: ultima version compatible con Safari 12 (iPad iOS 12.5).
+         Chart.js 4 usa sintaxis moderna que el WebKit antiguo rechaza con
+         "Script error" cross-origin. La v3 mantiene la misma API que usamos. -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" crossorigin="anonymous" defer></script>
     <style>
         * {
             margin: 0;
@@ -3769,7 +3772,12 @@
             } catch (_) { /* nada */ }
         }
         window.addEventListener('error', function (e) {
-            var msg = 'ERROR JS: ' + (e && e.message ? e.message : e) +
+            var raw = e && e.message ? String(e.message) : '';
+            // Safari devuelve "Script error." sin detalles para scripts
+            // de otros origenes (CDN, Chart.js, etc.). Ese banner no
+            // aporta info al operador, asi que lo silenciamos.
+            if (/^script error\.?$/i.test(raw.trim())) return;
+            var msg = 'ERROR JS: ' + (raw || e) +
                       (e && e.filename ? '\n@ ' + e.filename + ':' + e.lineno + ':' + e.colno : '');
             mostrarErrorVisible(msg + '\n(toca para cerrar)');
         }, false);
@@ -8426,6 +8434,14 @@
                     y: { ticks: { color: fontColor, font: { size: 10 } }, grid: { color: gridColor } }
                 }
             };
+
+            // Si Chart.js no cargo (CDN bloqueado o navegador incompatible),
+            // saltamos los graficos y dejamos los KPIs/tablas funcionando.
+            if (typeof Chart === 'undefined') {
+                // 8) CAJA MENSUAL HISTORICO (no depende de Chart)
+                renderCajaMensual(d.caja_mensual || []);
+                return;
+            }
 
             // 1) FLUJO DE CAJA DIARIO
             destruirChart('chartFlujo');

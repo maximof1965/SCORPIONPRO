@@ -8437,16 +8437,31 @@
 
             // Si Chart.js no cargo (CDN bloqueado o navegador incompatible),
             // saltamos los graficos y dejamos los KPIs/tablas funcionando.
-            if (typeof Chart === 'undefined') {
-                // 8) CAJA MENSUAL HISTORICO (no depende de Chart)
-                renderCajaMensual(d.caja_mensual || []);
-                return;
+            const chartDisponible = typeof Chart !== 'undefined';
+
+            // Helper que envuelve `new Chart(...)` con try/catch para que
+            // si una grafica falla (canvas en uso, type no soportado, etc.)
+            // el resto de la pagina siga pintando sin romperse.
+            function crearGraficoSeguro(nombre, canvasId, cfg) {
+                if (!chartDisponible) return;
+                destruirChart(nombre);
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+                try {
+                    metricasState[nombre] = new Chart(canvas, cfg);
+                } catch (err) {
+                    metricasState[nombre] = null;
+                    /* eslint-disable no-console */
+                    if (typeof console !== 'undefined' && console.warn) {
+                        console.warn('Chart ' + nombre + ' fallo:', err && err.message ? err.message : err);
+                    }
+                    /* eslint-enable no-console */
+                }
             }
 
             // 1) FLUJO DE CAJA DIARIO
-            destruirChart('chartFlujo');
             const fc = d.flujo_caja || [];
-            metricasState.chartFlujo = new Chart(document.getElementById('chart-flujo'), {
+            crearGraficoSeguro('chartFlujo', 'chart-flujo', {
                 type: 'line',
                 data: {
                     labels: fc.map(x => x.dia),
@@ -8460,9 +8475,8 @@
             });
 
             // 2) MIX DE OPERACIONES (dona)
-            destruirChart('chartMix');
             const mx = d.mix_operaciones || [];
-            metricasState.chartMix = new Chart(document.getElementById('chart-mix'), {
+            crearGraficoSeguro('chartMix', 'chart-mix', {
                 type: 'doughnut',
                 data: {
                     labels: mx.map(x => x.tipo),
@@ -8473,9 +8487,8 @@
             });
 
             // 3) ANTIGUEDAD INVENTARIO (barras)
-            destruirChart('chartAntiguedad');
             const ant = d.antiguedad_inventario || [];
-            metricasState.chartAntiguedad = new Chart(document.getElementById('chart-antiguedad'), {
+            crearGraficoSeguro('chartAntiguedad', 'chart-antiguedad', {
                 type: 'bar',
                 data: {
                     labels: ant.map(x => x.rango + ' dias'),
@@ -8495,9 +8508,8 @@
             });
 
             // 4) TOP TIPOS DE ARTICULO
-            destruirChart('chartArticulos');
             const ta = d.top_articulos || [];
-            metricasState.chartArticulos = new Chart(document.getElementById('chart-articulos'), {
+            crearGraficoSeguro('chartArticulos', 'chart-articulos', {
                 type: 'bar',
                 data: {
                     labels: ta.map(x => x.art),
@@ -8517,9 +8529,8 @@
             });
 
             // 5) COMPARATIVA POR TURNO
-            destruirChart('chartTurnos');
             const tn = d.turnos || [];
-            metricasState.chartTurnos = new Chart(document.getElementById('chart-turnos'), {
+            crearGraficoSeguro('chartTurnos', 'chart-turnos', {
                 type: 'bar',
                 data: {
                     labels: tn.map(x => 'TURNO ' + x.turno),
@@ -8539,8 +8550,7 @@
             });
 
             // 6) SALIDA vs VENTA (pie)
-            destruirChart('chartCierre');
-            metricasState.chartCierre = new Chart(document.getElementById('chart-cierre'), {
+            crearGraficoSeguro('chartCierre', 'chart-cierre', {
                 type: 'pie',
                 data: {
                     labels: ['Salida (cliente recoge)', 'Vendido al publico'],
@@ -8600,8 +8610,39 @@
                 </tr>`).join('');
         }
 
+        // Mapa de "nombre logico" -> id del <canvas> en el DOM.
+        // Sirve para que destruirChart() pueda buscar tambien cualquier
+        // instancia de Chart.js que haya quedado pegada al canvas
+        // (caso: el usuario abrio metricas, luego cambio de tab, luego
+        // volvio y pulso ACTUALIZAR; o llamadas dobles a cargarMetricas).
+        const _chartCanvasIds = {
+            chartFlujo:      'chart-flujo',
+            chartMix:        'chart-mix',
+            chartAntiguedad: 'chart-antiguedad',
+            chartArticulos: 'chart-articulos',
+            chartTurnos:     'chart-turnos',
+            chartCierre:     'chart-cierre'
+        };
+
         function destruirChart(name) {
-            if (metricasState[name]) { try { metricasState[name].destroy(); } catch (_) {} metricasState[name] = null; }
+            // 1) Si lo tenemos rastreado en metricasState, lo destruimos.
+            if (metricasState[name]) {
+                try { metricasState[name].destroy(); } catch (_) {}
+                metricasState[name] = null;
+            }
+            // 2) Adicionalmente, preguntamos a Chart.js si hay una instancia
+            //    pegada al canvas correspondiente y la destruimos. Esto
+            //    cura el error "Canvas is already in use. Chart with ID
+            //    X must be destroyed before the canvas with ID Y can be
+            //    reused." que ocurre cuando Chart.js mantiene un registro
+            //    global del que metricasState se desincronizo.
+            const canvasId = _chartCanvasIds[name];
+            if (canvasId && typeof Chart !== 'undefined' && typeof Chart.getChart === 'function') {
+                try {
+                    const previa = Chart.getChart(canvasId);
+                    if (previa) previa.destroy();
+                } catch (_) { /* nada */ }
+            }
         }
 
         async function agregarFilaAdmin() {

@@ -8452,17 +8452,48 @@
             // saltamos los graficos y dejamos los KPIs/tablas funcionando.
             const chartDisponible = typeof Chart !== 'undefined';
 
+            // Detectamos si el navegador NO soporta ResizeObserver.
+            // Chart.js 3.x lo usa para el modo 'responsive'. En iOS 12.5
+            // (iPad antiguo) no existe, asi que el chart queda con 0px de
+            // alto y los recuadros quedan en blanco SIN error.
+            const tieneResizeObserver = (typeof ResizeObserver !== 'undefined');
+
+            function aplicarTamanoExplicitoAlCanvas(canvas) {
+                const wrap = canvas.parentNode;
+                // clientWidth/Height ya respetan el CSS (.chart-canvas-wrap
+                // ahora tiene altura fija 260/300px).
+                const w = Math.max(1, wrap.clientWidth  || 360);
+                const h = Math.max(1, wrap.clientHeight || 260);
+                // Intrinsic size (pixeles del canvas) y CSS size.
+                canvas.style.width  = w + 'px';
+                canvas.style.height = h + 'px';
+                canvas.width  = w;
+                canvas.height = h;
+                return { w: w, h: h };
+            }
+
             // Helper que envuelve `new Chart(...)` con try/catch para que
             // si una grafica falla (canvas en uso, type no soportado, etc.)
             // el resto de la pagina siga pintando sin romperse.
-            // Ademas, el PRIMER error que ocurra lo dejamos visible en el
-            // status de metricas para poder diagnosticar (especialmente en
-            // dispositivos sin consola tipo iPad).
             function crearGraficoSeguro(nombre, canvasId, cfg) {
                 if (!chartDisponible) return;
                 destruirChart(nombre);
                 const canvas = document.getElementById(canvasId);
                 if (!canvas) return;
+
+                // 1) Aseguramos que el canvas TENGA dimensiones reales
+                //    antes de pasarselo a Chart.js.
+                aplicarTamanoExplicitoAlCanvas(canvas);
+
+                // 2) Si el navegador no soporta ResizeObserver, deshabilitamos
+                //    el modo responsive de Chart.js (porque depende de el).
+                //    Para esos casos haremos resize manual en window.resize.
+                if (!tieneResizeObserver) {
+                    cfg.options = cfg.options || {};
+                    cfg.options.responsive = false;
+                    cfg.options.maintainAspectRatio = false;
+                }
+
                 try {
                     metricasState[nombre] = new Chart(canvas, cfg);
                 } catch (err) {
@@ -8473,8 +8504,6 @@
                         console.warn('Chart ' + nombre + ' fallo:', msg);
                     }
                     /* eslint-enable no-console */
-                    // Solo mostramos el primer error en el status (sin
-                    // tapar la pagina, ni romper nada).
                     try {
                         const st = document.getElementById('metricas-status');
                         if (st && !st.dataset.chartErrShown) {
@@ -8484,6 +8513,30 @@
                         }
                     } catch (_) { /* nada */ }
                 }
+            }
+
+            // Fallback de resize para navegadores SIN ResizeObserver:
+            // cuando cambie el tamaño de la ventana, redimensionamos los
+            // canvas y le decimos a cada Chart que se redibuje. Idempotente
+            // porque solo lo registramos una vez.
+            if (!tieneResizeObserver && !window.__SCORPION_CHART_RESIZE_BOUND__) {
+                window.__SCORPION_CHART_RESIZE_BOUND__ = true;
+                let resizeTO = null;
+                window.addEventListener('resize', function () {
+                    if (resizeTO) clearTimeout(resizeTO);
+                    resizeTO = setTimeout(function () {
+                        for (const key in metricasState) {
+                            const ch = metricasState[key];
+                            if (ch && ch.canvas) {
+                                try {
+                                    aplicarTamanoExplicitoAlCanvas(ch.canvas);
+                                    if (typeof ch.resize === 'function') ch.resize();
+                                    if (typeof ch.update === 'function') ch.update();
+                                } catch (_) { /* nada */ }
+                            }
+                        }
+                    }, 200);
+                }, false);
             }
 
             // 1) FLUJO DE CAJA DIARIO

@@ -1040,11 +1040,24 @@
             border-bottom: 1px solid #262626;
             padding-bottom: 8px;
         }
+        /* IMPORTANTE: usamos ALTURA FIJA (no flex:1 + min-height). En
+           iOS 12 Safari hay un bug conocido donde `flex: 1` (basis 0%)
+           combinado con `min-height` no le da altura al hijo, y Chart.js
+           dibuja en un canvas de 0px (cuadros en blanco). Una altura
+           explicita arregla el problema en iPad sin afectar PC/Android. */
         .chart-canvas-wrap {
-            position: relative; flex: 1; min-height: 250px;
+            position: relative;
+            height: 260px;
+            min-height: 260px;
+            width: 100%;
+        }
+        .chart-card-wide .chart-canvas-wrap {
+            height: 300px;
+            min-height: 300px;
         }
         .chart-canvas-wrap canvas {
             width: 100% !important; height: 100% !important;
+            display: block;
         }
 
         /* Tabla top deudores */
@@ -8442,6 +8455,9 @@
             // Helper que envuelve `new Chart(...)` con try/catch para que
             // si una grafica falla (canvas en uso, type no soportado, etc.)
             // el resto de la pagina siga pintando sin romperse.
+            // Ademas, el PRIMER error que ocurra lo dejamos visible en el
+            // status de metricas para poder diagnosticar (especialmente en
+            // dispositivos sin consola tipo iPad).
             function crearGraficoSeguro(nombre, canvasId, cfg) {
                 if (!chartDisponible) return;
                 destruirChart(nombre);
@@ -8451,11 +8467,22 @@
                     metricasState[nombre] = new Chart(canvas, cfg);
                 } catch (err) {
                     metricasState[nombre] = null;
+                    const msg = (err && err.message ? err.message : String(err));
                     /* eslint-disable no-console */
                     if (typeof console !== 'undefined' && console.warn) {
-                        console.warn('Chart ' + nombre + ' fallo:', err && err.message ? err.message : err);
+                        console.warn('Chart ' + nombre + ' fallo:', msg);
                     }
                     /* eslint-enable no-console */
+                    // Solo mostramos el primer error en el status (sin
+                    // tapar la pagina, ni romper nada).
+                    try {
+                        const st = document.getElementById('metricas-status');
+                        if (st && !st.dataset.chartErrShown) {
+                            st.textContent = 'GRAFICO ' + nombre + ' FALLO: ' + msg;
+                            st.style.color = '#fca5a5';
+                            st.dataset.chartErrShown = '1';
+                        }
+                    } catch (_) { /* nada */ }
                 }
             }
 
